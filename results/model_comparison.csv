@@ -1,0 +1,5 @@
+model,trained_on,threshold,uci_precision,uci_recall,uci_f1,uci_false_alarm_rate,modern_late_recall,modern_undated_recall,twins_false_alarm_rate,twins_scam_recall
+word_2012,UCI train only,0.32,0.936,0.9435,0.9398,0.0089,0.7574,0.7854,0.5167,0.95
+char_2012,UCI train only,0.34,0.9512,0.9435,0.9474,0.0066,0.6944,0.7369,0.5167,0.85
+word_fixed,UCI train + modern scams <= 2021,0.2,0.7101,0.9677,0.8191,0.0543,0.9704,0.9723,0.9833,0.975
+char_fixed,UCI train + modern scams <= 2021,0.3,0.8676,0.9516,0.9077,0.0199,0.9602,0.9654,0.95,0.975

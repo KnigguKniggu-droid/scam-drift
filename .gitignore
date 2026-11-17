@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+data/raw/*.zip
+# models/*.joblib are small (<1 MB) and are kept so app.py runs without retraining
+.gradio/
+flagged/
+# organizer materials and personal email digest: kept local, not published
+docs/sources/
+# video production workspace (large renders); final video goes to YouTube
+video/
+docs/SUBMISSION_FORM.md

@@ -1,0 +1,13 @@
+label,category,n,flag_rule,flag_word_2012,flag_word_fixed,flag_char_fixed
+0,bank_alert,10,0.0,1.0,1.0,1.0
+0,bank_otp,10,0.2,0.6,1.0,1.0
+0,delivery,10,0.1,0.4,1.0,1.0
+0,medical,10,0.2,0.4,1.0,0.9
+0,pharmacy,10,0.0,0.3,1.0,1.0
+0,utility_other,10,0.1,0.4,0.9,0.8
+1,bank_alert,7,0.8571,1.0,1.0,1.0
+1,bank_otp,7,0.7143,1.0,1.0,1.0
+1,delivery,7,1.0,1.0,1.0,1.0
+1,medical,6,0.8333,1.0,1.0,1.0
+1,pharmacy,6,1.0,1.0,1.0,1.0
+1,utility_other,7,0.7143,0.7143,0.8571,0.8571

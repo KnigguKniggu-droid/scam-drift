@@ -1,0 +1,948 @@
+{
+  "data": {
+    "imc_rows_total": 33869,
+    "imc_rows_with_explicit_year": 5295,
+    "imc_english_rows": 22073,
+    "imc_english_unique_after_norm": 15255,
+    "imc_english_dropped_overlap_with_uci": 1,
+    "time_split_rule": "train pool = English scams with explicit year <= 2021; test = explicit year >= 2022; undated rows never trained on",
+    "modern_early_train_n": 1809,
+    "modern_late_test_n": 1080,
+    "modern_undated_n": 12365,
+    "modern_early_years": [
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021
+    ],
+    "modern_late_years": [
+      2022,
+      2023,
+      2024
+    ],
+    "uci_rows_raw": 5574,
+    "uci_rows_dedup": 5135,
+    "uci_train_n": 4108,
+    "uci_test_n": 1027,
+    "uci_train_spam": 495,
+    "uci_test_spam": 124,
+    "nonenglish_eval_n": 8870
+  },
+  "near_duplicate_check": {
+    "late_test_frac_with_cosine_ge_0.9_to_train": 0.0139,
+    "late_test_frac_with_cosine_ge_0.7_to_train": 0.0833
+  },
+  "shortcut_check": {
+    "n_uci_spam": 619,
+    "n_imc_english_sample": 3000,
+    "cv_roc_auc": 0.9895,
+    "cv_balanced_accuracy": 0.9445,
+    "top_tokens_say_imc25": [
+      "tok_date",
+      "at",
+      "tok_url",
+      "please",
+      "your",
+      "account",
+      "card",
+      "dear",
+      "payment",
+      "bank",
+      "of tok_money",
+      "here",
+      "has",
+      "click",
+      "in",
+      "dear customer",
+      "details",
+      "thank",
+      "thank you",
+      "for tok_date"
+    ],
+    "top_tokens_say_uci2012": [
+      "to tok_num",
+      "txt",
+      "tok_phone",
+      "call tok_phone",
+      "u",
+      "text",
+      "call",
+      "free",
+      "tok_num",
+      "tok_money",
+      "ringtone",
+      "content",
+      "reply",
+      "ur",
+      "or",
+      "next",
+      "on tok_phone",
+      "wap",
+      "a tok_money",
+      "msg"
+    ],
+    "token_presence_rate": {
+      "tok_url": {
+        "uci_spam": 0.189,
+        "uci_ham": 0.004,
+        "imc_english": 0.4247
+      },
+      "tok_phone": {
+        "uci_spam": 0.5477,
+        "uci_ham": 0.0009,
+        "imc_english": 0.1463
+      },
+      "tok_email": {
+        "uci_spam": 0.0097,
+        "uci_ham": 0.0004,
+        "imc_english": 0.0217
+      },
+      "tok_money": {
+        "uci_spam": 0.5315,
+        "uci_ham": 0.0031,
+        "imc_english": 0.1477
+      },
+      "tok_date": {
+        "uci_spam": 0.1276,
+        "uci_ham": 0.0833,
+        "imc_english": 0.407
+      },
+      "tok_num": {
+        "uci_spam": 0.8304,
+        "uci_ham": 0.1887,
+        "imc_english": 0.3603
+      }
+    }
+  },
+  "thresholds": {
+    "word_2012": {
+      "threshold": 0.32,
+      "cost": 141.0,
+      "fn": 19,
+      "fp": 46,
+      "validation": "5-fold out-of-fold predictions on this model's training data",
+      "validation_n": 4108,
+      "validation_scam_n": 495
+    },
+    "char_2012": {
+      "threshold": 0.34,
+      "cost": 146.0,
+      "fn": 22,
+      "fp": 36,
+      "validation": "5-fold out-of-fold predictions on this model's training data",
+      "validation_n": 4108,
+      "validation_scam_n": 495
+    },
+    "word_fixed": {
+      "threshold": 0.2,
+      "cost": 405.0,
+      "fn": 32,
+      "fp": 245,
+      "validation": "5-fold out-of-fold predictions on this model's training data",
+      "validation_n": 5917,
+      "validation_scam_n": 2304
+    },
+    "char_fixed": {
+      "threshold": 0.3,
+      "cost": 331.0,
+      "fn": 44,
+      "fp": 111,
+      "validation": "5-fold out-of-fold predictions on this model's training data",
+      "validation_n": 5917,
+      "validation_scam_n": 2304
+    }
+  },
+  "cost_model": {
+    "cost_missed_scam": 5.0,
+    "cost_false_alarm": 1.0
+  },
+  "baselines": {
+    "always_not_scam": {
+      "uci_test": {
+        "precision": null,
+        "recall": 0.0,
+        "f1": 0.0,
+        "false_alarm_rate": 0.0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 124,
+        "tn": 903,
+        "n": 1027
+      },
+      "uci_test_accuracy": 0.8793,
+      "modern_late_recall": 0.0,
+      "benign_twins_false_alarm_rate": 0.0,
+      "benign_twins_scam_recall": 0.0
+    },
+    "rule_url_or_urgency": {
+      "uci_test": {
+        "precision": 0.8364,
+        "recall": 0.371,
+        "f1": 0.514,
+        "false_alarm_rate": 0.01,
+        "tp": 46,
+        "fp": 9,
+        "fn": 78,
+        "tn": 894,
+        "n": 1027
+      },
+      "modern_late_recall": 0.6185,
+      "modern_undated_recall": 0.6636,
+      "benign_twins_false_alarm_rate": 0.1,
+      "benign_twins_scam_recall": 0.85,
+      "benign_twins": {
+        "precision": 0.85,
+        "recall": 0.85,
+        "f1": 0.85,
+        "false_alarm_rate": 0.1,
+        "tp": 34,
+        "fp": 6,
+        "fn": 6,
+        "tn": 54,
+        "n": 100
+      }
+    }
+  },
+  "uci_test": {
+    "word_2012": {
+      "at_threshold": {
+        "precision": 0.936,
+        "recall": 0.9435,
+        "f1": 0.9398,
+        "false_alarm_rate": 0.0089,
+        "tp": 117,
+        "fp": 8,
+        "fn": 7,
+        "tn": 895,
+        "n": 1027
+      },
+      "at_0.5": {
+        "precision": 0.9664,
+        "recall": 0.9274,
+        "f1": 0.9465,
+        "false_alarm_rate": 0.0044,
+        "tp": 115,
+        "fp": 4,
+        "fn": 9,
+        "tn": 899,
+        "n": 1027
+      },
+      "threshold": 0.32
+    },
+    "char_2012": {
+      "at_threshold": {
+        "precision": 0.9512,
+        "recall": 0.9435,
+        "f1": 0.9474,
+        "false_alarm_rate": 0.0066,
+        "tp": 117,
+        "fp": 6,
+        "fn": 7,
+        "tn": 897,
+        "n": 1027
+      },
+      "at_0.5": {
+        "precision": 0.9746,
+        "recall": 0.9274,
+        "f1": 0.9504,
+        "false_alarm_rate": 0.0033,
+        "tp": 115,
+        "fp": 3,
+        "fn": 9,
+        "tn": 900,
+        "n": 1027
+      },
+      "threshold": 0.34
+    },
+    "word_fixed": {
+      "at_threshold": {
+        "precision": 0.7101,
+        "recall": 0.9677,
+        "f1": 0.8191,
+        "false_alarm_rate": 0.0543,
+        "tp": 120,
+        "fp": 49,
+        "fn": 4,
+        "tn": 854,
+        "n": 1027
+      },
+      "at_0.5": {
+        "precision": 0.8992,
+        "recall": 0.9355,
+        "f1": 0.917,
+        "false_alarm_rate": 0.0144,
+        "tp": 116,
+        "fp": 13,
+        "fn": 8,
+        "tn": 890,
+        "n": 1027
+      },
+      "threshold": 0.2
+    },
+    "char_fixed": {
+      "at_threshold": {
+        "precision": 0.8676,
+        "recall": 0.9516,
+        "f1": 0.9077,
+        "false_alarm_rate": 0.0199,
+        "tp": 118,
+        "fp": 18,
+        "fn": 6,
+        "tn": 885,
+        "n": 1027
+      },
+      "at_0.5": {
+        "precision": 0.9286,
+        "recall": 0.9435,
+        "f1": 0.936,
+        "false_alarm_rate": 0.01,
+        "tp": 117,
+        "fp": 9,
+        "fn": 7,
+        "tn": 894,
+        "n": 1027
+      },
+      "threshold": 0.3
+    }
+  },
+  "modern_late_test": {
+    "word_2012": {
+      "recall_at_threshold": 0.7574,
+      "recall_at_0.5": 0.6269,
+      "n": 1080
+    },
+    "char_2012": {
+      "recall_at_threshold": 0.6944,
+      "recall_at_0.5": 0.5824,
+      "n": 1080
+    },
+    "word_fixed": {
+      "recall_at_threshold": 0.9704,
+      "recall_at_0.5": 0.9407,
+      "n": 1080
+    },
+    "char_fixed": {
+      "recall_at_threshold": 0.9602,
+      "recall_at_0.5": 0.9426,
+      "n": 1080
+    },
+    "note": "All rows are scams, so precision and false-alarm rate are undefined here; false alarms are measured on UCI test ham and the benign twins."
+  },
+  "modern_undated": {
+    "word_2012": {
+      "recall_at_threshold": 0.7854,
+      "recall_at_0.5": 0.6515,
+      "n": 12365
+    },
+    "char_2012": {
+      "recall_at_threshold": 0.7369,
+      "recall_at_0.5": 0.6311,
+      "n": 12365
+    },
+    "word_fixed": {
+      "recall_at_threshold": 0.9723,
+      "recall_at_0.5": 0.9473,
+      "n": 12365
+    },
+    "char_fixed": {
+      "recall_at_threshold": 0.9654,
+      "recall_at_0.5": 0.9483,
+      "n": 12365
+    }
+  },
+  "benign_twins": {
+    "word_2012": {
+      "at_threshold": {
+        "precision": 0.5507,
+        "recall": 0.95,
+        "f1": 0.6972,
+        "false_alarm_rate": 0.5167,
+        "tp": 38,
+        "fp": 31,
+        "fn": 2,
+        "tn": 29,
+        "n": 100
+      },
+      "at_0.5": {
+        "precision": 0.5625,
+        "recall": 0.675,
+        "f1": 0.6136,
+        "false_alarm_rate": 0.35,
+        "tp": 27,
+        "fp": 21,
+        "fn": 13,
+        "tn": 39,
+        "n": 100
+      }
+    },
+    "char_2012": {
+      "at_threshold": {
+        "precision": 0.5231,
+        "recall": 0.85,
+        "f1": 0.6476,
+        "false_alarm_rate": 0.5167,
+        "tp": 34,
+        "fp": 31,
+        "fn": 6,
+        "tn": 29,
+        "n": 100
+      },
+      "at_0.5": {
+        "precision": 0.5814,
+        "recall": 0.625,
+        "f1": 0.6024,
+        "false_alarm_rate": 0.3,
+        "tp": 25,
+        "fp": 18,
+        "fn": 15,
+        "tn": 42,
+        "n": 100
+      }
+    },
+    "word_fixed": {
+      "at_threshold": {
+        "precision": 0.398,
+        "recall": 0.975,
+        "f1": 0.5652,
+        "false_alarm_rate": 0.9833,
+        "tp": 39,
+        "fp": 59,
+        "fn": 1,
+        "tn": 1,
+        "n": 100
+      },
+      "at_0.5": {
+        "precision": 0.4239,
+        "recall": 0.975,
+        "f1": 0.5909,
+        "false_alarm_rate": 0.8833,
+        "tp": 39,
+        "fp": 53,
+        "fn": 1,
+        "tn": 7,
+        "n": 100
+      }
+    },
+    "char_fixed": {
+      "at_threshold": {
+        "precision": 0.4062,
+        "recall": 0.975,
+        "f1": 0.5735,
+        "false_alarm_rate": 0.95,
+        "tp": 39,
+        "fp": 57,
+        "fn": 1,
+        "tn": 3,
+        "n": 100
+      },
+      "at_0.5": {
+        "precision": 0.4194,
+        "recall": 0.975,
+        "f1": 0.5865,
+        "false_alarm_rate": 0.9,
+        "tp": 39,
+        "fp": 54,
+        "fn": 1,
+        "tn": 6,
+        "n": 100
+      }
+    }
+  },
+  "nonenglish": {
+    "word_2012": {
+      "recall_raw_text": 0.4933,
+      "recall_english_translation": 0.6906,
+      "n": 8870
+    },
+    "char_2012": {
+      "recall_raw_text": 0.5046,
+      "recall_english_translation": 0.7098,
+      "n": 8870
+    },
+    "word_fixed": {
+      "recall_raw_text": 0.7761,
+      "recall_english_translation": 0.9815,
+      "n": 8870
+    },
+    "char_fixed": {
+      "recall_raw_text": 0.862,
+      "recall_english_translation": 0.9714,
+      "n": 8870
+    }
+  },
+  "link_gated": {
+    "rule": "warn = model flag at its threshold AND message contains tok_url",
+    "word_2012": {
+      "uci_test": {
+        "precision": 0.95,
+        "recall": 0.1532,
+        "f1": 0.2639,
+        "false_alarm_rate": 0.0011,
+        "tp": 19,
+        "fp": 1,
+        "fn": 105,
+        "tn": 902,
+        "n": 1027
+      },
+      "modern_late_recall": 0.3824,
+      "modern_late_recall_on_rows_with_link": 0.9408,
+      "benign_twins": {
+        "precision": 1.0,
+        "recall": 0.7,
+        "f1": 0.8235,
+        "false_alarm_rate": 0.0,
+        "tp": 28,
+        "fp": 0,
+        "fn": 12,
+        "tn": 60,
+        "n": 100
+      }
+    },
+    "word_fixed": {
+      "uci_test": {
+        "precision": 0.9048,
+        "recall": 0.1532,
+        "f1": 0.2621,
+        "false_alarm_rate": 0.0022,
+        "tp": 19,
+        "fp": 2,
+        "fn": 105,
+        "tn": 901,
+        "n": 1027
+      },
+      "modern_late_recall": 0.4065,
+      "modern_late_recall_on_rows_with_link": 1.0,
+      "benign_twins": {
+        "precision": 0.9062,
+        "recall": 0.725,
+        "f1": 0.8056,
+        "false_alarm_rate": 0.05,
+        "tp": 29,
+        "fp": 3,
+        "fn": 11,
+        "tn": 57,
+        "n": 100
+      }
+    },
+    "modern_late_share_with_link": 0.4065
+  },
+  "tables": {
+    "recall_by_scam_type_late": [
+      {
+        "scam_type": "banking",
+        "n": 468,
+        "recall_rule": 0.7564,
+        "recall_word_2012": 0.8504,
+        "recall_char_2012": 0.7073,
+        "recall_word_fixed": 1.0,
+        "recall_char_fixed": 1.0
+      },
+      {
+        "scam_type": "others",
+        "n": 246,
+        "recall_rule": 0.3902,
+        "recall_word_2012": 0.6341,
+        "recall_char_2012": 0.6585,
+        "recall_word_fixed": 0.9309,
+        "recall_char_fixed": 0.9187
+      },
+      {
+        "scam_type": "government",
+        "n": 99,
+        "recall_rule": 0.7273,
+        "recall_word_2012": 0.8081,
+        "recall_char_2012": 0.798,
+        "recall_word_fixed": 1.0,
+        "recall_char_fixed": 1.0
+      },
+      {
+        "scam_type": "spam",
+        "n": 96,
+        "recall_rule": 0.5625,
+        "recall_word_2012": 0.7396,
+        "recall_char_2012": 0.7292,
+        "recall_word_fixed": 0.9583,
+        "recall_char_fixed": 0.9062
+      },
+      {
+        "scam_type": "delivery",
+        "n": 87,
+        "recall_rule": 0.6552,
+        "recall_word_2012": 0.6897,
+        "recall_char_2012": 0.6322,
+        "recall_word_fixed": 0.9885,
+        "recall_char_fixed": 0.9885
+      },
+      {
+        "scam_type": "telecom",
+        "n": 56,
+        "recall_rule": 0.625,
+        "recall_word_2012": 0.9107,
+        "recall_char_2012": 0.875,
+        "recall_word_fixed": 1.0,
+        "recall_char_fixed": 1.0
+      },
+      {
+        "scam_type": "wrong number",
+        "n": 24,
+        "recall_rule": 0.0,
+        "recall_word_2012": 0.0833,
+        "recall_char_2012": 0.0417,
+        "recall_word_fixed": 0.6667,
+        "recall_char_fixed": 0.4583
+      },
+      {
+        "scam_type": "hey mum/dad",
+        "n": 4,
+        "recall_rule": 0.0,
+        "recall_word_2012": 0.0,
+        "recall_char_2012": 0.75,
+        "recall_word_fixed": 0.5,
+        "recall_char_fixed": 1.0
+      }
+    ],
+    "recall_by_year": [
+      {
+        "year": 2015,
+        "n": 1,
+        "recall_word_2012": 1.0,
+        "recall_char_2012": 1.0,
+        "recall_word_fixed": null,
+        "recall_char_fixed": null
+      },
+      {
+        "year": 2016,
+        "n": 3,
+        "recall_word_2012": 0.6667,
+        "recall_char_2012": 0.6667,
+        "recall_word_fixed": null,
+        "recall_char_fixed": null
+      },
+      {
+        "year": 2017,
+        "n": 126,
+        "recall_word_2012": 0.8175,
+        "recall_char_2012": 0.7778,
+        "recall_word_fixed": null,
+        "recall_char_fixed": null
+      },
+      {
+        "year": 2018,
+        "n": 175,
+        "recall_word_2012": 0.8,
+        "recall_char_2012": 0.7429,
+        "recall_word_fixed": null,
+        "recall_char_fixed": null
+      },
+      {
+        "year": 2019,
+        "n": 284,
+        "recall_word_2012": 0.8345,
+        "recall_char_2012": 0.7746,
+        "recall_word_fixed": null,
+        "recall_char_fixed": null
+      },
+      {
+        "year": 2020,
+        "n": 521,
+        "recall_word_2012": 0.8042,
+        "recall_char_2012": 0.7697,
+        "recall_word_fixed": null,
+        "recall_char_fixed": null
+      },
+      {
+        "year": 2021,
+        "n": 699,
+        "recall_word_2012": 0.7454,
+        "recall_char_2012": 0.6896,
+        "recall_word_fixed": null,
+        "recall_char_fixed": null
+      },
+      {
+        "year": 2022,
+        "n": 694,
+        "recall_word_2012": 0.7464,
+        "recall_char_2012": 0.6931,
+        "recall_word_fixed": 0.9769,
+        "recall_char_fixed": 0.964
+      },
+      {
+        "year": 2023,
+        "n": 378,
+        "recall_word_2012": 0.7751,
+        "recall_char_2012": 0.6958,
+        "recall_word_fixed": 0.9577,
+        "recall_char_fixed": 0.9524
+      },
+      {
+        "year": 2024,
+        "n": 8,
+        "recall_word_2012": 0.875,
+        "recall_char_2012": 0.75,
+        "recall_word_fixed": 1.0,
+        "recall_char_fixed": 1.0
+      }
+    ],
+    "by_length_bucket": [
+      {
+        "len_bucket": "a <80 chars",
+        "n": 152,
+        "recall_rule": 0.3158,
+        "recall_word_2012": 0.4934,
+        "recall_char_2012": 0.4671,
+        "recall_word_fixed": 0.9013,
+        "recall_char_fixed": 0.8355,
+        "uci_ham_n": 628,
+        "fa_word_2012": 0.0096,
+        "fa_word_fixed": 0.0557
+      },
+      {
+        "len_bucket": "b 80-159",
+        "n": 644,
+        "recall_rule": 0.6972,
+        "recall_word_2012": 0.7888,
+        "recall_char_2012": 0.6817,
+        "recall_word_fixed": 0.9876,
+        "recall_char_fixed": 0.986,
+        "uci_ham_n": 231,
+        "fa_word_2012": 0.0043,
+        "fa_word_fixed": 0.0476
+      },
+      {
+        "len_bucket": "c 160-319",
+        "n": 234,
+        "recall_rule": 0.6068,
+        "recall_word_2012": 0.8248,
+        "recall_char_2012": 0.8333,
+        "recall_word_fixed": 0.9658,
+        "recall_char_fixed": 0.9701,
+        "uci_ham_n": 36,
+        "fa_word_2012": 0.0278,
+        "fa_word_fixed": 0.0833
+      },
+      {
+        "len_bucket": "d 320+",
+        "n": 50,
+        "recall_rule": 0.58,
+        "recall_word_2012": 0.84,
+        "recall_char_2012": 0.9,
+        "recall_word_fixed": 0.98,
+        "recall_char_fixed": 0.96,
+        "uci_ham_n": 8,
+        "fa_word_2012": 0.0,
+        "fa_word_fixed": 0.0
+      }
+    ],
+    "nonenglish_by_language": [
+      {
+        "language": "Spanish",
+        "n": 3195,
+        "recall_raw_word_2012": 0.4582,
+        "recall_translation_word_2012": 0.6779,
+        "recall_raw_word_fixed": 0.7202,
+        "recall_translation_word_fixed": 0.9906
+      },
+      {
+        "language": "Dutch",
+        "n": 1551,
+        "recall_raw_word_2012": 0.4926,
+        "recall_translation_word_2012": 0.7937,
+        "recall_raw_word_fixed": 0.8827,
+        "recall_translation_word_fixed": 0.9916
+      },
+      {
+        "language": "French",
+        "n": 870,
+        "recall_raw_word_2012": 0.423,
+        "recall_translation_word_2012": 0.7057,
+        "recall_raw_word_fixed": 0.7828,
+        "recall_translation_word_fixed": 0.9908
+      },
+      {
+        "language": "German",
+        "n": 590,
+        "recall_raw_word_2012": 0.5186,
+        "recall_translation_word_2012": 0.6203,
+        "recall_raw_word_fixed": 0.8203,
+        "recall_translation_word_fixed": 0.9729
+      },
+      {
+        "language": "Italian",
+        "n": 534,
+        "recall_raw_word_2012": 0.4213,
+        "recall_translation_word_2012": 0.6966,
+        "recall_raw_word_fixed": 0.7416,
+        "recall_translation_word_fixed": 0.9944
+      },
+      {
+        "language": "Indonesian",
+        "n": 329,
+        "recall_raw_word_2012": 0.7234,
+        "recall_translation_word_2012": 0.6687,
+        "recall_raw_word_fixed": 0.9179,
+        "recall_translation_word_fixed": 0.9392
+      },
+      {
+        "language": "Portuguese",
+        "n": 247,
+        "recall_raw_word_2012": 0.5547,
+        "recall_translation_word_2012": 0.7449,
+        "recall_raw_word_fixed": 0.7571,
+        "recall_translation_word_fixed": 0.9757
+      },
+      {
+        "language": "Japanese",
+        "n": 173,
+        "recall_raw_word_2012": 0.3353,
+        "recall_translation_word_2012": 0.4566,
+        "recall_raw_word_fixed": 0.4046,
+        "recall_translation_word_fixed": 0.9711
+      },
+      {
+        "language": "Hindi",
+        "n": 156,
+        "recall_raw_word_2012": 0.6282,
+        "recall_translation_word_2012": 0.6538,
+        "recall_raw_word_fixed": 0.9295,
+        "recall_translation_word_fixed": 0.9359
+      },
+      {
+        "language": "Malay",
+        "n": 121,
+        "recall_raw_word_2012": 0.8843,
+        "recall_translation_word_2012": 0.8347,
+        "recall_raw_word_fixed": 0.9587,
+        "recall_translation_word_fixed": 0.9917
+      }
+    ],
+    "benign_twins_by_category": [
+      {
+        "label": 0,
+        "category": "bank_alert",
+        "n": 10,
+        "flag_rule": 0.0,
+        "flag_word_2012": 1.0,
+        "flag_word_fixed": 1.0,
+        "flag_char_fixed": 1.0
+      },
+      {
+        "label": 0,
+        "category": "bank_otp",
+        "n": 10,
+        "flag_rule": 0.2,
+        "flag_word_2012": 0.6,
+        "flag_word_fixed": 1.0,
+        "flag_char_fixed": 1.0
+      },
+      {
+        "label": 0,
+        "category": "delivery",
+        "n": 10,
+        "flag_rule": 0.1,
+        "flag_word_2012": 0.4,
+        "flag_word_fixed": 1.0,
+        "flag_char_fixed": 1.0
+      },
+      {
+        "label": 0,
+        "category": "medical",
+        "n": 10,
+        "flag_rule": 0.2,
+        "flag_word_2012": 0.4,
+        "flag_word_fixed": 1.0,
+        "flag_char_fixed": 0.9
+      },
+      {
+        "label": 0,
+        "category": "pharmacy",
+        "n": 10,
+        "flag_rule": 0.0,
+        "flag_word_2012": 0.3,
+        "flag_word_fixed": 1.0,
+        "flag_char_fixed": 1.0
+      },
+      {
+        "label": 0,
+        "category": "utility_other",
+        "n": 10,
+        "flag_rule": 0.1,
+        "flag_word_2012": 0.4,
+        "flag_word_fixed": 0.9,
+        "flag_char_fixed": 0.8
+      },
+      {
+        "label": 1,
+        "category": "bank_alert",
+        "n": 7,
+        "flag_rule": 0.8571,
+        "flag_word_2012": 1.0,
+        "flag_word_fixed": 1.0,
+        "flag_char_fixed": 1.0
+      },
+      {
+        "label": 1,
+        "category": "bank_otp",
+        "n": 7,
+        "flag_rule": 0.7143,
+        "flag_word_2012": 1.0,
+        "flag_word_fixed": 1.0,
+        "flag_char_fixed": 1.0
+      },
+      {
+        "label": 1,
+        "category": "delivery",
+        "n": 7,
+        "flag_rule": 1.0,
+        "flag_word_2012": 1.0,
+        "flag_word_fixed": 1.0,
+        "flag_char_fixed": 1.0
+      },
+      {
+        "label": 1,
+        "category": "medical",
+        "n": 6,
+        "flag_rule": 0.8333,
+        "flag_word_2012": 1.0,
+        "flag_word_fixed": 1.0,
+        "flag_char_fixed": 1.0
+      },
+      {
+        "label": 1,
+        "category": "pharmacy",
+        "n": 6,
+        "flag_rule": 1.0,
+        "flag_word_2012": 1.0,
+        "flag_word_fixed": 1.0,
+        "flag_char_fixed": 1.0
+      },
+      {
+        "label": 1,
+        "category": "utility_other",
+        "n": 7,
+        "flag_rule": 0.7143,
+        "flag_word_2012": 0.7143,
+        "flag_word_fixed": 0.8571,
+        "flag_char_fixed": 0.8571
+      }
+    ],
+    "fixed_model_missed_late_n": 32,
+    "fixed_model_false_alarms_n": {
+      "uci_test_ham": 49,
+      "benign_twins": 59
+    }
+  },
+  "main_models": {
+    "model_2012": "word_2012",
+    "model_fixed": "word_fixed"
+  },
+  "runtime_seconds": 25.8,
+  "seed": 42,
+  "versions": {
+    "pandas": "3.1.1",
+    "numpy": "2.5.5",
+    "scikit-learn": "1.9.1"
+  }
+}

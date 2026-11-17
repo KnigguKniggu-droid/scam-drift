@@ -1,0 +1,10 @@
+scam_type,n,recall_rule,recall_word_2012,recall_word_fixed
+banking,5061,0.77,0.8504,0.9992
+others,2953,0.5266,0.6647,0.9482
+telecom,1108,0.6318,0.8827,0.9973
+government,1085,0.6959,0.8332,0.9871
+delivery,1004,0.6823,0.7869,0.998
+spam,957,0.6092,0.7921,0.9624
+wrong number,145,0.1172,0.0552,0.3172
+hey mum/dad,51,0.2745,0.098,0.3922
+unlabelled,1,0.0,1.0,1.0
