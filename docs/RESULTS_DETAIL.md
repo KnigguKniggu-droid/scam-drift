@@ -217,3 +217,38 @@ Reading: on real modern genuine SMS the false-alarm problem is worse than the sy
 - Hyperparameters (C=10, class_weight balanced, min_df) were fixed in advance, not searched.
 - The link gate and the three tiers were designed after the first results (post-hoc).
 - The notebook has run locally; Colab compatibility is UNKNOWN (not tested).
+
+## 12. Real modern legitimate SMS (added Nov 17)
+Post-hoc probe on two public sets of real genuine SMS (see section 10b and `docs/EXTRA_DATA.md`). Every number below is copied from `results/real_ham_probe.json` and `results/real_ham_fix_probe.json`. Rates are false alarms (genuine texts flagged as scam); brackets hold 95% Wilson intervals.
+
+### 12a. Saved models on all real genuine texts (`results/real_ham_probe.json`)
+India set: one person's inbox, 1,206 texts from 555 distinct senders. Mozambique set: 1,608 Portuguese texts. "Threshold" is the threshold stored with each saved model; "0.5" is a plain 0.5 cut.
+
+| Model | Cut | False alarms, India inbox (n=1,206) | False alarms, Mozambique Portuguese (n=1,608) |
+|---|---|---|---|
+| Model 2012 | threshold | 1,016 = 0.8425 (0.8208-0.8619) | 633 = 0.3937 (0.3701-0.4178) |
+| Model 2012 | 0.5 | 877 = 0.7272 (0.7014-0.7516) | 440 = 0.2736 (0.2524-0.2959) |
+| Fixed model | threshold | 1,199 = 0.9942 (0.9881-0.9972) | 1,005 = 0.625 (0.6011-0.6483) |
+| Fixed model | 0.5 | 1,189 = 0.9859 (0.9775-0.9912) | 778 = 0.4838 (0.4595-0.5083) |
+| Rule: link only | - | 533 = 0.442 (no interval stored) | 32 = 0.0199 (no interval stored) |
+
+### 12b. Retrained word models with a brand-grouped split (`results/real_ham_fix_probe.json`)
+Split facts:
+- The India inbox is split by sender brand (`GroupShuffleSplit`, test_size 0.5): 606 training rows from 140 brands, 600 test rows from 141 other brands.
+- 0 identical normalised texts appear on both sides of the split.
+- The Mozambique set (1,608 rows) is test-only. No model trains on it.
+- Each model picks its threshold from 5-fold out-of-fold predictions on its own training data.
+
+| Model | Threshold | UCI test false-alarm rate (n=1,027) | 2022-24 scams caught (n=1,080) | False alarms, India held-out brands (n=600) | False alarms, Mozambique Portuguese (n=1,608) | False alarms, synthetic genuine twins (n=60) | Synthetic scam twins caught (n=40) |
+|---|---|---|---|---|---|---|---|
+| Word 2012 (UCI only) | 0.32 | 0.0089 (0.0045-0.0174) | 817 = 0.7565 (0.73-0.7811) | 546 = 0.91 (0.8844-0.9304) | 633 = 0.3937 (0.3701-0.4178) | 31 = 0.5167 (0.3931-0.6383) | 38 = 0.95 (0.835-0.9862) |
+| Word naive fix (+ early IMC25 scams) | 0.24 | 0.0432 (0.0318-0.0585) | 1,043 = 0.9657 (0.9531-0.975) | 597 = 0.995 (0.9854-0.9983) | 1,005 = 0.625 (0.6011-0.6483) | 59 = 0.9833 (0.9114-0.9971) | 39 = 0.975 (0.8712-0.9956) |
+| Word fix + 606 real India genuine rows | 0.23 | 0.0343 (0.0243-0.0483) | 1,036 = 0.9593 (0.9457-0.9695) | 427 = 0.7117 (0.6742-0.7465) | 993 = 0.6175 (0.5935-0.641) | 53 = 0.8833 (0.7782-0.9423) | 39 = 0.975 (0.8712-0.9956) |
+
+Reading (fact): adding 606 real genuine rows lowers false alarms on the 141 held-out brands from 0.995 to 0.7117. It barely changes false alarms on the Portuguese set (0.625 to 0.6175). Recall on 2022-24 scams stays near 0.96.
+
+### 12c. Caveats
+- The India set is one person's inbox. It is not a population sample. Its sender mix and repeated templates make the intervals too narrow, so treat the results as optimistic about how representative they are.
+- The Mozambique set is Portuguese, and the models train mainly on English text. Its false-alarm rates therefore mix language shift with time shift.
+- We inspected both sets during exploration, before these numbers were final. They are not untouched holdout data.
+- We do not quote raw messages here, for privacy. The raw texts contain personal names and are not published (`data/raw/extra/` is gitignored).

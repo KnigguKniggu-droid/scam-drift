@@ -14,7 +14,7 @@ Adding real legitimate texts keeps 0.9593 recall and cuts that to 0.7117: modern
 People reported $470 million in losses to text-message scams in 2024 ([FTC Data Spotlight, April 2025](https://www.ftc.gov/news-events/data-visualizations/data-spotlight/2025/04/top-text-scams-2024)). Our user is an older adult (a grandparent) and the family member who sets up their phone. The moment: a text arrives that claims to be from a bank, a courier or a pharmacy, and before tapping the link the grandparent pastes it in. Many simple scam filters still learn from the 2012 UCI SMS Spam Collection. We ask: **does a 2012-trained filter still catch today's scam texts, which scam types slip through, and can we fix it without false alarms on genuine modern texts?**
 
 ## What we built
-A Gradio app (`app.py`): paste a text, get RED ("likely scam, do not tap or reply"), YELLOW ("ask a family member first") or GREEN ("no warning signs found", never "safe") and the words behind it. `src/scam_drift.py` runs the seeded experiment in under a minute on CPU; `scam_drift.ipynb` walks through it. Three examples, picked by a fixed rule in the code (`results/demo_examples.csv`):
+A warn-only Gradio app (`app.py`): paste a text, get RED ("likely scam, do not tap or reply"), YELLOW ("ask a family member first") or GREEN ("no warning signs found", never "safe") and the words behind it. It misses "hi mum, new number" style scams (Model 2012 caught 0 of 4 "hey mum/dad" reports). `src/scam_drift.py` runs the seeded experiment in under a minute on CPU; `scam_drift.ipynb` walks through it. Three examples, picked by a fixed rule in the code (`results/demo_examples.csv`):
 
 | Text (shortened) | Truth | Model 2012 p (flag at 0.32) | Fixed model p (flag at 0.24) | App shows |
 |---|---|---|---|---|
@@ -34,7 +34,7 @@ We started from suggested project **4.2.1 Scam text filter** (TF-IDF + logistic 
 **Model.** TF-IDF word 1-2 grams + logistic regression: it is the brief's baseline, runs in seconds on CPU, and its weights explain each verdict word by word. *Model 2012* learns from UCI only. The *fixed model* adds the 2015-2021 scams; its only genuine examples are still 2012 UCI texts. Thresholds come from 5-fold out-of-fold predictions on training data, with a missed scam costing 5x a false alarm.
 
 ## Results
-**Main takeaway: the 2012 filter misses about a quarter of 2022+ scams (recall 0.7565). Retraining on modern scams alone lifts recall to 0.9657 but flags 59 of 60 genuine-style texts. The missing ingredient is modern genuine texts, not more scam data** (an exploratory test with one real inbox shows they help but are not enough on their own: [details](docs/RESULTS_DETAIL.md)).
+The table backs the main takeaway at the top. On the 60 genuine-style texts, the fixed model flags 59. Real modern legitimate texts help but are not enough on their own ([details](docs/RESULTS_DETAIL.md)).
 
 | Model | UCI test P / R / F1 | 2022+ scams caught (n=1,080) | False alarms, 60 genuine-style texts (95% CI) |
 |---|---|---|---|
