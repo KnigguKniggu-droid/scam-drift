@@ -1,0 +1,17 @@
+model,threshold_rule,threshold,val_scam_recall_2021,val_scam_n,val_real_legit_false_alarms,val_real_legit_n,val_expected_cost_per_message
+char_fix_plus_real_ham,fa_budget_10pct_oof,0.97,0.525,699,0.0632,364,0.1788
+fix_plus_real_ham_and_benign,fa_budget_10pct_oof,0.98,0.4192,699,0.0714,364,0.2131
+fix_plus_real_ham,fa_budget_10pct_oof,0.98,0.4435,699,0.0797,364,0.2148
+word_2012,fa_budget_10pct_on_india_a1,0.95,0.1216,699,0.1236,364,0.337
+char_fix_plus_benign,fa_budget_10pct_on_india_a1,0.99,0.5279,699,0.3516,364,0.4521
+rule_link_only,fixed rule (no threshold),,0.4649,699,0.4176,364,0.5305
+fix_plus_benign,fa_budget_10pct_on_india_a1,0.99,0.4778,699,0.4258,364,0.5351
+word_fixed,fa_budget_10pct_on_india_a1,0.99,0.4864,699,0.4863,364,0.5903
+rule_link_or_phone,fixed rule (no threshold),,0.5637,699,0.6676,364,0.7433
+char_fix_plus_real_ham,cost_5to1_oof,0.29,0.9213,699,0.8214,364,0.8
+fix_plus_real_ham,cost_5to1_oof,0.31,0.9185,699,0.8407,364,0.819
+fix_plus_real_ham_and_benign,cost_5to1_oof,0.22,0.9328,699,0.9176,364,0.8885
+word_2012,cost_5to1_oof,0.32,0.7454,699,0.9231,364,0.9406
+word_fixed,cost_5to1_oof,0.25,0.9328,699,0.9918,364,0.959
+fix_plus_benign,cost_5to1_oof,0.31,0.9256,699,0.9918,364,0.9608
+char_fix_plus_benign,cost_5to1_oof,0.29,0.9242,699,0.9945,364,0.9637

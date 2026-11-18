@@ -1,0 +1,41 @@
+{
+  "label": "post-deadline v2 (Nov 18)",
+  "model": "char_fix_plus_real_ham",
+  "threshold": 0.94,
+  "threshold_rule": "fa_budget_10pct_oof",
+  "trained_on": "char n-gram model; UCI train + scams <= 2021 + real India legit SMS (train brand groups)",
+  "cost_ratio_missed_scam_to_false_alarm": 5.0,
+  "input": "raw text; the pipeline applies scam_drift.normalise() first",
+  "tiers": {
+    "RED": "Likely scam - do not tap, do not reply = model flags AND the text has a link or phone number",
+    "YELLOW": "Ask family before replying = model flags with no link/phone, OR a rule fires (asks for a code/PIN/password; 'hi mum / new number / wrong number' opener)",
+    "GREEN": "No warning signs found = otherwise; never worded as 'safe'"
+  },
+  "rule_regex": {
+    "code_request": "\\b(?:send|share|tell|give|forward|provide|text|reply with|read out|pass on)\\b(?:\\s+\\S+){0,3}?\\s+(?:the\\s+|that\\s+|your\\s+|this\\s+)?(?:code|pin|password|passcode|otp|one[- ]time code|verification code)\\b",
+    "negation_window": "\\b(?:never|not|don'?t|do not|no one|nobody|without)\\b[^.!?]{0,40}$",
+    "family_opener": "^\\W*(?:hi|hello|hey|hiya)?\\W*(?:mum|mom|mam|mummy|mommy|dad|daddy)\\b|\\b(?:my new number|this is my new number|new phone number|lost my phone|broke my phone|(?:my )?phone (?:is )?broken|dropped my phone|changed my number|wrong number)\\b"
+  },
+  "not_built": "the 'unknown sender' condition (no sender metadata); on-device translation (non-English texts were scored on the dataset's English translation as an oracle reference)",
+  "selection": {
+    "rule": "lowest validation expected cost per message = 5 x 0.05 x (1 - recall) + 1 x 0.95 x false-alarm rate (5% scam rate ASSUMED; cost ratio 5:1 as in v1)",
+    "selection_training": "UCI train + English scams 2015-2020 (+ India train group half A1) (+ synthetic train half)",
+    "validation": "English scams dated 2021 (recall) + India train group half A2 (false alarms); no 2022+ data, no MOZ, no India test groups",
+    "comparison_rows": "fa_budget_10pct_on_india_a1 (threshold set on India A1 scores for models not trained on India) and the two link rules are scored for comparison only; the shipped choice is made among cost_5to1_oof and fa_budget_10pct_oof rows",
+    "lowest_cost_row_overall": {
+      "model": "char_fix_plus_real_ham",
+      "threshold_rule": "fa_budget_10pct_oof",
+      "val_expected_cost_per_message": 0.1788
+    },
+    "validation_sizes": {
+      "scams_2021": 699,
+      "india_a2_legit": 364
+    },
+    "chosen": {
+      "model": "char_fix_plus_real_ham",
+      "threshold_rule": "fa_budget_10pct_oof"
+    }
+  },
+  "warn_only": true,
+  "disclaimer": "This project is a prototype and is not financial advice."
+}

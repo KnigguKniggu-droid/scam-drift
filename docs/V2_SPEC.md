@@ -1,6 +1,6 @@
 # Scam Drift v2 spec (from the AI red-team round, 2026-11-17 ~18:30 ET)
 
-**STATUS: PLANNING DOCUMENT - only partly implemented.** Built: link-only rule, shortcut AUC test, near-duplicate rates, `tok_date` ablation, Wilson intervals, three-tier demo (post-hoc). NOT built: filter half-life curve, campaign-cluster split, learning curve, retraining on synthetic negatives, prevalence-adjusted precision. The real-ham probe is exploratory only (docs/RESULTS_DETAIL.md section 10b). Results are only what `results/metrics.json` contains.
+**STATUS (post-deadline v2 (Nov 18)): items 1-10 are built in `src/scam_drift.py`** (filter half-life, campaign-cluster split, learning curve, retraining on synthetic and real legit texts, prevalence-adjusted precision, three-tier triage). Not built: the 'unknown sender' condition and on-device translation. Results are only what `results/metrics.json` contains; see docs/RESULTS_DETAIL.md Part A.
 
 Apply on top of the v1 pipeline (`src/scam_drift.py`). Keep every v1 number reproducible; add new keys to `results/metrics.json`; never invent numbers.
 
