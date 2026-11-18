@@ -1,40 +1,45 @@
-year,scam_type,p_word_fixed,text,hypothesis
+year,scam_type,p_word_fixed,text,auto_reason
 2022.0,spam,0.0022,"Ηello аll, guуsǃ I knоw, my mesѕаge maу bе toо sрeсifіc, Βut mу sіstеr fоund nісе <NAMED_ENTITY> and theу mаrrіed, ѕо how аbout me?! :) I аm 25 уеars оld, Natalіа, frоm <LOCATION>, Ι knоw Εnglіsh and <NRP>",no link and no urgency word; reads like an ordinary notice
-2023.0,wrong number,0.0114,"Hi, <NAMED_ENTITY>, we talked about the contract last time, we can talk about it later.
+2023.0,wrong number,0.0115,"Hi, <NAMED_ENTITY>, we talked about the contract last time, we can talk about it later.
 I just wanted to let you know this is the wrong number.
 Aren't you <NAMED_ENTITY>? I'm sure I think I added the wrong person.
 I usually have a lot of business partners, maybe my secretary sent you <NAMED_ENTITY> number, sorry I hope you don't mind.
 Acceptance is a lot, I am from <LOCATION>, where are you from?",conversational opener with no link or urgency word; the scam starts later in the chat
 2023.0,wrong number,0.0222,How are you doing,conversational opener with no link or urgency word; the scam starts later in the chat
-2022.0,wrong number,0.0245,"Hi Julanne long time no see, I'm <NAMED_ENTITY>, how are you doing?",conversational opener with no link or urgency word; the scam starts later in the chat
-2023.0,others,0.0272,i'm really sorry if i'm wasting ur time i just want to ask u for a small help if u don't mind i need this free xbox game pass code from discord gifts if u don't need it 💕,no link and no urgency word; reads like an ordinary notice
-2023.0,others,0.0272,i'm really sorry if i'm wasting ur time i just want to ask u for a small help if u don't mind i need this free xbox game pass code from discord gifts if u don't need it 💖,no link and no urgency word; reads like an ordinary notice
-2022.0,others,0.0275,make sure to pick up what they have at Cost co because they hardly ever give away 60$. So you have to get it when you can.,no link and no urgency word; reads like an ordinary notice
-2023.0,others,0.0303,i'm really sorry if u i'm wasting ur time i just want to ask u for a small help if u don't mind i need this free xbox game pass code from discord gifts if u don't need it 💕,no link and no urgency word; reads like an ordinary notice
-2022.0,others,0.0323,fine fr no parking,no link and no urgency word; reads like an ordinary notice
-2023.0,others,0.0338,Fuck off,no link and no urgency word; reads like an ordinary notice
-2022.0,wrong number,0.0388,"<NAMED_ENTITY>, long time no see, how are you?",conversational opener with no link or urgency word; the scam starts later in the chat
+2022.0,wrong number,0.0247,"Hi Julanne long time no see, I'm <NAMED_ENTITY>, how are you doing?",conversational opener with no link or urgency word; the scam starts later in the chat
+2023.0,others,0.0274,i'm really sorry if i'm wasting ur time i just want to ask u for a small help if u don't mind i need this free xbox game pass code from discord gifts if u don't need it 💕,no link and no urgency word; reads like an ordinary notice
+2023.0,others,0.0274,i'm really sorry if i'm wasting ur time i just want to ask u for a small help if u don't mind i need this free xbox game pass code from discord gifts if u don't need it 💖,no link and no urgency word; reads like an ordinary notice
+2023.0,others,0.0305,i'm really sorry if u i'm wasting ur time i just want to ask u for a small help if u don't mind i need this free xbox game pass code from discord gifts if u don't need it 💕,no link and no urgency word; reads like an ordinary notice
+2022.0,others,0.0324,fine fr no parking,no link and no urgency word; reads like an ordinary notice
+2023.0,others,0.0337,Fuck off,no link and no urgency word; reads like an ordinary notice
+2022.0,wrong number,0.0389,"<NAMED_ENTITY>, long time no see, how are you?",conversational opener with no link or urgency word; the scam starts later in the chat
+2022.0,others,0.042,make sure to pick up what they have at Cost co because they hardly ever give away 60$. So you have to get it when you can.,no link and no urgency word; reads like an ordinary notice
 2022.0,others,0.0421,"<DATE_TIME> class is starting call me
 If you want to attend the class",no link and no urgency word; reads like an ordinary notice
 2023.0,others,0.0494,hope I did not offend you with this message need a very small help from you I need xbox game pass code if u don't mind with that ❤️,no link and no urgency word; reads like an ordinary notice
 2022.0,others,0.0521,"Hello, I woke up to endless deductions in my...",no link and no urgency word; reads like an ordinary notice
-2022.0,others,0.0592,Send me that money on <DATE_TIME> (<NAMED_ENTITY>) Don't use the other one is not working.,no link and no urgency word; reads like an ordinary notice
-2022.0,spam,0.0614,The Natural Path to Deeper Sleep,no link and no urgency word; reads like an ordinary notice
-2023.0,others,0.0616,Presidential Transition Council (PTC) - Let's maintain Unity as one people and one nation. Let's support the new administration and build a <LOCATION> that we can all be proud of,no link and no urgency word; reads like an ordinary notice
+2022.0,others,0.0591,Send me that money on <DATE_TIME> (<NAMED_ENTITY>) Don't use the other one is not working.,no link and no urgency word; reads like an ordinary notice
+2022.0,spam,0.0615,The Natural Path to Deeper Sleep,no link and no urgency word; reads like an ordinary notice
+2023.0,others,0.0617,Presidential Transition Council (PTC) - Let's maintain Unity as one people and one nation. Let's support the new administration and build a <LOCATION> that we can all be proud of,no link and no urgency word; reads like an ordinary notice
 2022.0,wrong number,0.0628,"<NAMED_ENTITY>, | need to know if you are available in a split second. | am at a meeting and limited to calls, but |am good to go with texts if that works. Need you to handle a task. Thanks",conversational opener with no link or urgency word; the scam starts later in the chat
 2022.0,wrong number,0.0676,OMG <NAMED_ENTITY> 😢 - did you hear what happened with OPRA H?,conversational opener with no link or urgency word; the scam starts later in the chat
-2023.0,hey mum/dad,0.0719,Hello-Mum I accidentally dropped my mobile-phone down the toilet it is damaged so I'm using an old one save this # for the time being.,conversational opener with no link or urgency word; the scam starts later in the chat
-2023.0,wrong number,0.0721,I sent money to the wrong person (single digit error).,conversational opener with no link or urgency word; the scam starts later in the chat
-2022.0,spam,0.1076,The Skin Cream that recently got the biggest deal in Shark-Tank's history is giving away a free bottle! Remove Wrinkles and take <DATE_TIME> off your face! Just look at some of these studies and testimonials!,no link and no urgency word; reads like an ordinary notice
-2022.0,spam,0.1191,did you know <NAMED_ENTITY> takes this to control her weight. <NAMED_ENTITY>,no link and no urgency word; reads like an ordinary notice
-2023.0,others,0.1326,Didnot get my order,no link and no urgency word; reads like an ordinary notice
-2023.0,others,0.1328,Please can i get an explanation on how you guys always remove 200 in every of my credit alert,no link and no urgency word; reads like an ordinary notice
-2023.0,others,0.1427,You have an appointment that day at the <NAMED_ENTITY> at [REDACTED] with [REDACTED],no link and no urgency word; reads like an ordinary notice
-2022.0,hey mum/dad,0.1478,"Hi mum I'm texting you off a friends phone I've smashed mine and their phones about to die, can you WhatsApp my new number 0*** please x",conversational opener with no link or urgency word; the scam starts later in the chat
-2022.0,others,0.1581,have you seen this? http,no link and no urgency word; reads like an ordinary notice
-2023.0,others,0.181,Thank you 🙏🏻,no link and no urgency word; reads like an ordinary notice
-2022.0,wrong number,0.1868,"Hi <NAMED_ENTITY>, could you please send me a picture of the last party?",conversational opener with no link or urgency word; the scam starts later in the chat
-2023.0,delivery,0.1888,We are only one drop away. We should be with you by 16:03 and will let you know if there are any problems. Tracking,no link and no urgency word; reads like an ordinary notice
-2023.0,others,0.197,"Hello <NAMED_ENTITY>
+2023.0,wrong number,0.0712,I sent money to the wrong person (single digit error).,conversational opener with no link or urgency word; the scam starts later in the chat
+2023.0,hey mum/dad,0.0718,Hello-Mum I accidentally dropped my mobile-phone down the toilet it is damaged so I'm using an old one save this # for the time being.,conversational opener with no link or urgency word; the scam starts later in the chat
+2022.0,spam,0.1077,The Skin Cream that recently got the biggest deal in Shark-Tank's history is giving away a free bottle! Remove Wrinkles and take <DATE_TIME> off your face! Just look at some of these studies and testimonials!,no link and no urgency word; reads like an ordinary notice
+2022.0,spam,0.1196,did you know <NAMED_ENTITY> takes this to control her weight. <NAMED_ENTITY>,no link and no urgency word; reads like an ordinary notice
+2023.0,others,0.1324,Didnot get my order,no link and no urgency word; reads like an ordinary notice
+2023.0,others,0.1335,Please can i get an explanation on how you guys always remove 200 in every of my credit alert,no link and no urgency word; reads like an ordinary notice
+2023.0,others,0.1425,You have an appointment that day at the <NAMED_ENTITY> at [REDACTED] with [REDACTED],no link and no urgency word; reads like an ordinary notice
+2022.0,hey mum/dad,0.1486,"Hi mum I'm texting you off a friends phone I've smashed mine and their phones about to die, can you WhatsApp my new number 0*** please x",conversational opener with no link or urgency word; the scam starts later in the chat
+2022.0,others,0.1588,have you seen this? http,no link and no urgency word; reads like an ordinary notice
+2023.0,others,0.182,Thank you 🙏🏻,no link and no urgency word; reads like an ordinary notice
+2022.0,wrong number,0.1873,"Hi <NAMED_ENTITY>, could you please send me a picture of the last party?",conversational opener with no link or urgency word; the scam starts later in the chat
+2023.0,delivery,0.1885,We are only one drop away. We should be with you by 16:03 and will let you know if there are any problems. Tracking,no link and no urgency word; reads like an ordinary notice
+2023.0,others,0.1962,"Hello <NAMED_ENTITY>
 How are you doing? I recently changed my bank information and I would love to change my DD details to a new one. I'd appreciate it if you can update it for me, I can send you my new banking information, Hopefully, you can make the change effective before the next payday
 <NAMED_ENTITY>",no link and no urgency word; reads like an ordinary notice
+2022.0,wrong number,0.2056,look i found an old photo of you 😂😂,conversational opener with no link or urgency word; the scam starts later in the chat
+2022.0,wrong number,0.2311,I'm reaching out about thepost on YOUR_COMPANY_NAME_HERE,conversational opener with no link or urgency word; the scam starts later in the chat
+2022.0,spam,0.2317,"Hi this is Rich I'm a real estate agent here in <LOCATION>. I'm sure you're aware how hot the market is, and right now we're struggling to help our homebuyers find properties in <LOCATION> so, I'm curious, have you thought about making a move in the next <DATE_TIME> and selling your home?",no link and no urgency word; reads like an ordinary notice
+2023.0,hey mum/dad,0.2325,Hi Mum I accidentally dropped phone and smashed the screen so Im using an old one can you save my new number <PHONE_NUMBER> for the time being,conversational opener with no link or urgency word; the scam starts later in the chat
+2022.0,spam,0.2375,"Hi there, I didn't mean to disturb you. My good friend is single, she is beautiful, kind, gentle and independent. But because of her busy work, she doesn't have many opportunities to make new friends. Now it is up to marriage age, and want to meet guy over 28. If you are interested, Reply the number ""1"" and Click the link to message her immediately. Wish you have a happy life.",vocabulary not seen in training scams

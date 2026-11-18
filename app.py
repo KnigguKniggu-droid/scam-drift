@@ -1,9 +1,17 @@
-"""Scam Drift demo: paste a text message, compare the 2012 model with the fixed model.
+"""Scam Drift demo: paste a text message and get a three-tier warning for an older adult.
 
 Run:  python app.py   (then open the local URL Gradio prints)
 Needs: models/model_2012.joblib and models/model_fixed.joblib (create them with: python src/scam_drift.py)
 This project is a prototype and is not financial advice.
+
+Verdict (post-hoc design, measured in results/metrics.json -> "triage"):
+  RED    = Model 2012 flags the text AND it contains a link
+  YELLOW = Model 2012 flags the text, no link
+  GREEN  = Model 2012 does not flag it ("No warning signs found", never "safe")
+The fixed model (2012 data + 2015-2021 scams) is shown only as a second opinion, because it flags almost
+every genuine-style test text (59 of 60 benign twins).
 """
+import csv
 import sys
 from pathlib import Path
 
@@ -11,7 +19,7 @@ import joblib
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "src"))
-from scam_drift import explain, normalise  # noqa: E402
+from scam_drift import friendly_explain, normalise, triage  # noqa: E402
 
 M2012 = joblib.load(ROOT / "models" / "model_2012.joblib")
 MFIX = joblib.load(ROOT / "models" / "model_fixed.joblib")
@@ -19,11 +27,24 @@ MFIX = joblib.load(ROOT / "models" / "model_fixed.joblib")
 EXAMPLES = [
     "Your package could not be delivered due to an incomplete address. Update it here: http://parcel-redelivery-help.com",
     "Your First Harbor Bank verification code is 482913. It expires in 10 minutes. We will never call or text to ask for this code.",
-    "Dear customer, your account has been blocked. Please update your KYC details here to avoid suspension: http://kyc-update.in",
     "Hi, long time no see, how are you doing?",
     "Maple Pharmacy: Your prescription is ready for pickup at our Main Street store. Reply STOP to opt out.",
-    "WINNER!! You have been selected to receive a £900 prize reward! To claim call 09061701461. Valid 12 hours only.",
 ]
+# Real 2022+ test scams picked by a fixed rule in src/scam_drift.py (results/demo_examples.csv), not hand-picked.
+_DEMO = ROOT / "results" / "demo_examples.csv"
+if _DEMO.exists():
+    with _DEMO.open(encoding="utf-8") as f:
+        EXAMPLES = [r["text"] for r in csv.DictReader(f) if r["true_label"] == "scam"] + EXAMPLES
+
+TIER_TEXT = {
+    "RED": ("**RED - Likely scam. Do not tap the link. Do not reply.**\n\n"
+            "If it says it is from your bank, a shop or the government, call them on the number on your card, "
+            "bill or their official website - not a number in this message."),
+    "YELLOW": ("**YELLOW - Ask a family member before you reply.**\n\n"
+               "This message has words that scams often use. Never share a one-time code, PIN or password."),
+    "GREEN": ("**GREEN - No warning signs found.** This does not prove the message is safe. "
+              "Never share a one-time code, PIN or password with anyone who contacts you."),
+}
 
 
 def score(bundle, norm):
@@ -31,54 +52,44 @@ def score(bundle, norm):
     return p, p >= bundle["threshold"]
 
 
-def plain_warning(flag_fixed: bool, flag_2012: bool, has_link: bool) -> str:
-    if flag_fixed and flag_2012:
-        msg = ("**Stop and check.** Both models think this looks like a scam. Do not tap any link and do not reply. "
-               "If it says it is from your bank, a shop or the government, call them using the number on your card, "
-               "bill or their official website - not a number in this message.")
-    elif flag_fixed or flag_2012:
-        msg = ("**Be careful.** One model thinks this looks like a scam. Do not tap a link until you have checked "
-               "with the company directly or asked a family member.")
-    else:
-        msg = ("**No warning signs found by these models.** That does not prove it is safe. "
-               "Never share a one-time code, PIN or password with anyone who contacts you.")
-    if has_link:
-        msg += "\n\nThis message contains a link. Real organisations rarely need you to tap a link to fix a problem."
-    msg += ("\n\n_Known weakness: the fixed model also flags many genuine bank, delivery and pharmacy texts "
-            "(it was never shown modern genuine messages). Treat a warning as 'check first', not 'this is fraud'._")
-    return msg
+def words(bundle, norm, k=5):
+    top = friendly_explain(bundle["pipeline"], norm, k=k)
+    return ", ".join(w for w, _ in top) if top else "none"
 
 
 def predict(text: str):
-    """Return (markdown verdict table, plain-language warning, top words markdown)."""
+    """Return (tier verdict markdown, details markdown, top words markdown)."""
     if not text or not text.strip():
         return "Paste a text message above.", "", ""
     norm = normalise(text)
     p12, f12 = score(M2012, norm)
     pfx, ffx = score(MFIX, norm)
-    verdict = (
-        "| Model | Scam probability | Threshold | Verdict |\n|---|---|---|---|\n"
-        f"| 2012 model (UCI SMS 2012 only) | {p12:.2f} | {M2012['threshold']:.2f} | {'SCAM' if f12 else 'not flagged'} |\n"
-        f"| Fixed model (+ 2015-2021 smishing) | {pfx:.2f} | {MFIX['threshold']:.2f} | {'SCAM' if ffx else 'not flagged'} |"
-    )
-    words = []
-    for name, bundle in [("2012 model", M2012), ("Fixed model", MFIX)]:
-        top = explain(bundle["pipeline"], norm, k=5)
-        shown = ", ".join(f"`{w}` (+{c:.2f})" for w, c in top) if top else "none"
-        words.append(f"**{name}** - words pushing toward scam: {shown}")
-    words.append(f"\nNormalised text the models see: `{norm}`")
-    return verdict, plain_warning(ffx, f12, "tok_url" in norm), "\n\n".join(words)
+    tier = triage(p12, M2012["threshold"], "tok_url" in norm)
+    verdict = TIER_TEXT[tier]
+    second = ("The updated model (with 2015-2021 scams) also flags this message. "
+              "Note: it flags almost all genuine bank, delivery and pharmacy texts too, so treat it as a weak signal."
+              if ffx else "The updated model (with 2015-2021 scams) does not flag this message.")
+    details = (
+        "| Model | Scam probability | Threshold | Flag |\n|---|---|---|---|\n"
+        f"| 2012 model (decides the colour) | {p12:.2f} | {M2012['threshold']:.2f} | {'yes' if f12 else 'no'} |\n"
+        f"| Updated model (second opinion) | {pfx:.2f} | {MFIX['threshold']:.2f} | {'yes' if ffx else 'no'} |\n\n"
+        + second)
+    expl = (f"**Words that pushed the 2012 model toward 'scam':** {words(M2012, norm)}\n\n"
+            f"**Words that pushed the updated model toward 'scam':** {words(MFIX, norm)}")
+    return verdict, details, expl
 
 
 def build_demo():
     import gradio as gr
     with gr.Blocks(title="Scam Drift") as demo:
-        gr.Markdown("# Scam Drift\nPaste a text message. Compare a 2012-era spam filter with a filter "
-                    "updated with 2015-2021 smishing reports. This project is a prototype and is not financial advice.")
+        gr.Markdown("# Scam Drift\nPaste a text message you are unsure about. You get a RED / YELLOW / GREEN "
+                    "warning and the words behind it.\n\n_This project is a prototype and is not financial advice. "
+                    "The first two examples are real reported scams (anonymised by the dataset authors); "
+                    "the others were written for this project._")
         inp = gr.Textbox(lines=4, label="Text message")
-        btn = gr.Button("Check message", variant="primary")
-        out_v = gr.Markdown(); out_w = gr.Markdown(); out_x = gr.Markdown()
-        btn.click(predict, inp, [out_v, out_w, out_x])
+        btn = gr.Button("Check this text", variant="primary")
+        out_v = gr.Markdown(); out_d = gr.Markdown(); out_x = gr.Markdown()
+        btn.click(predict, inp, [out_v, out_d, out_x])
         gr.Examples(EXAMPLES, inp)
     return demo
 

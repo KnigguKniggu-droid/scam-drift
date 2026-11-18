@@ -4,6 +4,9 @@
 - **SMS Spam Collection v.1** - Tiago A. Almeida and José María Gómez Hidalgo (2011). UCI Machine Learning Repository. https://archive.ics.uci.edu/dataset/228/sms+spam+collection . Licence: CC BY 4.0.
   Paper: Almeida, Gómez Hidalgo, Yamakami. "Contributions to the Study of SMS Spam Filtering: New Collection and Results." DocEng 2011.
 - **Fishing for Smishing dataset (IMC 2025)** - Sharad Agarwal, Antonis Papasavva, Guillermo Suarez-Tangil, Marie Vasek. "Fishing for Smishing: Understanding SMS Phishing Infrastructure and Strategies by Mining Public User Reports." ACM IMC 2025. https://doi.org/10.1145/3730567.3764431 . Data: https://github.com/reportsmishing/Smishing-Dataset-IMC25 . Licence: CC BY 4.0. We use `final_dataset_output.csv` unchanged (saved as `data/raw/imc25_smishing.csv`).
+- **Exploratory probe only** (docs/RESULTS_DETAIL.md section 10b; not in the main pipeline; raw texts not redistributed):
+  - gandharvbakshi/SMS-dataset-sample-10k (real inbox rows, filtered), Hugging Face: https://huggingface.co/datasets/gandharvbakshi/SMS-dataset-sample-10k . Licence: MIT (dataset card).
+  - MOZ-Smishing (MOZNLP), Hugging Face: https://huggingface.co/datasets/MOZNLP/MOZ-Smishing , paper https://aclanthology.org/2025.africanlp-1.23.pdf . Licence: CreativeML OpenRAIL-M (dataset card).
 - **Benign twins** (`data/benign_twins.csv`) - synthetic messages written with AI assistance for this project. All organisation names are fictional. Test only; never used for training.
 
 ## Starting point

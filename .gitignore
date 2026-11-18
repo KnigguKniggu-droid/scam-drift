@@ -11,3 +11,7 @@ docs/sources/
 # video production workspace (large renders); final video goes to YouTube
 video/
 docs/SUBMISSION_FORM.md
+# real modern SMS contain first names: download via the pinned URLs instead of publishing
+data/raw/extra/
+# agent workflow plumbing (contains private details): kept local
+tools/wf_v2.js

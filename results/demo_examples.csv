@@ -1,0 +1,4 @@
+example,text,true_label,scam_type,p_2012,flag_2012,p_fixed,flag_fixed,tier,top_words_2012,top_words_fixed
+"2022+ test scam: 2012 misses, fixed catches","Hey M>itchel:|, | wanted to see if you are still interested in this >> <URL> t29zq1r",scam,spam,0.3119,False,0.9074,True,GREEN,[a web link]; [a number]; r,[a web link]; [a number]; interested
+2022+ test scam: both miss,"<NAMED_ENTITY>, | need to know if you are available in a split second. | am at a meeting and limited to calls, but |am good to go with texts if that works. Need you to handle a task. Thanks",scam,wrong number,0.0307,False,0.0628,False,GREEN,texts; calls; need,available; calls; limited
+synthetic genuine text: false alarm,Your First Harbor Bank verification code is 482913. It expires in 10 minutes. We will never call or text to ask for this code.,genuine,bank_otp,0.6827,True,0.9273,True,YELLOW,[a number]; text; code,[a number]; code; text

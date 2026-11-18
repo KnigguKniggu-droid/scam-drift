@@ -62,7 +62,8 @@ _URL_RE = re.compile(
     r"(?:https?://\S+|www\.\S+|\b[\w-]+(?:\.[\w-]+)*\.(?:" + _TLDS + r")\b(?:/\S*)?)", re.I)
 _MONEY_RE = re.compile(
     r"(?:[£$€₹¥]|\b(?:rs|inr|usd|gbp|eur|rm|aud|cad)\.?)\s?\d[\d,]*(?:\.\d+)?"
-    r"|\b\d[\d,]*(?:\.\d+)?\s?(?:pounds|dollars|euros|usd|gbp|eur|pence|ppm|p)\b", re.I)
+    r"|\b\d[\d,]*(?:\.\d+)?\s?(?:pounds|dollars|euros|usd|gbp|eur|pence|ppm|p)\b"
+    r"|\b\d[\d,]*(?:\.\d+)?\s?[£$€₹¥]", re.I)  # suffix symbols, e.g. "60$"
 _MONTHS = "january|february|march|april|june|july|august|september|october|november|december"
 _MON_ABBR = "jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec"
 _DATE_RE = re.compile(
@@ -186,6 +187,40 @@ def rule_flag(norm_texts) -> np.ndarray:
     return np.array([("tok_url" in t) or bool(_URG_RE.search(t)) for t in norm_texts], dtype=int)
 
 
+def link_flag(norm_texts) -> np.ndarray:
+    """Simplest rule: flag if the normalised message contains a link (tok_url)."""
+    return np.array(["tok_url" in t for t in norm_texts], dtype=int)
+
+
+# Three-tier warning used by the demo (post-hoc design, chosen after the v1 results; see RESULTS_DETAIL.md):
+# RED    = Model 2012 flags the text AND it contains a link   -> "Likely scam: do not tap, do not reply"
+# YELLOW = Model 2012 flags the text, no link                 -> "Ask a family member before replying"
+# GREEN  = Model 2012 does not flag it                         -> "No warning signs found" (never "safe")
+# The fixed model is not part of the tiers because it flags almost every genuine-style text (benign twins).
+def triage(p_2012: float, threshold_2012: float, has_link: bool) -> str:
+    if p_2012 >= threshold_2012:
+        return "RED" if has_link else "YELLOW"
+    return "GREEN"
+
+
+FRIENDLY_TOKENS = {"tok_url": "[a web link]", "tok_phone": "[a phone number]", "tok_money": "[a money amount]",
+                   "tok_email": "[an email address]", "tok_date": "[a date or time]", "tok_num": "[a number]"}
+
+
+def friendly_explain(model, norm_text: str, k: int = 5):
+    """Like explain(), but drops n-grams made only of stop words and writes tokens in plain words."""
+    from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
+    out = []
+    for w, c in explain(model, norm_text, k=10000):
+        toks = w.split()
+        if all(t in ENGLISH_STOP_WORDS for t in toks):
+            continue
+        out.append((" ".join(FRIENDLY_TOKENS.get(t, t) for t in toks), c))
+        if len(out) >= k:
+            break
+    return out
+
+
 def make_word_model():
     from sklearn.feature_extraction.text import TfidfVectorizer
     from sklearn.linear_model import LogisticRegression
@@ -252,6 +287,7 @@ def prf(y, pred) -> dict:
     f1 = (2 * prec * rec / (prec + rec)) if (prec and rec) else 0.0
     far = fp / (fp + tn) if (fp + tn) else None
     return {"precision": _r(prec), "recall": _r(rec), "f1": _r(f1), "false_alarm_rate": _r(far),
+            "recall_ci95": wilson(tp, tp + fn), "false_alarm_rate_ci95": wilson(fp, fp + tn),
             "tp": tp, "fp": fp, "fn": fn, "tn": tn, "n": int(len(y))}
 
 
@@ -259,11 +295,33 @@ def _r(x, nd=4):
     return None if x is None else round(float(x), nd)
 
 
-def recall_table(df: pd.DataFrame, by: str, pred_cols: list[str]) -> pd.DataFrame:
+def wilson(k, n, z: float = 1.96):
+    """Wilson score 95% interval for k successes out of n, as [low, high]."""
+    k, n = int(k), int(n)
+    if n == 0:
+        return None
+    p = k / n
+    den = 1 + z * z / n
+    c = (p + z * z / (2 * n)) / den
+    h = z * np.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / den
+    return [_r(max(0.0, c - h)), _r(min(1.0, c + h))]
+
+
+def rate_ci(flags) -> dict:
+    flags = np.asarray(flags).astype(int)
+    return {"rate": _r(flags.mean()) if len(flags) else None, "k": int(flags.sum()), "n": int(len(flags)),
+            "ci95": wilson(flags.sum(), len(flags))}
+
+
+def recall_table(df: pd.DataFrame, by: str, pred_cols: list[str], ci_cols=("word_2012", "word_fixed")) -> pd.DataFrame:
     g = df.groupby(by)
     out = g.size().rename("n").to_frame()
     for c in pred_cols:
         out["recall_" + c] = g["pred_" + c].mean().round(4)
+    for c in pred_cols:
+        if c in ci_cols:
+            ci = g["pred_" + c].agg(lambda s: wilson(s.sum(), len(s)))
+            out["ci95_lo_" + c] = ci.map(lambda v: v[0]); out["ci95_hi_" + c] = ci.map(lambda v: v[1])
     return out.reset_index()
 
 
@@ -382,7 +440,17 @@ def step_evaluate(d, models, thresholds):
     tw = prf(twins["label"].to_numpy(), rule_flag(twins["norm"]))
     rule["benign_twins_false_alarm_rate"] = tw["false_alarm_rate"]; rule["benign_twins_scam_recall"] = tw["recall"]
     rule["benign_twins"] = tw
+    rule["modern_late_recall_ci95"] = wilson(rule_flag(late["norm"]).sum(), len(late))
     M["baselines"]["rule_url_or_urgency"] = rule
+    # (b2) link-only rule: the simplest possible "warn before tapping a link" filter.
+    lk = {"uci_test": prf(yte, link_flag(uci_te["norm"])),
+          "modern_late_recall": _r(link_flag(late["norm"]).mean()),
+          "modern_late_recall_ci95": wilson(link_flag(late["norm"]).sum(), len(late)),
+          "modern_undated_recall": _r(link_flag(undated["norm"]).mean())}
+    lk["benign_twins"] = prf(twins["label"].to_numpy(), link_flag(twins["norm"]))
+    lk["benign_twins_false_alarm_rate"] = lk["benign_twins"]["false_alarm_rate"]
+    lk["benign_twins_scam_recall"] = lk["benign_twins"]["recall"]
+    M["baselines"]["rule_link_only"] = lk
     late = late.copy(); undated = undated.copy(); twins = twins.copy(); uci_te = uci_te.copy(); nonen = nonen.copy()
     late["pred_rule"] = rule_flag(late["norm"]); undated["pred_rule"] = rule_flag(undated["norm"])
     for name, m in models.items():
@@ -393,6 +461,7 @@ def step_evaluate(d, models, thresholds):
         p_l = m.predict_proba(late["norm"])[:, 1]; late["p_" + name] = p_l
         late["pred_" + name] = (p_l >= th).astype(int)
         M["modern_late_test"][name] = {"recall_at_threshold": _r((p_l >= th).mean()),
+                                       "recall_at_threshold_ci95": wilson((p_l >= th).sum(), len(late)),
                                        "recall_at_0.5": _r((p_l >= 0.5).mean()), "n": int(len(late))}
         p_u = m.predict_proba(undated["norm"])[:, 1]; undated["pred_" + name] = (p_u >= th).astype(int)
         M["modern_undated"][name] = {"recall_at_threshold": _r((p_u >= th).mean()),
@@ -406,30 +475,142 @@ def step_evaluate(d, models, thresholds):
                                  "recall_english_translation": _r((p_tr >= th).mean()), "n": int(len(nonen))}
     M["modern_late_test"]["note"] = ("All rows are scams, so precision and false-alarm rate are undefined here; "
                                      "false alarms are measured on UCI test ham and the benign twins.")
-    # Link-gated mode (decided from the user's decision "warn before tapping a link", not tuned on test):
-    # warn only when the model says scam AND the message contains a link.
-    M["link_gated"] = {"rule": "warn = model flag at its threshold AND message contains tok_url"}
+    # Link-gated mode: warn only when the model says scam AND the message contains a link.
+    # POST-HOC: this mode was added after the first results were seen; it is exploratory, not pre-registered.
+    M["link_gated"] = {"rule": "warn = model flag at its threshold AND message contains tok_url",
+                       "status": "post-hoc exploratory analysis (added after the v1 results were seen)"}
     for name in ["word_2012", "word_fixed"]:
         th = thresholds[name]["threshold"]
         g = lambda df, col: ((df[col] >= th) & df["norm"].str.contains("tok_url")).astype(int).to_numpy()
-        late_g = g(late, "p_" + name)
+        late_g = g(late, "p_" + name); twins_g = g(twins, "p_" + name)
         M["link_gated"][name] = {
             "uci_test": prf(yte, g(uci_te, "p_" + name)),
             "modern_late_recall": _r(late_g.mean()),
+            "modern_late_recall_ci95": wilson(late_g.sum(), len(late_g)),
             "modern_late_recall_on_rows_with_link": _r(late_g[late["norm"].str.contains("tok_url").to_numpy()].mean()),
-            "benign_twins": prf(twins["label"].to_numpy(), g(twins, "p_" + name))}
+            "benign_twins": prf(twins["label"].to_numpy(), twins_g),
+            # Share of messages where the gated model gives the same answer as the link-only rule.
+            "agreement_with_link_only_rule": {
+                "modern_late": _r((late_g == link_flag(late["norm"])).mean()),
+                "benign_twins": _r((twins_g == link_flag(twins["norm"])).mean()),
+                "uci_test": _r((g(uci_te, "p_" + name) == link_flag(uci_te["norm"])).mean())}}
     M["link_gated"]["modern_late_share_with_link"] = _r(late["norm"].str.contains("tok_url").mean())
+
+    # Three-tier warning (post-hoc design used by the demo; see triage()).
+    th12 = thresholds["word_2012"]["threshold"]
+    tier = lambda df: np.array([triage(p, th12, "tok_url" in n) for p, n in zip(df["p_word_2012"], df["norm"])])
+    undated["p_word_2012"] = models["word_2012"].predict_proba(undated["norm"])[:, 1]
+    T = {"status": "post-hoc design (chosen after the v1 results were seen); tiers come from Model 2012 + link",
+         "definition": {"RED": "Model 2012 flags AND link", "YELLOW": "Model 2012 flags, no link",
+                        "GREEN": "Model 2012 does not flag"}}
+    for key, df in [("modern_late_scams", late), ("modern_undated_scams", undated),
+                    ("benign_twins_genuine", twins[twins["label"] == 0]), ("benign_twins_scam", twins[twins["label"] == 1]),
+                    ("uci_test_ham", uci_te[uci_te["label"] == 0]), ("uci_test_spam", uci_te[uci_te["label"] == 1])]:
+        t = tier(df)
+        T[key] = {"share_red": rate_ci(t == "RED"), "share_yellow": rate_ci(t == "YELLOW"),
+                  "share_red_or_yellow": rate_ci(t != "GREEN")}
+    M["triage"] = T
     return M, {"uci_te": uci_te, "late": late, "undated": undated, "twins": twins, "nonen": nonen}
 
 
-def step_near_duplicate_check(d):
-    """Fraction of late-test scams with a near-identical (cosine >= 0.9) early training scam."""
+def _max_cos(fit_texts, a, b, same=False):
+    """Max TF-IDF (word 1-2 gram) cosine of each text in a to any text in b (excluding itself if same)."""
     from sklearn.feature_extraction.text import TfidfVectorizer
-    v = TfidfVectorizer(ngram_range=(1, 2), token_pattern=r"(?u)\b\w+\b").fit(
-        pd.concat([d["early"]["norm"], d["late"]["norm"]]))
-    s = (v.transform(d["late"]["norm"]) @ v.transform(d["early"]["norm"]).T).max(axis=1).toarray().ravel()
-    return {"late_test_frac_with_cosine_ge_0.9_to_train": _r((s >= 0.9).mean()),
-            "late_test_frac_with_cosine_ge_0.7_to_train": _r((s >= 0.7).mean())}
+    v = TfidfVectorizer(ngram_range=(1, 2), token_pattern=r"(?u)\b\w+\b").fit(fit_texts)
+    S = (v.transform(a) @ v.transform(b).T).toarray()
+    if same:
+        np.fill_diagonal(S, 0.0)
+    return S
+
+
+def step_near_duplicate_check(d, P=None, models=None, thresholds=None):
+    """Near-duplicate checks: (1) late test vs early training scams, (2) UCI test vs UCI train,
+    (3) near-duplicates inside the late test (greedy clusters at cosine >= 0.9)."""
+    res = {}
+    s = _max_cos(pd.concat([d["early"]["norm"], d["late"]["norm"]]), d["late"]["norm"], d["early"]["norm"]).max(axis=1)
+    res["late_test_frac_with_cosine_ge_0.9_to_train"] = _r((s >= 0.9).mean())
+    res["late_test_frac_with_cosine_ge_0.7_to_train"] = _r((s >= 0.7).mean())
+
+    # UCI: test vs train (the UCI split is a plain stratified split, so spam templates repeat across it).
+    uci_tr, uci_te = d["uci_tr"], d["uci_te"]
+    S = _max_cos(d["uci"]["norm"], uci_te["norm"], uci_tr["norm"])
+    s_all = S.max(axis=1)
+    spam_te = uci_te["label"].to_numpy() == 1
+    s_spam = S[spam_te][:, uci_tr["label"].to_numpy() == 1].max(axis=1)
+    u = {"uci_test_frac_with_cosine_ge_0.9_to_train": _r((s_all >= 0.9).mean()),
+         "uci_test_spam_frac_with_cosine_ge_0.9_to_train_spam": _r((s_spam >= 0.9).mean()),
+         "uci_test_spam_frac_with_cosine_ge_0.7_to_train_spam": _r((s_spam >= 0.7).mean())}
+    if P is not None and thresholds is not None:
+        p = P["uci_te"]["p_word_2012"].to_numpy()[spam_te] >= thresholds["word_2012"]["threshold"]
+        for cut in (0.9, 0.7):
+            keep = s_spam < cut
+            u[f"word_2012_recall_uci_test_spam_without_near_dup_{cut}"] = rate_ci(p[keep])
+            u[f"word_2012_recall_uci_test_spam_with_near_dup_{cut}"] = rate_ci(p[~keep])
+    res["uci"] = u
+
+    # Inside the late test: near-duplicate variants (e.g. differing by one emoji) inflate the effective n.
+    late = d["late"] if P is None else P["late"]
+    Sl = _max_cos(late["norm"], late["norm"], late["norm"], same=True)
+    res["late_test_frac_with_cosine_ge_0.9_to_other_late_row"] = _r((Sl.max(axis=1) >= 0.9).mean())
+    cl = -np.ones(len(late), dtype=int); k = 0
+    for i in range(len(late)):
+        if cl[i] < 0:
+            members = np.where((Sl[i] >= 0.9) & (cl < 0))[0]
+            cl[i] = k; cl[members] = k; k += 1
+    res["late_test_clusters_at_0.9"] = int(k)
+    if P is not None:
+        lc = late.assign(cluster=cl)
+        res["late_test_cluster_level_recall"] = {
+            c: _r(lc.groupby("cluster")["pred_" + c].mean().mean()) for c in ["rule", "word_2012", "word_fixed"]}
+    return res
+
+
+def step_tok_date_ablation(d):
+    """Retrain the word models with every tok_date token removed from all sources (IMC25's anonymiser tags dates and
+    durations far more often than our regex, so tok_date is a dataset artifact). Same thresholds rule (OOF)."""
+    strip = lambda s: s.str.replace(r"\btok_date\b", " ", regex=True).str.replace(r"\s+", " ", regex=True).str.strip()
+    dd = {k: (v.assign(norm=strip(v["norm"])) if isinstance(v, pd.DataFrame) and "norm" in v else v) for k, v in d.items()}
+    X12 = dd["uci_tr"]["norm"].to_numpy(dtype=object); y12 = dd["uci_tr"]["label"].to_numpy()
+    Xfx = np.concatenate([X12, dd["early"]["norm"].to_numpy(dtype=object)])
+    yfx = np.concatenate([y12, np.ones(len(dd["early"]), dtype=int)])
+    out = {"what": "tok_date removed from every text (train and test) before TF-IDF; models retrained; thresholds re-chosen"}
+    yte = dd["uci_te"]["label"].to_numpy()
+    for name, X, y in [("word_2012", X12, y12), ("word_fixed", Xfx, yfx)]:
+        th = pick_threshold(y, oof_proba(make_word_model, X, y))["threshold"]
+        m = make_word_model().fit(X, y)
+        tw = dd["twins"]
+        out[name] = {"threshold": th,
+                     "uci_test": prf(yte, (m.predict_proba(dd["uci_te"]["norm"])[:, 1] >= th).astype(int)),
+                     "modern_late_recall": _r((m.predict_proba(dd["late"]["norm"])[:, 1] >= th).mean()),
+                     "benign_twins": prf(tw["label"].to_numpy(), (m.predict_proba(tw["norm"])[:, 1] >= th).astype(int))}
+    return out
+
+
+def step_demo_examples(models, thresholds, P):
+    """Fixed-rule demo examples (not hand-picked for a good result), written to results/demo_examples.csv:
+    1. first 2022+ test scam (by row order) with a link that Model 2012 misses and the fixed model catches;
+    2. first 2022+ test scam (by row order) that both word models miss;
+    3. first genuine benign twin (file order) that both word models flag."""
+    late, twins = P["late"], P["twins"]
+    t12, tfx = thresholds["word_2012"]["threshold"], thresholds["word_fixed"]["threshold"]
+    f12, ffx = late["p_word_2012"] >= t12, late["p_word_fixed"] >= tfx
+    has_link = late["norm"].str.contains("tok_url")
+    picks = [("2022+ test scam: 2012 misses, fixed catches", late[~f12 & ffx & has_link].iloc[0]),
+             ("2022+ test scam: both miss", late[~f12 & ~ffx].iloc[0]),
+             ("synthetic genuine text: false alarm",
+              twins[(twins["label"] == 0) & (twins["p_word_2012"] >= t12) & (twins["p_word_fixed"] >= tfx)].iloc[0])]
+    rows = []
+    for why, r in picks:
+        rows.append({"example": why, "text": r["text"], "true_label": "scam" if why.startswith("2022") else "genuine",
+                     "scam_type": r.get("scam_type", r.get("category", "")),
+                     "p_2012": _r(r["p_word_2012"]), "flag_2012": bool(r["p_word_2012"] >= t12),
+                     "p_fixed": _r(r["p_word_fixed"]), "flag_fixed": bool(r["p_word_fixed"] >= tfx),
+                     "tier": triage(r["p_word_2012"], t12, "tok_url" in r["norm"]),
+                     "top_words_2012": "; ".join(w for w, _ in friendly_explain(models["word_2012"], r["norm"], 3)),
+                     "top_words_fixed": "; ".join(w for w, _ in friendly_explain(models["word_fixed"], r["norm"], 3))})
+    df = pd.DataFrame(rows)
+    df.to_csv(RESULTS / "demo_examples.csv", index=False)
+    return df.to_dict(orient="records")
 
 
 def hypothesis_for_miss(norm: str, scam_type: str) -> str:
@@ -520,16 +701,16 @@ def step_tables_and_figures(d, models, thresholds, M, P):
     # Failure analysis: misses of the fixed word model on the late test + false alarms.
     th_fx = thresholds["word_fixed"]["threshold"]
     miss = late[late["pred_word_fixed"] == 0].sort_values("p_word_fixed").copy()
-    miss["hypothesis"] = [hypothesis_for_miss(n, s) for n, s in zip(miss["norm"], miss["scam_type"])]
-    miss[["year", "scam_type", "p_word_fixed", "text", "hypothesis"]].round(4)\
+    miss["auto_reason"] = [hypothesis_for_miss(n, s) for n, s in zip(miss["norm"], miss["scam_type"])]
+    miss[["year", "scam_type", "p_word_fixed", "text", "auto_reason"]].round(4)\
         .to_csv(RESULTS / "fixed_model_missed_scams.csv", index=False)
     fa_rows = pd.concat([
         uci_te[(uci_te["label"] == 0) & (uci_te["p_word_fixed"] >= th_fx)].assign(source="uci_test_ham"),
         twins[(twins["label"] == 0) & (twins["p_word_fixed"] >= th_fx)].assign(source="benign_twins")])
     fa_rows = fa_rows.sort_values("p_word_fixed", ascending=False)
     fa_rows["top_scam_words"] = [", ".join(w for w, _ in explain(models["word_fixed"], n)) for n in fa_rows["norm"]]
-    fa_rows["hypothesis"] = [hypothesis_for_false_alarm(n) for n in fa_rows["norm"]]
-    fa_rows[["source", "p_word_fixed", "text", "top_scam_words", "hypothesis"]].round(4)\
+    fa_rows["auto_reason"] = [hypothesis_for_false_alarm(n) for n in fa_rows["norm"]]
+    fa_rows[["source", "p_word_fixed", "text", "top_scam_words", "auto_reason"]].round(4)\
         .to_csv(RESULTS / "fixed_model_false_alarms.csv", index=False)
     model_cmp = pd.DataFrame([
         {"model": n, "trained_on": ("UCI train only" if n.endswith("2012") else "UCI train + modern scams <= " + str(TRAIN_LAST_YEAR)),
@@ -555,7 +736,7 @@ def step_tables_and_figures(d, models, thresholds, M, P):
     fig.tight_layout(); fig.savefig(FIGURES / "recall_by_scam_type.png", dpi=150); plt.close(fig)
 
     # Figure 2: recall by year (drift).
-    yp = yr[yr["n"] >= 20]
+    yp = yr[yr["n"] >= 30]  # years with fewer than 30 dated rows are not plotted
     fig, ax = plt.subplots(figsize=(8, 4))
     ax.plot(yp["year"], yp["recall_word_2012"], "-o", color=C12, lw=2, ms=6, label="2012 model (UCI only)")
     yf = yp.dropna(subset=["recall_word_fixed"])
@@ -601,23 +782,25 @@ def step_tables_and_figures(d, models, thresholds, M, P):
     ax.yaxis.grid(True, color="#e6e5e0", lw=0.8); ax.legend(frameon=False, loc="lower left")
     fig.tight_layout(); fig.savefig(FIGURES / "pr_curve_uci.png", dpi=150); plt.close(fig)
     # Figure 5: the trade-off - scams caught vs false alarms on the benign twins.
-    rows = [("Rule", M["baselines"]["rule_url_or_urgency"]["modern_late_recall"],
-             M["baselines"]["rule_url_or_urgency"]["benign_twins_false_alarm_rate"])]
+    rows = [("Rule: link or\nurgency word", M["baselines"]["rule_url_or_urgency"]["modern_late_recall"],
+             M["baselines"]["rule_url_or_urgency"]["benign_twins_false_alarm_rate"]),
+            ("Rule:\nlink only", M["baselines"]["rule_link_only"]["modern_late_recall"],
+             M["baselines"]["rule_link_only"]["benign_twins_false_alarm_rate"])]
     for n, lab in [("word_2012", "2012 model"), ("word_fixed", "Fixed model")]:
         rows.append((lab, M["modern_late_test"][n]["recall_at_threshold"],
                      M["benign_twins"][n]["at_threshold"]["false_alarm_rate"]))
     for n, lab in [("word_2012", "2012 model\n+ link gate"), ("word_fixed", "Fixed model\n+ link gate")]:
         rows.append((lab, M["link_gated"][n]["modern_late_recall"],
                      M["link_gated"][n]["benign_twins"]["false_alarm_rate"]))
-    fig, ax = plt.subplots(figsize=(8, 4.2))
+    fig, ax = plt.subplots(figsize=(9, 4.4))
     x = np.arange(len(rows)); w = 0.38
-    b1 = ax.bar(x - w / 2 - 0.01, [r[1] for r in rows], w, color=C12, label="Modern scams caught (2022+ test)")
-    b2 = ax.bar(x + w / 2 + 0.01, [r[2] for r in rows], w, color=CFX, label="False alarms on benign modern texts")
+    b1 = ax.bar(x - w / 2 - 0.01, [r[1] for r in rows], w, color=C12, label=f"Real scams caught (2022+ test, n={len(late):,})")
+    b2 = ax.bar(x + w / 2 + 0.01, [r[2] for r in rows], w, color=CFX, label="False alarms on 60 synthetic genuine-style texts")
     for bars in (b1, b2):
         for b in bars:
             ax.text(b.get_x() + b.get_width() / 2, b.get_height() + 0.015, f"{b.get_height():.0%}",
                     ha="center", fontsize=8, color=INK)
-    ax.set_xticks(x, [r[0] for r in rows], fontsize=9); ax.set_ylim(0, 1.1); ax.set_ylabel("Share of messages")
+    ax.set_xticks(x, [r[0] for r in rows], fontsize=8); ax.set_ylim(0, 1.1); ax.set_ylabel("Share of messages")
     ax.set_title("The trade-off: catching modern scams vs. false alarms on real-looking texts", loc="left", fontsize=10)
     ax.yaxis.grid(True, color="#e6e5e0", lw=0.8); ax.set_axisbelow(True)
     ax.legend(frameon=False, loc="upper left", bbox_to_anchor=(0, -0.14), ncol=2)
@@ -673,7 +856,9 @@ def main():
     models, thresholds = step_train(d)
     M, P = step_evaluate(d, models, thresholds)
     tables = step_tables_and_figures(d, models, thresholds, M, P)
-    near = step_near_duplicate_check(d)
+    near = step_near_duplicate_check(d, P, models, thresholds)
+    M["tok_date_ablation"] = step_tok_date_ablation(d)
+    M["demo_examples"] = step_demo_examples(models, thresholds, P)
     save_models(models, thresholds)
     metrics = write_metrics(d, shortcut, near, thresholds, M, tables, t0)
     print(json.dumps({k: metrics[k] for k in ("data", "thresholds")}, indent=1, default=str))

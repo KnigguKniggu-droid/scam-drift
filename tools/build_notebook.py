@@ -26,7 +26,7 @@ This project is a prototype and is not financial advice."""),
     code(f'''import os, sys, io, zipfile, urllib.request
 from pathlib import Path
 if "google.colab" in sys.modules:
-    !pip -q install pandas scikit-learn matplotlib joblib
+    !pip -q install pandas==3.1.1 scikit-learn==1.9.1 matplotlib joblib  # the versions used for the published numbers
 Path("data/raw").mkdir(parents=True, exist_ok=True)
 UCI_URL = "https://archive.ics.uci.edu/static/public/228/sms+spam+collection.zip"
 IMC_URL = "https://raw.githubusercontent.com/reportsmishing/Smishing-Dataset-IMC25/main/dataset/final_dataset_output.csv"
@@ -37,6 +37,12 @@ if not Path("data/raw/imc25_smishing.csv").exists():
 TWINS_CSV = {twins_csv!r}
 if not Path("data/benign_twins.csv").exists():
     Path("data/benign_twins.csv").write_text(TWINS_CSV, encoding="utf-8")
+import hashlib
+EXPECTED_SHA256 = {{"data/raw/SMSSpamCollection": "7d039a24a6083ed9ef0f806ebad56bbb976e3aeb8de05669173bfdc4996c239d",
+                   "data/raw/imc25_smishing.csv": "1bbd1e9e82c3ea023112207b80da268a5c4a07d2353c2b0898360ab037fa9a64"}}
+for f, h in EXPECTED_SHA256.items():
+    ok = hashlib.sha256(Path(f).read_bytes()).hexdigest() == h
+    print(f, "sha256 OK" if ok else "WARNING: file differs from the version used for the published numbers")
 print(sorted(os.listdir("data/raw")))'''),
     md("## 1. Library code\nThis cell is the content of `src/scam_drift.py` (without the command-line entry point). "
        "It defines normalisation, data loading, the time split, the models, the threshold rule and the metrics."),
@@ -73,15 +79,32 @@ pd.DataFrame(thresholds).T[["threshold", "fn", "fp", "cost", "validation_n", "va
        "non-English scams (raw text vs English translation), and the synthetic benign twins (test only)."),
     code('''M, P = step_evaluate(d, models, thresholds)
 tables = step_tables_and_figures(d, models, thresholds, M, P)
-near = step_near_duplicate_check(d)
-print("Near-duplicate check:", near)
+near = step_near_duplicate_check(d, P, models, thresholds)
+print("Near-duplicate check:", json.dumps(near, indent=1))
 pd.read_csv(RESULTS / "model_comparison.csv")'''),
     code('''base = M["baselines"]
-pd.DataFrame({"always_not_scam": base["always_not_scam"]["uci_test"],
-              "rule_url_or_urgency": base["rule_url_or_urgency"]["uci_test"]}).T[["precision", "recall", "f1", "false_alarm_rate"]]'''),
-    code('''print("Rule baseline: modern 2022+ recall", base["rule_url_or_urgency"]["modern_late_recall"],
-      "| benign twins false-alarm rate", base["rule_url_or_urgency"]["benign_twins_false_alarm_rate"])
+pd.DataFrame({k: base[k]["uci_test"] for k in ["always_not_scam", "rule_url_or_urgency", "rule_link_only"]}
+             ).T[["precision", "recall", "f1", "false_alarm_rate"]]'''),
+    code('''for k in ["rule_url_or_urgency", "rule_link_only"]:
+    print(k, ": modern 2022+ recall", base[k]["modern_late_recall"],
+          "| benign twins false-alarm rate", base[k]["benign_twins_false_alarm_rate"])
 pd.DataFrame({k: v for k, v in M["link_gated"].items() if isinstance(v, dict)}).T'''),
+    md("### Link gate and three-tier warning (post-hoc)\n\nBoth were designed after the first results were seen, so they "
+       "are exploratory. The fixed model + link gate gives the same answer as a plain 'has a link' rule on every 2022+ "
+       "test scam and every benign twin (agreement 1.0). The demo's tiers use Model 2012 + link: RED = flag + link, "
+       "YELLOW = flag without link, GREEN = no flag."),
+    code('''pd.DataFrame({k: {t: f"{v[t]['rate']} ({v[t]['k']}/{v[t]['n']}, 95% CI {v[t]['ci95']})" for t in v}
+              for k, v in M["triage"].items() if isinstance(v, dict) and "share_red" in v}).T'''),
+    md("### Ablation: remove `tok_date`\n\nThe IMC25 anonymiser tags dates and durations as `<DATE_TIME>` far more often "
+       "than our regex does in UCI, so `tok_date` is partly a dataset artifact. We retrain without it."),
+    code('''M["tok_date_ablation"] = step_tok_date_ablation(d)
+pd.DataFrame({k: {"threshold": v["threshold"], "uci_recall": v["uci_test"]["recall"], "uci_f1": v["uci_test"]["f1"],
+                  "modern_late_recall": v["modern_late_recall"],
+                  "twins_false_alarm_rate": v["benign_twins"]["false_alarm_rate"]}
+              for k, v in M["tok_date_ablation"].items() if isinstance(v, dict)}).T'''),
+    md("### Demo examples (picked by a fixed rule, not by hand)"),
+    code('''M["demo_examples"] = step_demo_examples(models, thresholds, P)
+pd.DataFrame(M["demo_examples"])'''),
     md("## 7. Figures"),
     code('''from IPython.display import Image, display
 for f in ["tradeoff_catch_vs_false_alarm", "recall_by_scam_type", "recall_by_year", "confusion_matrices", "pr_curve_uci"]:
@@ -95,13 +118,14 @@ display(pd.read_csv(RESULTS / "benign_twins_by_category.csv"))'''),
     code('''pd.set_option("display.max_colwidth", 160)
 display(pd.read_csv(RESULTS / "fixed_model_missed_scams.csv").head(8))
 display(pd.read_csv(RESULTS / "fixed_model_false_alarms.csv").head(8))'''),
-    md("## 9. Explanations\nFor any message: the top 5 n-grams pushing toward 'scam' (coefficient x tf-idf value)."),
+    md("## 9. Explanations\nFor any message: the top 5 n-grams pushing toward 'scam' (coefficient x tf-idf value). "
+       "`friendly_explain` drops stop-word-only n-grams and writes tokens in plain words, as the demo does."),
     code('''for t in ["Your package could not be delivered. Update your address here: http://parcel-help.com",
           "Maple Pharmacy: Your prescription is ready for pickup at our Main Street store."]:
     n = normalise(t)
     for name in ["word_2012", "word_fixed"]:
         p = models[name].predict_proba([n])[0, 1]
-        print(f"{name:10s} p={p:.2f}", explain(models[name], n))
+        print(f"{name:10s} p={p:.2f}", friendly_explain(models[name], n))
     print()'''),
     md("## 10. Save models and metrics\nWrites `models/*.joblib` and `results/metrics.json` (the README copies every number from this file)."),
     code('''save_models(models, thresholds)

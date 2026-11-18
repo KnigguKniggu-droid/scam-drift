@@ -1,0 +1,211 @@
+{
+ "split": {
+  "india_train_rows": 606,
+  "india_test_rows": 600,
+  "india_train_brands": 140,
+  "india_test_brands": 141,
+  "identical_normalised_texts_across_split": 0,
+  "moz_rows": 1608
+ },
+ "word_2012": {
+  "threshold": 0.32,
+  "uci_test": {
+   "precision": 0.936,
+   "recall": 0.9435,
+   "f1": 0.9398,
+   "false_alarm_rate": 0.0089,
+   "recall_ci95": [
+    0.8881,
+    0.9724
+   ],
+   "false_alarm_rate_ci95": [
+    0.0045,
+    0.0174
+   ],
+   "tp": 117,
+   "fp": 8,
+   "fn": 7,
+   "tn": 895,
+   "n": 1027
+  },
+  "late_2022_24_recall": {
+   "k": 817,
+   "n": 1080,
+   "rate": 0.7565,
+   "wilson95": [
+    0.73,
+    0.7811
+   ]
+  },
+  "fa_india_heldout_brands": {
+   "k": 546,
+   "n": 600,
+   "rate": 0.91,
+   "wilson95": [
+    0.8844,
+    0.9304
+   ]
+  },
+  "fa_moz_pt": {
+   "k": 633,
+   "n": 1608,
+   "rate": 0.3937,
+   "wilson95": [
+    0.3701,
+    0.4178
+   ]
+  },
+  "fa_synthetic_legit": {
+   "k": 31,
+   "n": 60,
+   "rate": 0.5167,
+   "wilson95": [
+    0.3931,
+    0.6383
+   ]
+  },
+  "recall_synthetic_scam_twins": {
+   "k": 38,
+   "n": 40,
+   "rate": 0.95,
+   "wilson95": [
+    0.835,
+    0.9862
+   ]
+  }
+ },
+ "word_naive_fix": {
+  "threshold": 0.24,
+  "uci_test": {
+   "precision": 0.7532,
+   "recall": 0.9597,
+   "f1": 0.844,
+   "false_alarm_rate": 0.0432,
+   "recall_ci95": [
+    0.9091,
+    0.9827
+   ],
+   "false_alarm_rate_ci95": [
+    0.0318,
+    0.0585
+   ],
+   "tp": 119,
+   "fp": 39,
+   "fn": 5,
+   "tn": 864,
+   "n": 1027
+  },
+  "late_2022_24_recall": {
+   "k": 1043,
+   "n": 1080,
+   "rate": 0.9657,
+   "wilson95": [
+    0.9531,
+    0.975
+   ]
+  },
+  "fa_india_heldout_brands": {
+   "k": 597,
+   "n": 600,
+   "rate": 0.995,
+   "wilson95": [
+    0.9854,
+    0.9983
+   ]
+  },
+  "fa_moz_pt": {
+   "k": 1005,
+   "n": 1608,
+   "rate": 0.625,
+   "wilson95": [
+    0.6011,
+    0.6483
+   ]
+  },
+  "fa_synthetic_legit": {
+   "k": 59,
+   "n": 60,
+   "rate": 0.9833,
+   "wilson95": [
+    0.9114,
+    0.9971
+   ]
+  },
+  "recall_synthetic_scam_twins": {
+   "k": 39,
+   "n": 40,
+   "rate": 0.975,
+   "wilson95": [
+    0.8712,
+    0.9956
+   ]
+  }
+ },
+ "word_fix_real_ham": {
+  "threshold": 0.23,
+  "uci_test": {
+   "precision": 0.7933,
+   "recall": 0.9597,
+   "f1": 0.8686,
+   "false_alarm_rate": 0.0343,
+   "recall_ci95": [
+    0.9091,
+    0.9827
+   ],
+   "false_alarm_rate_ci95": [
+    0.0243,
+    0.0483
+   ],
+   "tp": 119,
+   "fp": 31,
+   "fn": 5,
+   "tn": 872,
+   "n": 1027
+  },
+  "late_2022_24_recall": {
+   "k": 1036,
+   "n": 1080,
+   "rate": 0.9593,
+   "wilson95": [
+    0.9457,
+    0.9695
+   ]
+  },
+  "fa_india_heldout_brands": {
+   "k": 427,
+   "n": 600,
+   "rate": 0.7117,
+   "wilson95": [
+    0.6742,
+    0.7465
+   ]
+  },
+  "fa_moz_pt": {
+   "k": 993,
+   "n": 1608,
+   "rate": 0.6175,
+   "wilson95": [
+    0.5935,
+    0.641
+   ]
+  },
+  "fa_synthetic_legit": {
+   "k": 53,
+   "n": 60,
+   "rate": 0.8833,
+   "wilson95": [
+    0.7782,
+    0.9423
+   ]
+  },
+  "recall_synthetic_scam_twins": {
+   "k": 39,
+   "n": 40,
+   "rate": 0.975,
+   "wilson95": [
+    0.8712,
+    0.9956
+   ]
+  }
+ }
+}
