@@ -1,7 +1,7 @@
 # Scam Drift explainer: code, formulas and hard questions
 
 Purpose: help Kartikeya explain every part of the project in the finals Q&A.
-Numbers come only from `results/metrics.json`, `results/real_ham_probe.json` and `results/real_ham_fix_probe.json`. Line numbers refer to the files on branch `post-deadline` on 2026-11-17.
+Numbers come only from `results/metrics.json`, `results/real_ham_probe.json` and `results/real_ham_fix_probe.json`. Line numbers refer to the files as committed in `01abbc9` on branch `post-deadline`. On 2026-11-17 an uncommitted v2 edit of `src/scam_drift.py` (docs/V2_SPEC.md) was in progress; it adds 2 docstring lines at the top and new v2 functions, so the line numbers in the working copy shift. Re-check them with `git grep -n "^def " -- src/scam_drift.py` after v2 is committed.
 
 Contents:
 1. The project in 6 sentences

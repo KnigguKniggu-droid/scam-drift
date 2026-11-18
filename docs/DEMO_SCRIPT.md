@@ -17,6 +17,7 @@ Not verified:
 - The full click-through in a browser by a person: not done by Claude. Do it in rehearsal.
 
 Re-run this record if `models/*.joblib`, `app.py` or `src/scam_drift.py` changes.
+Open risk: on 2026-11-17 an uncommitted v2 edit of `src/scam_drift.py` was in progress. The probabilities above were re-checked against that working copy and did not change. A full pipeline run (`main()`) rewrites `models/*.joblib`, so re-run section 3 after any v2 run, before Nov 21.
 
 ## 2. Start the app (PowerShell)
 Do this 30 minutes before the call.
