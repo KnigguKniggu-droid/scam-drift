@@ -135,3 +135,18 @@ Numbers: 1,206 texts, 555 senders, 0.8425 (`results/real_ham_probe.json`). 2017:
 - [ ] Check each spoken number against the source named in this file.
 - [ ] Do one run with the app closed, to practise the switch to the recording.
 - [ ] Do one Q&A drill: someone reads 5 random questions from `docs/EXPLAINER.md`; answer each in 30 seconds.
+
+## Mock-judge revisions (Claude + Gemini, Nov 18 00:20 ET) - use these spoken lines
+Mock scores: Claude 22/25/13/15 (75), Gemini 22/27/16/18 (83) out of demo 30 / depth 30 / impact 20 / Q&A 20.
+1. Say percentages, never four decimals: "A simple rule catches 62% of today's scams. The 2012 model catches 76%, down from 94% on 2012 spam."
+2. "Retraining on modern scams alone pushed false alarms on real legitimate texts to 99.5%. Adding 606 real legitimate texts cut that to 71%. Better, and still not usable."
+3. "On Portuguese texts from Mozambique, false alarms stayed at about 62%: English negatives do not fix another language."
+4. "Honest caveat: I cannot show steady decay year by year (2017: 82%, 2023: 78%, error bars overlap). The big drop is between the 2012 dataset and modern data."
+5. Say "0 of 4 'Hi Mum' reports, a tiny sample" or cut the number.
+6. Add one "what I would ship today" line: "Today I would ship it warn-only: it never blocks, never says safe, and nudges you to ask family. The false-alarm numbers show why it must not block." (Do NOT claim a single low false-alarm rate: the link-only rule flags 44% of the India inbox and 2% of the Mozambique set.)
+
+## Hardest questions to prepare (from mock judges)
+- "Your yearly numbers don't decline - isn't this two differently collected datasets? Could the 0.99 shortcut AUC measure collection, not scam change?" -> Yes, largely; say so, cite the shortcut check and the flat 2017-2023 recall; the practical point stands: a filter built on old data fails on today's real texts.
+- "You inspected the India inbox and chose the colours after seeing results - how do you know you didn't overfit?" -> Admit it; that is why Mozambique stays untouched and is reported; next step is a fresh, consented inbox.
+- "If the app flags most legitimate texts, won't an older adult ignore every warning?" -> Yes, alert fatigue is the core risk; that's why it is warn-only and why the ask is modern legitimate data.
+- "Why TF-IDF + logistic regression, not a small multilingual encoder?" -> Explainable words for the user, CPU-only, a strong baseline; an encoder is the next experiment, especially for context-only scams like "Hi Mum".
