@@ -1,55 +1,137 @@
-# Finals talk outline (5 minutes, demo first)
+# Finals talk: 5:00, one speaker
 
-Status: PLANNED. Use this only if we are named a finalist (announced Nov 18; live finals Nov 21).
+Status: READY TO REHEARSE. It is not rehearsed yet, so the timings are planned, not measured.
+Speaker: Kartikeya Lathi (solo).
+Event: Veritas AI finals, Nov 21, 11 AM ET. Format: 5-minute live demo and talk, then judge Q&A.
+Score weights: demo and clarity 30, technical depth 30, impact 20, Q&A 20 (finals = 70% of the final score; Round 1 = 30%).
 
-Guidebook rules for the finals ("THE FINALS"): 5 minutes, then judge questions. Follow the video structure with more time on the demo and results. Run the demo live if it is reliable, and keep a recorded version open as a backup. Agree beforehand who answers which kinds of questions.
+Companion files:
+- `docs/DEMO_SCRIPT.md`: the commands, the 4 demo inputs, their verified outputs and the fallbacks.
+- `docs/EXPLAINER.md`: every function, the formulas and 15 hard judge questions with answers.
 
-Roles
-- Kartikeya: data, model, evaluation.
-- William: user, demo, impact.
+## Number rules
+- Every number in this talk comes from `results/metrics.json`, `results/real_ham_probe.json` or `results/real_ham_fix_probe.json`. The demo probabilities come from the app run recorded in `docs/DEMO_SCRIPT.md`.
+- Never present the retrained model's 0.9657 recall as a win. Always say it together with its false alarms (597 of 600, 0.995).
+- Say "about 76 percent" for 0.7565 and "nearly 97 percent" for 0.9657. Say the exact value if a judge asks.
+- Do not say "accuracy". Say "scams caught" (recall) and "false alarms" (genuine texts flagged).
 
-Every number below is copied from `results/metrics.json` (seeded run). Re-check them if the pipeline changes.
+## What is on screen
+| Window | Content | Prepared how |
+|---|---|---|
+| A | The app at `http://127.0.0.1:7860` in a browser, zoom 125% | `docs/DEMO_SCRIPT.md`, section 2 |
+| B | `figures/lead_chart.png`, full screen | Open it in the Photos app before the call |
+| C | The backup recording `video/backup_demo.mp4`, paused at 0:00 | `docs/DEMO_SCRIPT.md`, section 6 |
+| D | A plain-text note with the 4 demo inputs | Copy them from `docs/DEMO_SCRIPT.md`, section 3 |
 
-## Setup (before the call)
-- Open `app.py` locally (`python app.py`) and test it with the three demo texts below.
-- Open the backup demo recording in a second window, paused at 0:00.
-- Open `figures/recall_by_year.png` and `figures/tradeoff_catch_vs_false_alarm.png` in a third window. Use only figures that exist in `figures/`.
-- Paste the three demo texts into a note so nobody types under pressure.
+Share the whole screen, not one window. Then you can switch with Alt+Tab and not re-share.
 
 ## Running order
 
-| Time | Speaker | Content | On screen |
+| Time | Section | Screen | Target words |
 |---|---|---|---|
-| 0:00-0:20 | William | Hook. "This text arrived on a grandparent's phone. It says it is from a delivery company. She is not sure. Can a scam filter help her?" | The app, empty |
-| 0:20-1:50 | William | Live demo, three texts. Use the app's examples (from `results/demo_examples.csv`). (1) The 2022+ scam that Model 2012 misses (p 0.3119, GREEN) and the fixed model catches (p 0.9074). (2) The 2022+ "handle a task" scam that both miss. (3) The synthetic bank code text: YELLOW, a false alarm. Read the warning text aloud. Say: "A warning means check first, not 'this is fraud'." | The app (backup: recording) |
-| 1:50-2:30 | Kartikeya | The data. The 2012 filter learned from the UCI SMS Spam Collection. We tested it on real reports from the IMC 2025 "Fishing for Smishing" dataset: 1,080 dated 2022+ English scams, 12,364 undated English scams and 8,866 non-English scams. The organizers' sample tested 40 hand-written texts. | Dataset slide or README table |
-| 2:30-3:10 | Kartikeya | The drift. "On held-out 2012 spam the filter catches 0.9435. On 2022+ scams it catches 0.7565." Say it is a step between datasets, not a steady decline by year (2017: 0.8175, 2023: 0.7751). | `figures/recall_by_year.png` |
-| 3:10-3:50 | Kartikeya | The fix and its cost. Trained on earlier report years only, threshold frozen on a training-period validation split, tested on later years: recall 0.9657. False alarms on the 60 synthetic genuine-style texts: 0.9833 (95% interval 0.9114-0.9971), 59 of 60. One sentence on checks: link-only rule baseline, near-duplicate rate across the split (0.0139 at cosine >= 0.9). | `figures/tradeoff_catch_vs_false_alarm.png` |
-| 3:50-4:15 | Kartikeya | Multilingual gap. Non-English scams (n=8,866): Model 2012 catches 0.508 from the raw text and 0.6959 from the English translation (an oracle upper reference). | README results table |
-| 4:15-4:45 | William | Impact. Who uses it: the older adult and the family member who sets up the phone. What changes: a second opinion and a safe next step ("call the number on your card"). Limits: prototype, not financial advice; synthetic false-alarm set; report dates, not send dates. | The app warning text |
-| 4:45-5:00 | Both | Takeaway (William): "A scam filter is not set-and-forget. It needs fresh data, and it must be checked for false alarms and other languages." Next step (Kartikeya, one line): test with real users and real genuine messages, with permission. | Title slide |
+| 0:00-0:25 | 1. Hook with the main number | B (lead chart) | 55 |
+| 0:25-0:50 | 2. User and moment | A (app, empty) | 68 |
+| 0:50-2:10 | 3. LIVE demo, 4 inputs | A | 127 plus clicks |
+| 2:10-3:00 | 4. How it works, with baselines | A, details table, then B | 121 |
+| 3:00-3:55 | 5. The false-alarm finding | B (lead chart) | 129 |
+| 3:55-4:35 | 6. Honest limits | B | 96 |
+| 4:35-5:00 | 7. The ask | A or B | 62 |
 
-## Demo texts (fill in before rehearsal)
-Use the three rows of `results/demo_examples.csv` (picked by a fixed rule in `src/scam_drift.py`, not by hand). They are also the first examples in the app.
+Total: about 660 spoken words. At 150 words per minute that is about 4:25 of speech, plus about 20 seconds of clicks and pauses. This estimate is not measured; time the rehearsals.
 
-Use only messages from the public dataset or our synthetic set. Use no personal data.
+Time checks: at 2:10 you must start section 4. At 3:55 you must start section 6. If you are late, use the cut plan below.
 
-## Fallback
-- If the live app fails, William says "We'll switch to the recording" and plays the backup at the same step. Do not debug live.
-- If time runs short, cut the multilingual row (3:50-4:15) to one sentence. Never cut the false-alarm result.
+## Spoken lines
 
-## Questions: who answers
+### 1. Hook (0:00-0:25). Screen B.
+> "A scam filter trained on 2012 texts catches about 76 percent of real scams from 2022 to 2024.
+> So I retrained it on modern scams. It caught nearly 97 percent.
+> Then I tested it on real legitimate texts from one person's phone. It flagged 597 of 600.
+> The obvious fix made the filter unusable. Here is why."
 
-| Question type | Owner | Short answer to prepare |
-|---|---|---|
-| "How do you know it works?" | Kartikeya | Time split: trained on earlier report years, tested on later ones; threshold frozen before the test; comparison against "always not scam", a link-or-urgency-word rule and a link-only rule; near-duplicate rate across the split measured (0.0139 at cosine >= 0.9), but clusters were not forced to one side. |
-| "What would cause it to fail?" | Kartikeya | New scam styles with no links; impersonation texts ("Hi Mum, new number"); languages with little training data; genuine bank and delivery texts (false alarms). |
-| "Who would use this?" | William | An older adult (a grandparent) and the family member who sets up their phone. The moment: a text that claims to be from a bank, a delivery company or a government office. |
-| Data, licences, leakage, metrics | Kartikeya | UCI SMS Spam Collection; IMC 2025 dataset, CC BY 4.0; synthetic benign twins written with AI assistance and labelled as a stress test. |
-| User testing, design, ethics, what changes for people | William | Prototype, not financial advice. A warning means "check first". Next step: test with real users, with permission. |
-| AI tool use | Either | Claude (Anthropic) via Claude Code wrote and ran the code and drafted the docs; the team reviewed every output and can explain every part. ChatGPT, Gemini and Claude chat were critics and red team (docs/CONSULT_LOG.md). |
+Numbers: 0.7565 (2012 filter, n=1,080 scams from 2022-24). 0.9657 (retrained). 597 of 600 = 0.995 (held-out brands). Source: `results/real_ham_fix_probe.json`.
+
+### 2. User and moment (0:25-0:50). Switch to screen A.
+> "My user is an older adult, a grandparent, and the family member who set up their phone.
+> The moment: a text arrives. It says it is from the bank or a courier, and it has a link.
+> Before she taps, she pastes it here.
+> The checker has one job: warn her, without crying wolf. A warning that fires on every genuine text teaches her to ignore all warnings."
+
+### 3. LIVE demo (0:50-2:10). Screen A.
+Paste each input from the note (window D). Click "Check this text". Read the colour aloud. Inputs and verified outputs: `docs/DEMO_SCRIPT.md`, section 3.
+
+Input 1, real 2022 bank scam (BOI ... `<URL>`). Expected: RED, 2012 model 0.82.
+> "A real scam, reported in 2022. The dataset authors replaced the link with a placeholder.
+> RED: do not tap, do not reply.
+> The 2012 model scores it 0.82, threshold 0.32, and shows why: web link, visit, access, account."
+
+Input 2, real 2023 "Hi Mum" scam. Expected: GREEN, 0.14 and 0.23.
+> "A real 'Hi Mum, new number' scam from 2023. GREEN: both models miss it.
+> No link, no scam words. It reads like family chat. The 2012 model caught 0 of 4 of these.
+> That is why GREEN never says 'safe'."
+
+Input 3, synthetic doctor reminder (Dr. Patel). Expected: YELLOW, 2012 model 0.48, updated model 0.98.
+> "I wrote this one: a normal doctor's reminder. YELLOW. That is a false alarm.
+> And the retrained model gives it 0.98."
+
+Input 4, real 2022+ scam, the first example under the box (one click: "Hey M>itchel ..."). Expected: GREEN, 0.31 and 0.91.
+> "A real scam from the 2022-24 test. The 2012 model: 0.31, just under 0.32. Missed.
+> The retrained model catches it at 0.91. Catch more, but at what cost?"
+
+If the app fails: say "I will switch to the recording", Alt+Tab to window C, press play. Do not debug live.
+
+### 4. How it works, with baselines (2:10-3:00). Screen A details table, then B.
+> "The data: the 2012 UCI SMS Spam Collection, and real scam reports from the IMC 2025 'Fishing for Smishing' dataset.
+> I split the reports by year. Scams up to 2021 may be used for training. 1,080 scams from 2022 to 2024 are the untouched test.
+> One normaliser turns every link, phone number, amount and date into a shared token.
+> The model is TF-IDF on words and word pairs, plus logistic regression, so each verdict comes with its words, as you saw.
+> The threshold comes only from training data, by cross-validation, with a missed scam costing five times a false alarm.
+> Baselines: a link-or-urgency-word rule catches 0.6185 of the 2022-24 scams. The 2012 model catches 0.7565, against 0.9435 on held-out 2012 spam."
+
+Numbers: 1,080 (test n). 0.6185 (rule). 0.7565. 0.9435 (UCI test recall). Source: `results/metrics.json`.
+
+### 5. The false-alarm finding (3:00-3:55). Screen B (lead chart).
+> "This is the main chart. Grey is the 2012 filter. Orange is the filter retrained on modern scams. Blue adds real legitimate texts.
+> Left group: scams caught. 0.756, 0.966, 0.959.
+> Middle group: false alarms on real legitimate texts from one inbox in India, from brands the model never saw. The 2012 filter already flags 0.91. The retrained filter flags 0.995.
+> Why? In its training data, every formal message was a scam, and every genuine message was 2012 chat. So it learned: formal means scam.
+> Blue: I added 606 real legitimate texts from 140 other brands. False alarms drop to 0.712, and recall stays at 0.959.
+> Right group: Portuguese texts from Mozambique barely move: 0.625 to 0.618.
+> So the missing ingredient is not more scams. It is modern legitimate texts."
+
+Numbers (chart labels are the stored values printed with 3 decimals, so 0.7565 shows as 0.756 and 0.6175 as 0.618; exact values in `results/real_ham_fix_probe.json`): recall 0.7565 / 0.9657 / 0.9593. India held-out false alarms 0.91 / 0.995 / 0.7117 (n=600). Mozambique false alarms 0.3937 / 0.625 / 0.6175 (n=1,608). Training rows added: 606 from 140 brands. Test: 600 rows from 141 other brands.
+
+### 6. Honest limits (3:55-4:35). Screen B.
+> "Four limits.
+> One: the India set is one person's inbox, 1,206 business texts from 555 senders. It is not a population sample, and I looked at it while exploring.
+> Two: the 60 genuine-style texts are synthetic, written with AI help before the first model run.
+> Three: this is a step between datasets, not a slide over time: 2017 reports 0.8175, 2023 reports 0.7751, and the intervals overlap.
+> Four: I designed the colours after the first results, and the app's own 2012 model flags 0.8425 of that real inbox. It is a prototype, and not financial advice."
+
+Numbers: 1,206 texts, 555 senders, 0.8425 (`results/real_ham_probe.json`). 2017: 0.8175 (n=126), 2023: 0.7751 (n=378) (`results/metrics.json`, `tables.recall_by_year`).
+
+### 7. The ask (4:35-5:00). Screen A or B.
+> "My ask. A scam filter needs consented, anonymised, modern legitimate texts as much as it needs scams.
+> If you can connect me with a bank, a phone carrier or a senior centre, that is the data that fixes this.
+> And the next test is with older users themselves: does this warning wording help them?
+> Thank you. I am happy to take questions."
+
+## Cut plan (use it if you are late)
+- Late at 1:50: skip demo input 4. Say one line instead: "One more real scam: the 2012 model scores it 0.31, just under its threshold."
+- Late at 2:40: cut the baseline sentence to: "A link-or-urgency rule catches 0.6185. The 2012 model catches 0.7565."
+- Late at 4:20: cut limits to limit One and Four only.
+- Never cut section 5 (the false-alarm finding). Never cut the 0.995 number.
+
+## Q&A plan (20% of the score)
+- Answer in 2-4 sentences. Then stop. Prepared answers: `docs/EXPLAINER.md`, section 4.
+- Lead with the direct answer, then one number, then the limit.
+- If you do not know, say "I did not measure that", and say how you would measure it.
+- If a question is about AI use, say the truth first: Claude Code, an AI coding assistant, wrote much of the code under my direction. I reviewed and re-ran it, and I can explain it.
+- Impact question: the README cites the FTC: people reported $470 million in losses to text-message scams in 2024 (FTC Data Spotlight, April 2025). This is an external source, not a result of this project.
 
 ## Rehearsal checklist
-- Run the full talk twice with a timer. Target 4:45.
-- Check every spoken number against `results/metrics.json`.
-- Check that each figure named above exists in `figures/`.
+- [ ] Run the full talk 3 times with a timer. Target 4:45. Record each time here.
+- [ ] Run the demo with the real app each time (not the recording).
+- [ ] Check each spoken number against the source named in this file.
+- [ ] Do one run with the app closed, to practise the switch to the recording.
+- [ ] Do one Q&A drill: someone reads 5 random questions from `docs/EXPLAINER.md`; answer each in 30 seconds.
