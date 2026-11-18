@@ -5,6 +5,11 @@
 
 This project is a prototype and is not financial advice.
 
+**Main takeaway.** ![Scam recall and false alarms on real legitimate texts, per model](figures/lead_chart.png)
+The 2012 filter catches 0.7565 of 2022-24 scams.
+Retraining on modern scams raises that to 0.9657, but it flags 0.995 of a real person's legitimate texts from held-out brands.
+Adding real legitimate texts keeps 0.9593 recall and cuts that to 0.7117: modern legitimate texts look like old spam, so false alarms stay high.
+
 ## The problem
 People reported $470 million in losses to text-message scams in 2024 ([FTC Data Spotlight, April 2025](https://www.ftc.gov/news-events/data-visualizations/data-spotlight/2025/04/top-text-scams-2024)). Our user is an older adult (a grandparent) and the family member who sets up their phone. The moment: a text arrives that claims to be from a bank, a courier or a pharmacy, and before tapping the link the grandparent pastes it in. Many simple scam filters still learn from the 2012 UCI SMS Spam Collection. We ask: **does a 2012-trained filter still catch today's scam texts, which scam types slip through, and can we fix it without false alarms on genuine modern texts?**
 
@@ -69,6 +74,9 @@ More detail: [docs/RESULTS_DETAIL.md](docs/RESULTS_DETAIL.md).
 - "Fishing for Smishing", Agarwal, Papasavva, Suarez-Tangil, Vasek, IMC 2025: https://github.com/reportsmishing/Smishing-Dataset-IMC25 , https://doi.org/10.1145/3730567.3764431 (CC BY 4.0)
 - FTC Data Spotlight "Top text scams of 2024" (April 14, 2025): https://www.ftc.gov/news-events/data-visualizations/data-spotlight/2025/04/top-text-scams-2024
 - Synthetic benign twins (`data/benign_twins.csv`): written with AI assistance for this project; test only.
+- India SMS inbox sample: https://huggingface.co/datasets/gandharvbakshi/SMS-dataset-sample-10k (MIT). One person's inbox; used as test, and one half (split by brand) as training data in `tools/real_ham_fix_probe.py` only.
+- MOZ-Smishing (Mozambique, Portuguese): https://huggingface.co/datasets/MOZNLP/MOZ-Smishing (OpenRAIL-M); test only.
+- Probes on these two sets: `tools/real_ham_probe.py` (results/real_ham_probe.json) and `tools/real_ham_fix_probe.py` (results/real_ham_fix_probe.json); chart: `tools/lead_chart.py`.
 - Libraries: scikit-learn https://scikit-learn.org , pandas https://pandas.pydata.org , NumPy https://numpy.org , matplotlib https://matplotlib.org , Gradio https://gradio.app , joblib https://joblib.readthedocs.io , Jupyter/nbconvert https://jupyter.org
 - AI tools: Claude (Anthropic) via Claude Code https://claude.com/claude-code wrote and ran the code and drafted the docs; the team reviewed every output. ChatGPT (OpenAI) https://chatgpt.com , Gemini (Google) https://gemini.google.com and Claude chat critiqued the idea and method ([docs/CONSULT_LOG.md](docs/CONSULT_LOG.md)).
 - Full list: [CREDITS.md](CREDITS.md)
