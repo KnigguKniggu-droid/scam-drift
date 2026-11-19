@@ -15,3 +15,4 @@ docs/SUBMISSION_FORM.md
 data/raw/extra/
 # agent workflow plumbing (contains private details): kept local
 tools/wf_v2.js
+qa/

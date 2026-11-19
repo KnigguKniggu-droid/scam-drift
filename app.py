@@ -37,7 +37,7 @@ from triage import DISCLAIMER, triage  # noqa: E402
 
 M2012 = joblib.load(ROOT / "models" / "model_2012.joblib")
 
-RED, ORANGE, GREEN_TEXT, INK = "#D64545", "#E07A1F", "#2E8B57", "#111111"
+RED, ORANGE, GREEN_TEXT, INK = "#B93333", "#E07A1F", "#2E8B57", "#111111"
 FOOTER = "Prototype - not financial advice. Synthetic examples are labelled."
 
 VERDICT = {
@@ -69,11 +69,11 @@ FRENCH_TRANSLATION = ("Your new health insurance card is available, please fill 
 
 # (button label, text, note shown under the result)
 EXAMPLES = [
-    ("Real scam with a link",
+    ("REAL scam with a link",
      "Please confirm your shipment details, otherwise your item will be sent back to the sender: <URL>",
      "Real reported scam (IMC25 dataset, report date 2022-08-05, delivery type). The dataset authors replaced "
      "links and names with tags such as <URL>."),
-    ("Real 'wrong number' scam",
+    ("REAL 'wrong number' scam",
      "Hi, <NAMED_ENTITY>, we talked about the contract last time, we can talk about it later.\n"
      "I just wanted to let you know this is the wrong number.\n"
      "Aren't you <NAMED_ENTITY>? I'm sure I think I added the wrong person.\n"
@@ -82,12 +82,12 @@ EXAMPLES = [
      "Acceptance is a lot, I am from <LOCATION>, where are you from?",
      "Real reported scam (IMC25 dataset, report date Feb 8, 2023, 'wrong number' type). It has no link and no "
      "phone number. Names and places were replaced with tags by the dataset authors."),
-    ("Synthetic bank code text",
+    ("SYNTHETIC bank code text",
      "Your First Harbor Bank verification code is 482913. It expires in 10 minutes. "
      "We will never call or text to ask for this code.",
      "Synthetic example: a legitimate-style bank code text written with AI assistance for this project. "
      "It is not a scam, and the bank name is made up."),
-    ("Real French scam",
+    ("REAL scam in French",
      "Ton nouvelle carte vitale est disponible, veuillez remplir le formulaire pour continuer a etre couvert: <URL>",
      "Real reported scam in French (IMC25 dataset, report date 2022-02-25, government type). "
      "The checker mainly knows English." + _LANG_NOTE),
@@ -122,20 +122,31 @@ def reason_sentence(text: str, res: dict) -> str:
             "never share a code, PIN or password.")
 
 
+LABEL = {"RED": "High risk", "YELLOW": "Be careful", "GREEN": "No warning signs"}
+ICON = {"RED": "!", "YELLOW": "?", "GREEN": "i"}
+ACTIONS = {
+    "RED": ["Do not tap the link and do not reply.",
+            "Do not pay, and never share a code, PIN or password.",
+            "Call the company on a number you already trust (the back of your card or its official website).",
+            "Delete the text. In the US you can forward scam texts to 7726 (SPAM)."],
+    "YELLOW": ["Do not send money, gift cards or codes yet.",
+               "Ask a family member or a friend before you reply.",
+               "Contact the person or company another way, on a number you already know."],
+    "GREEN": ["The checker found no warning signs, but this does not prove the text is safe.",
+              "Never share a code, PIN or password, even with someone who says they are your bank.",
+              "If the text asks for money, check with family first."],
+}
+
+
 def verdict_html(tier: str) -> str:
-    if tier == "RED":
-        box = f"background:{RED};color:#FFFFFF;border:4px solid {RED};"
-        tag = '<div style="font-size:20px;font-weight:700;letter-spacing:.06em;">RED</div>'
-    elif tier == "YELLOW":
-        box = f"background:{ORANGE};color:{INK};border:4px solid {ORANGE};"
-        tag = '<div style="font-size:20px;font-weight:700;letter-spacing:.06em;">YELLOW (amber)</div>'
-    else:
-        box = f"background:#FFFFFF;color:{INK};border:4px solid #444444;"
-        tag = (f'<div style="font-size:20px;font-weight:700;letter-spacing:.06em;color:{GREEN_TEXT};">'
-               "GREEN</div>")
-    return (f'<div class="sd-verdict" data-tier="{tier}" style="{box}border-radius:14px;padding:22px 24px;">'
-            f'{tag}<div style="font-size:36px;line-height:1.2;font-weight:800;margin-top:6px;">'
-            f"{html.escape(VERDICT[tier])}</div></div>")
+    """Verdict card: tier, plain-language headline and money-safety steps (announced to screen readers)."""
+    steps = "".join(f"<li>{html.escape(a)}</li>" for a in ACTIONS[tier])
+    return (f'<div class="sd-verdict sd-{tier.lower()}" data-tier="{tier}" role="status" aria-live="polite">'
+            f'<div class="sd-vhead"><span class="sd-icon" aria-hidden="true">{ICON[tier]}</span>'
+            f'<div><div class="sd-tier">{tier} &middot; {LABEL[tier]}</div>'
+            f'<div class="sd-headline">{html.escape(VERDICT[tier])}</div></div></div>'
+            f'<div class="sd-actions"><div class="sd-actions-title">What to do now</div><ol>{steps}</ol></div>'
+            "</div>")
 
 
 def _p(text: str) -> str:
@@ -148,13 +159,13 @@ def predict(text: str):
         return (_p("Paste a text message above, then press \"Check this text\"."), "", "", "", "")
     res = triage(text)
     tier = res["tier"]
-    reason = _p(reason_sentence(text, res))
+    reason = f'<div class="sd-reason"><span class="sd-why-title">Why:</span> {html.escape(reason_sentence(text, res))}</div>'
     shown = [w.strip(".,:;!?()\"'") for w in res["top_words"]]
     shown = [w for w in dict.fromkeys(shown) if w]
-    words = ", ".join(shown) if shown else "none"
     lead = ("Words that raised the warning score most" if tier != "GREEN"
             else "Words that raised the score most (still below the warning level)")
-    top = _p(f"{lead}: {words}")
+    chips = "".join(f'<span class="sd-chip">{html.escape(w)}</span>' for w in shown) or "none"
+    top = f'<div class="sd-why"><div class="sd-why-title">{html.escape(lead)}</div><div>{chips}</div></div>'
     norm = normalise(text)
     p12, f12 = score(M2012, norm)
     said = "scam" if f12 else "not a scam"
@@ -176,38 +187,86 @@ def predict(text: str):
 
 CSS = f"""
 :root, .dark {{ color-scheme: light; }}
-body, gradio-app, .gradio-container, .dark .gradio-container {{ background:#FFFFFF !important; color:{INK} !important; }}
-.gradio-container {{ max-width: 860px !important; margin: 0 auto !important; font-size: 20px; }}
-.gradio-container h1 {{ font-size: 40px; color:{INK}; }}
-.sd-intro, .sd-intro p {{ font-size: 21px; line-height: 1.45; color:{INK}; }}
-.sd-line {{ font-size: 24px; line-height: 1.45; color:{INK}; margin: 6px 0; }}
-.sd-small {{ font-size: 18px; line-height: 1.45; color:#333333; margin: 6px 0; }}
-.sd-note {{ border-left: 4px solid #666666; padding-left: 12px; }}
-.sd-footer, .sd-footer p {{ font-size: 18px; color:#333333; border-top: 2px solid #DDDDDD; padding-top: 10px; }}
-#sd-input textarea {{ font-size: 22px !important; line-height: 1.4; background:#FFFFFF !important; color:{INK} !important;
-                      border: 2px solid #444444 !important; }}
+body, gradio-app, .gradio-container, .dark .gradio-container {{ background:#F6F7F9 !important; color:{INK} !important; }}
+.gradio-container {{ max-width: 880px !important; margin: 0 auto !important; font-size: 20px; padding: 0 16px !important; }}
+.sd-card {{ background:#FFFFFF; border:1px solid #D9DCE1; border-radius:16px; padding:20px 22px !important; }}
+/* header */
+.sd-hero h1 {{ font-size: 40px; line-height:1.15; margin: 18px 0 6px; color:{INK}; }}
+.sd-hero .sd-sub {{ font-size: 23px; line-height:1.4; margin: 0 0 12px; color:#2B2F36; }}
+.sd-badges {{ display:flex; flex-wrap:wrap; gap:8px; margin: 4px 0 6px; }}
+.sd-badge {{ font-size:16px; font-weight:600; padding:6px 12px; border-radius:999px; background:#E9EEF6; color:#1F2A3C; }}
+.sd-step {{ font-size: 21px; font-weight: 700; color:{INK}; margin: 6px 0 2px; }}
+.sd-intro, .sd-intro p {{ font-size: 20px; line-height: 1.45; color:{INK}; }}
+/* input + button */
+#sd-input textarea {{ font-size: 22px !important; line-height: 1.45; background:#FFFFFF !important; color:{INK} !important;
+                      border: 2px solid #3B4048 !important; border-radius: 12px !important; }}
 #sd-input label span {{ font-size: 20px !important; color:{INK} !important; }}
-#sd-check {{ font-size: 26px !important; min-height: 64px; background:{INK} !important; color:#FFFFFF !important;
-             border: none !important; }}
-.sd-ex button, button.sd-ex {{ font-size: 19px !important; min-height: 54px; background:#FFFFFF !important;
-             color:{INK} !important; border: 2px solid #444444 !important; }}
+#sd-check {{ font-size: 26px !important; min-height: 64px; background:#1F4FD1 !important; color:#FFFFFF !important;
+             border: none !important; border-radius: 12px !important; }}
+#sd-check:hover {{ background:#163C9E !important; }}
+/* examples */
+.sd-ex-row {{ display:grid !important; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }}
+.sd-ex button, button.sd-ex {{ font-size: 19px !important; min-height: 58px; background:#FFFFFF !important;
+             color:{INK} !important; border: 2px solid #3B4048 !important; border-radius: 12px !important;
+             white-space: normal !important; }}
+.sd-ex:hover, .sd-ex button:hover {{ background:#EEF2F8 !important; }}
+button:focus-visible, textarea:focus-visible {{ outline: 4px solid #1F4FD1 !important; outline-offset: 2px; }}
+/* verdict */
+.sd-verdict {{ border-radius:16px; padding:22px 24px; margin-top: 8px; }}
+.sd-verdict, .sd-verdict * {{ color: inherit !important; }}
+.sd-red {{ background:{RED}; color:#FFFFFF !important; }}
+.sd-yellow {{ background:{ORANGE}; color:{INK} !important; }}
+.sd-green {{ background:#FFFFFF; color:{INK} !important; border:3px solid #3B4048; }}
+.sd-vhead {{ display:flex; gap:16px; align-items:center; }}
+.sd-icon {{ flex:0 0 auto; width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+           font-size:34px; font-weight:800; border:3px solid currentColor; }}
+.sd-green .sd-icon {{ color:{GREEN_TEXT} !important; }}
+.sd-tier {{ font-size:19px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; }}
+.sd-green .sd-tier {{ color:{GREEN_TEXT} !important; }}
+.sd-headline {{ font-size:34px; line-height:1.2; font-weight:800; margin-top:2px; }}
+.sd-actions {{ margin-top:16px; padding-top:14px; border-top:2px solid currentColor; }}
+.sd-actions-title {{ font-size:20px; font-weight:800; margin-bottom:4px; }}
+.sd-actions ol {{ margin:0; padding-left: 1.4em; }}
+.sd-actions li {{ font-size:21px; line-height:1.45; margin:4px 0; }}
+/* why */
+.sd-reason {{ font-size: 23px; line-height: 1.45; color:{INK}; margin: 8px 0; }}
+.sd-why-title {{ font-weight: 700; }}
+.sd-why {{ font-size: 20px; color:{INK}; margin: 6px 0; }}
+.sd-chip {{ display:inline-block; font-size:19px; padding:4px 12px; margin:6px 8px 0 0; border-radius:999px;
+            background:#FFFFFF; border:2px solid #3B4048; color:{INK}; }}
+.sd-line {{ font-size: 23px; line-height: 1.45; color:{INK}; margin: 6px 0; }}
+.sd-small {{ font-size: 18px; line-height: 1.45; color:#2B2F36; margin: 6px 0; }}
+.sd-note {{ border-left: 4px solid #5A6270; padding-left: 12px; }}
+.sd-footer, .sd-footer p {{ font-size: 18px; color:#2B2F36; border-top: 2px solid #D9DCE1; padding-top: 10px; }}
+@media (max-width: 520px) {{
+  .sd-hero h1 {{ font-size: 32px; }} .sd-headline {{ font-size: 27px; }} .sd-ex-row {{ grid-template-columns: 1fr; }}
+  .sd-icon {{ width:46px; height:46px; font-size:28px; }}
+}}
 """
 
 # Force the light look even when the viewer's system prefers dark mode (design rule: white background).
 JS = "() => { document.body.classList.remove('dark'); }"
 
 
+HERO = ("<div class='sd-hero'><h1>Scam Drift</h1>"
+        "<p class='sd-sub'>Got a text about your bank, a delivery or a payment? Check it here before you pay, tap a link "
+        "or reply.</p><div class='sd-badges'><span class='sd-badge'>Warns only, never blocks</span>"
+        "<span class='sd-badge'>Never says &ldquo;safe&rdquo;</span>"
+        "<span class='sd-badge'>Prototype, not financial advice</span></div></div>")
+
+
 def build_demo():
     import gradio as gr
     with gr.Blocks(title="Scam Drift") as demo:
-        gr.Markdown("# Scam Drift\nPaste a text message you are unsure about, then press **Check this text**. "
-                    f"The checker only warns; it never blocks a message. {DISCLAIMER}",
-                    elem_classes="sd-intro")
-        inp = gr.Textbox(lines=5, label="Text message", placeholder="Paste the text message here",
-                         elem_id="sd-input")
-        btn = gr.Button("Check this text", variant="primary", elem_id="sd-check")
-        gr.Markdown("**Or try an example:**", elem_classes="sd-intro")
-        with gr.Row():
+        gr.HTML(HERO)
+        gr.Markdown(f"The checker only warns; it never blocks a message. {DISCLAIMER}", elem_classes="sd-intro")
+        with gr.Column(elem_classes="sd-card"):
+            gr.HTML("<div class='sd-step'>1. Paste the text message</div>")
+            inp = gr.Textbox(lines=5, label="Text message", placeholder="Paste the text message here",
+                             elem_id="sd-input")
+            btn = gr.Button("2. Check this text", variant="primary", elem_id="sd-check")
+        gr.HTML("<div class='sd-step'>Or try an example</div>")
+        with gr.Row(elem_classes="sd-ex-row"):
             ex_btns = [gr.Button(label, elem_classes="sd-ex") for label, _, _ in EXAMPLES]
         out_v = gr.HTML()
         out_r = gr.HTML()
