@@ -32,7 +32,7 @@ import joblib
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "src"))
-from scam_drift import friendly_explain, normalise, rule_reasons  # noqa: E402
+from scam_drift import friendly_explain, money_offer_reasons, normalise, rule_reasons, safety_reasons  # noqa: E402
 from triage import DISCLAIMER, triage  # noqa: E402
 
 M2012 = joblib.load(ROOT / "models" / "model_2012.joblib")
@@ -109,7 +109,10 @@ def reason_sentence(text: str, res: dict) -> str:
     p, th = res["scam_probability"], res["threshold"]
     flagged = p is not None and p >= th
     has = [w for w, tok in (("a web link", "tok_url"), ("a phone number", "tok_phone")) if tok in norm]
-    rules = rule_reasons(text, norm)
+    rules = rule_reasons(text, norm) + money_offer_reasons(text)
+    safety = safety_reasons(text)
+    if safety:
+        return "This message " + " and ".join(safety) + ". That is a safety warning, not only a scam warning."
     if tier == "RED":
         return f"The wording looks like reported scams, and the message has {' and '.join(has)}."
     if tier == "YELLOW":
@@ -138,13 +141,21 @@ ACTIONS = {
 }
 
 
-def verdict_html(tier: str) -> str:
+SAFETY_ACTIONS = ["Do not meet this person and do not get into any car.",
+                  "Do not reply. Show the message to a parent or another adult you trust.",
+                  "If someone may be in danger right now, call 911 (or your local emergency number).",
+                  "Keep the message as evidence; you can report it to the police."]
+
+
+def verdict_html(tier: str, safety: bool = False) -> str:
     """Verdict card: tier, plain-language headline and money-safety steps (announced to screen readers)."""
-    steps = "".join(f"<li>{html.escape(a)}</li>" for a in ACTIONS[tier])
+    steps = "".join(f"<li>{html.escape(a)}</li>" for a in (SAFETY_ACTIONS if safety else ACTIONS[tier]))
+    headline = "Possible danger - do not meet, tell a trusted adult" if safety else VERDICT[tier]
+    label = "Safety warning" if safety else LABEL[tier]
     return (f'<div class="sd-verdict sd-{tier.lower()}" data-tier="{tier}" role="status" aria-live="polite">'
             f'<div class="sd-vhead"><span class="sd-icon" aria-hidden="true">{ICON[tier]}</span>'
-            f'<div><div class="sd-tier">{tier} &middot; {LABEL[tier]}</div>'
-            f'<div class="sd-headline">{html.escape(VERDICT[tier])}</div></div></div>'
+            f'<div><div class="sd-tier">{tier} &middot; {label}</div>'
+            f'<div class="sd-headline">{html.escape(headline)}</div></div></div>'
             f'<div class="sd-actions"><div class="sd-actions-title">What to do now</div><ol>{steps}</ol></div>'
             "</div>")
 
@@ -182,7 +193,7 @@ def predict(text: str):
             note += (f" The dataset's English translation (oracle reference, not made by this app): \"{tr}\". "
                      f"On that translation the checker says: {tr_tier} - {VERDICT[tr_tier]}.")
         note = f'<p class="sd-small sd-note">{html.escape(note)}</p>'
-    return verdict_html(tier), reason, top, cmp12, note
+    return verdict_html(tier, res.get("safety", False)), reason, top, cmp12, note
 
 
 CSS = f"""

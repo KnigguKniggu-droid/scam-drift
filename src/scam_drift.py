@@ -824,6 +824,36 @@ TIER_LABELS = {"RED": "Likely scam - do not tap, do not reply",
                "YELLOW": "Ask family before replying",
                "GREEN": "No warning signs found"}
 
+# Safety rules (post-deadline v3, Nov 18). Not learned: fixed patterns for messages the SMS-scam model never saw,
+# e.g. luring with money ("I will give you money ... come to my car"). Measured in tools/safety_rules_eval.py.
+_MONEY_OFFER_RE = re.compile(
+    r"\b(?:i(?:'ll| will| can)?|we(?:'ll| will)?)\s+(?:give|send|pay|offer)\s+(?:you|u)\b[^.!?]{0,40}"
+    r"(?:money|cash|\$\s?\d|\d+\s*(?:dollars?|usd|bucks)|gift ?cards?|reward|prize)"
+    r"|\byou(?:'ve| have)?\s+(?:just\s+)?won\b|\bfree\s+(?:money|cash|gift ?cards?)\b"
+    r"|\b(?:easy|quick|fast)\s+(?:money|cash)\b", re.I)
+_MEET_RE = re.compile(
+    r"\b(?:come|get|hop|step)\s+(?:in(?:to)?|to|over to|inside)\s+(?:my|the|our|this)\s+(?:car|van|truck|house|place|room|hotel)\b"
+    r"|\bmeet\s+(?:me|up)\b|\bcome\s+(?:with|outside|alone)\b|\b(?:i'?ll|i will)\s+pick\s+(?:you|u)\s+up\b", re.I)
+_MINOR_RE = re.compile(r"\b(?:young|little)\s+(?:child|children|kid|kids|girl|girls|boy|boys)\b|\b(?:child|kid)\b", re.I)
+_SECRECY_RE = re.compile(r"\b(?:don'?t|do not|never)\s+tell\s+(?:your|anyone|anybody|mom|mum|dad|parents)\b|\bour (?:little )?secret\b", re.I)
+
+
+def safety_reasons(text: str) -> list[str]:
+    """RED-level safety concerns (luring, a child plus meeting/secrecy/money)."""
+    t = text or ""
+    money, meet, minor, secret = (bool(r.search(t)) for r in (_MONEY_OFFER_RE, _MEET_RE, _MINOR_RE, _SECRECY_RE))
+    out = []
+    if money and meet:
+        out.append("offers money and asks you to meet or get into a car")
+    if minor and (meet or secret or money):
+        out.append("mentions a child together with meeting, secrecy or money")
+    return out
+
+
+def money_offer_reasons(text: str) -> list[str]:
+    """YELLOW: an unsolicited offer of money or a prize."""
+    return ["offers you money or a prize out of the blue"] if _MONEY_OFFER_RE.search(text or "") else []
+
 
 def rule_reasons(text: str, norm: str | None = None) -> list[str]:
     """Fixed YELLOW rules: a request for a code/PIN/password (not a 'never share' warning),
@@ -860,9 +890,9 @@ def triage_tier(p: float, threshold: float, norm: str, text: str = "") -> str:
     GREEN  = otherwise ("No warning signs found", never "safe")."""
     flag = p >= threshold
     contact = ("tok_url" in norm) or ("tok_phone" in norm)
-    if flag and contact:
+    if (flag and contact) or safety_reasons(text):
         return "RED"
-    if flag or rule_reasons(text, norm):
+    if flag or rule_reasons(text, norm) or money_offer_reasons(text):
         return "YELLOW"
     return "GREEN"
 

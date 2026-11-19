@@ -1,0 +1,122 @@
+{
+ "uci_test_ham": {
+  "safety_rule_RED": {
+   "k": 0,
+   "n": 903,
+   "rate": 0.0,
+   "wilson95": [
+    0.0,
+    0.0042
+   ]
+  },
+  "money_offer_rule_YELLOW": {
+   "k": 2,
+   "n": 903,
+   "rate": 0.0022,
+   "wilson95": [
+    0.0006,
+    0.008
+   ]
+  }
+ },
+ "uci_test_spam": {
+  "safety_rule_RED": {
+   "k": 0,
+   "n": 124,
+   "rate": 0.0,
+   "wilson95": [
+    0.0,
+    0.03
+   ]
+  },
+  "money_offer_rule_YELLOW": {
+   "k": 3,
+   "n": 124,
+   "rate": 0.0242,
+   "wilson95": [
+    0.0083,
+    0.0687
+   ]
+  }
+ },
+ "synthetic_legit": {
+  "safety_rule_RED": {
+   "k": 0,
+   "n": 60,
+   "rate": 0.0,
+   "wilson95": [
+    0.0,
+    0.0602
+   ]
+  },
+  "money_offer_rule_YELLOW": {
+   "k": 0,
+   "n": 60,
+   "rate": 0.0,
+   "wilson95": [
+    0.0,
+    0.0602
+   ]
+  }
+ },
+ "india_legit": {
+  "safety_rule_RED": {
+   "k": 0,
+   "n": 1206,
+   "rate": 0.0,
+   "wilson95": [
+    0.0,
+    0.0032
+   ]
+  },
+  "money_offer_rule_YELLOW": {
+   "k": 3,
+   "n": 1206,
+   "rate": 0.0025,
+   "wilson95": [
+    0.0008,
+    0.0073
+   ]
+  }
+ },
+ "moz_legit_pt": {
+  "safety_rule_RED": {
+   "k": 0,
+   "n": 1608,
+   "rate": 0.0,
+   "wilson95": [
+    0.0,
+    0.0024
+   ]
+  },
+  "money_offer_rule_YELLOW": {
+   "k": 0,
+   "n": 1608,
+   "rate": 0.0,
+   "wilson95": [
+    0.0,
+    0.0024
+   ]
+  }
+ },
+ "scams_2022_24": {
+  "safety_rule_RED": {
+   "k": 0,
+   "n": 1080,
+   "rate": 0.0,
+   "wilson95": [
+    0.0,
+    0.0035
+   ]
+  },
+  "money_offer_rule_YELLOW": {
+   "k": 7,
+   "n": 1080,
+   "rate": 0.0065,
+   "wilson95": [
+    0.0031,
+    0.0133
+   ]
+  }
+ }
+}

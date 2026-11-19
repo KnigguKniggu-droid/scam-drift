@@ -21,7 +21,8 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT / "src") not in sys.path:
     sys.path.insert(0, str(ROOT / "src"))
 
-from scam_drift import TIER_LABELS, normalise, occlusion_words, rule_reasons, triage_tier  # noqa: E402
+from scam_drift import (TIER_LABELS, money_offer_reasons, normalise, occlusion_words, rule_reasons, safety_reasons,
+                        triage_tier)  # noqa: E402
 
 DISCLAIMER = "This project is a prototype and is not financial advice."
 
@@ -50,13 +51,16 @@ def triage(text: str) -> dict:
         reasons.append("It contains a web link. Do not tap links in unexpected texts.")
     if "tok_phone" in norm:
         reasons.append("It contains a phone number. Call the official number on your card or bill instead.")
-    for r in rule_reasons(text, norm):
+    for r in rule_reasons(text, norm) + money_offer_reasons(text):
         reasons.append("It " + r + ".")
+    safety = safety_reasons(text)
+    for r in safety:
+        reasons.insert(0, "SAFETY: it " + r + ".")
     if tier == "GREEN":
         reasons.append("No warning signs found. This does not prove the message is safe. "
                        "Never share a one-time code, PIN or password.")
     top = [w for w, _ in occlusion_words(b["pipeline"], norm, k=5)]  # words whose removal lowers the score most
-    return {"tier": tier, "label": TIER_LABELS[tier], "scam_probability": round(p, 4), "threshold": th,
+    return {"tier": tier, "safety": bool(safety), "label": TIER_LABELS[tier], "scam_probability": round(p, 4), "threshold": th,
             "reasons": reasons, "top_words": top, "model": b["name"], "disclaimer": DISCLAIMER}
 
 
