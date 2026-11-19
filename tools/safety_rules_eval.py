@@ -28,10 +28,21 @@ def main():
     out = {}
     for name, texts in sets.items():
         out[name] = {"safety_rule_RED": rate(texts, lambda t: bool(sd.safety_reasons(t))),
-                     "money_offer_rule_YELLOW": rate(texts, lambda t: bool(sd.money_offer_reasons(t)))}
+                     "money_offer_rule_YELLOW": rate(texts, lambda t: bool(sd.money_offer_reasons(t))),
+                     "grooming_any_category_YELLOW": rate(texts, lambda t: bool(sd.grooming_categories(t)))}
     (ROOT / "results" / "safety_rules_eval.json").write_text(json.dumps(out, indent=1))
-    for k, v in out.items():
-        print(f"{k:18s} safety {v['safety_rule_RED']['k']}/{v['safety_rule_RED']['n']}  money {v['money_offer_rule_YELLOW']['k']}/{v['money_offer_rule_YELLOW']['n']}")
+    import pandas as pd
+    from triage import triage
+    b = pd.read_csv(ROOT / "data" / "safety_test_blind.csv")
+    b["tier"] = [triage(t)["tier"] for t in b["text"]]
+    out["blind_safety_set_SEEN_WHILE_TUNING"] = {lab: {t: int(((b.label == lab) & (b.tier == t)).sum()) for t in ("RED", "YELLOW", "GREEN")}
+                                                 for lab in sorted(b.label.unique())}
+    out["note"] = ("Rules are hand-written. The blind set (written by a separate agent that never saw the rules) was used to "
+                   "revise the rules once, so its numbers are optimistic; a fresh unseen set is needed for a fair score.")
+    (ROOT / "results" / "safety_rules_eval.json").write_text(json.dumps(out, indent=1))
+    print(out["blind_safety_set_SEEN_WHILE_TUNING"])
+    for k, v in list(out.items())[:6]:
+        print(f"{k:18s} safety-RED {v['safety_rule_RED']['k']}/{v['safety_rule_RED']['n']}  money {v['money_offer_rule_YELLOW']['k']}  grooming-any {v['grooming_any_category_YELLOW']['k']}/{v['grooming_any_category_YELLOW']['n']}")
 
 
 if __name__ == "__main__":

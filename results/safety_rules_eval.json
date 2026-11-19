@@ -17,6 +17,15 @@
     0.0006,
     0.008
    ]
+  },
+  "grooming_any_category_YELLOW": {
+   "k": 10,
+   "n": 903,
+   "rate": 0.0111,
+   "wilson95": [
+    0.006,
+    0.0203
+   ]
   }
  },
  "uci_test_spam": {
@@ -37,6 +46,15 @@
     0.0083,
     0.0687
    ]
+  },
+  "grooming_any_category_YELLOW": {
+   "k": 4,
+   "n": 124,
+   "rate": 0.0323,
+   "wilson95": [
+    0.0126,
+    0.08
+   ]
   }
  },
  "synthetic_legit": {
@@ -50,6 +68,15 @@
    ]
   },
   "money_offer_rule_YELLOW": {
+   "k": 0,
+   "n": 60,
+   "rate": 0.0,
+   "wilson95": [
+    0.0,
+    0.0602
+   ]
+  },
+  "grooming_any_category_YELLOW": {
    "k": 0,
    "n": 60,
    "rate": 0.0,
@@ -77,6 +104,15 @@
     0.0008,
     0.0073
    ]
+  },
+  "grooming_any_category_YELLOW": {
+   "k": 1,
+   "n": 1206,
+   "rate": 0.0008,
+   "wilson95": [
+    0.0001,
+    0.0047
+   ]
   }
  },
  "moz_legit_pt": {
@@ -90,6 +126,15 @@
    ]
   },
   "money_offer_rule_YELLOW": {
+   "k": 0,
+   "n": 1608,
+   "rate": 0.0,
+   "wilson95": [
+    0.0,
+    0.0024
+   ]
+  },
+  "grooming_any_category_YELLOW": {
    "k": 0,
    "n": 1608,
    "rate": 0.0,
@@ -117,6 +162,33 @@
     0.0031,
     0.0133
    ]
+  },
+  "grooming_any_category_YELLOW": {
+   "k": 4,
+   "n": 1080,
+   "rate": 0.0037,
+   "wilson95": [
+    0.0014,
+    0.0095
+   ]
   }
- }
+ },
+ "blind_safety_set_SEEN_WHILE_TUNING": {
+  "luring": {
+   "RED": 17,
+   "YELLOW": 8,
+   "GREEN": 0
+  },
+  "money_scam": {
+   "RED": 4,
+   "YELLOW": 4,
+   "GREEN": 2
+  },
+  "normal": {
+   "RED": 0,
+   "YELLOW": 6,
+   "GREEN": 19
+  }
+ },
+ "note": "Rules are hand-written. The blind set (written by a separate agent that never saw the rules) was used to revise the rules once, so its numbers are optimistic; a fresh unseen set is needed for a fair score."
 }

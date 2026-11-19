@@ -838,15 +838,40 @@ _MINOR_RE = re.compile(r"\b(?:young|little)\s+(?:child|children|kid|kids|girl|gi
 _SECRECY_RE = re.compile(r"\b(?:don'?t|do not|never)\s+tell\s+(?:your|anyone|anybody|mom|mum|dad|parents)\b|\bour (?:little )?secret\b", re.I)
 
 
+# Grooming-warning categories (general child-safety guidance: secrecy, isolation, personal-info and image requests,
+# moving to private apps, gifts for contact, offline meeting). Each category is a loose pattern; RED needs 2 categories
+# (or money+meeting) so a single ordinary phrase ("come to the car", "meet me at the mall") stays GREEN.
+_GROOM = {
+    "secrecy": r"\b(?:don'?t|dont|do not|never|no need to|dont need to|don'?t have to)\s+(?:tell|let)\b|\b(?:our|a) (?:little )?secret\b"
+               r"|\bbetween (?:u|you) (?:n|and) me\b|\bkeep (?:this|it|our \w+) (?:private|secret|between)\b|\bdelete (?:these|this|the) (?:msgs?|messages?|texts?|chats?)\b"
+               r"|\b(?:no ?one|nobody|noone) (?:else )?(?:knows|has to know|needs to know)\b|\bi won'?t tell\b|\b(?:parents|mom|mum|dad|folks)\b[^.!?]{0,20}\b(?:need to know|dont need|don'?t have to)\b",
+    "isolation": r"\b(?:are|r) (?:u|you) (?:home )?(?:alone|by (?:ur|your)self)\b|\bis (?:ur|your) (?:mom|mum|dad|parents?|folks)\b[^.!?]{0,15}\bhome\b|\bjust (?:us|u and me|you and me)\b|\b(?:sneak|slip) out\b|\b(?:alone|by urself|by yourself)\b",
+    "personal_info": r"\b(?:wh?at|which) (?:street|school|address|grade)\b|\b(?:ur|your) (?:address|house|school)\b[^.!?]{0,25}\b(?:find|come|drop|mail|wait|pick)\b|\bwhats? (?:ur|your) address\b|\bhow old (?:r|are) (?:u|you)\b|\bwhere do (?:u|you) live\b",
+    "images": r"\b(?:send|snap|take)\b[^.!?]{0,20}\b(?:pic|pics|picture|photo|selfie|video)\b|\bvideo ?chat\b",
+    "platform_move": r"\b(?:add me on|move to|switch to|talk on)\b[^.!?]{0,15}\b(?:snap|snapchat|insta|instagram|discord|telegram|whatsapp|kik|a diff(?:erent)? app|another app)\b|\bthis (?:app|one) reads\b",
+    "gift": r"\b(?:i'?ll|ill|i will|i can|i could|i'd)\s+(?:buy|get|give|send|pay|venmo|cashapp)\b[^.!?]{0,30}\b(?:u|you|ur|your)\b|\b(?:free|extra)\s+(?:robux|v-?bucks|gift ?cards?|codes|skins)\b|\bnew (?:phone|console|controller)\b",
+    "meeting": r"\bmeet (?:me|up)\b|\b(?:pick|drive) (?:u|you) (?:up|home)\b|\bhop in\b|\bneed a ride\b|\b(?:come|wanna) (?:over|hang|grab)\b|\bcome (?:to|into|in) my (?:car|van|place|house)\b|\bwait (?:at|for u|for you)\b|\bi might b(?:e)? in the area\b|\bdrop off\b",
+    "flattery_wedge": r"\b(?:cooler|more mature|smarter) than (?:other )?(?:kids|people)\b|\b(?:parents|mom|dad|folks)\b[^.!?]{0,15}\b(?:too strict|wouldn'?t (?:get|understand))\b|\bi would treat (?:u|you)\b",
+}
+_GROOM_RE = {k: re.compile(v, re.I) for k, v in _GROOM.items()}
+_MINOR_RE2 = re.compile(r"\b(?:young|little)\s+(?:child|children|kid|kids|girl|girls|boy|boys)\b|\bafter school\b|\bschool uniform\b", re.I)
+
+
+def grooming_categories(text: str) -> list[str]:
+    return [k for k, r in _GROOM_RE.items() if r.search(text or "")]
+
+
 def safety_reasons(text: str) -> list[str]:
-    """RED-level safety concerns (luring, a child plus meeting/secrecy/money)."""
+    """RED-level safety concerns: >= 2 grooming-warning categories, money/gift + meeting, or a child mention plus any
+    category. Hand-written rules (not learned); evaluated in tools/safety_rules_eval.py."""
     t = text or ""
-    money, meet, minor, secret = (bool(r.search(t)) for r in (_MONEY_OFFER_RE, _MEET_RE, _MINOR_RE, _SECRECY_RE))
+    cats = grooming_categories(t)
+    money = bool(_MONEY_OFFER_RE.search(t)) or "gift" in cats
     out = []
-    if money and meet:
-        out.append("offers money and asks you to meet or get into a car")
-    if minor and (meet or secret or money):
-        out.append("mentions a child together with meeting, secrecy or money")
+    if len(cats) >= 2 or (money and "meeting" in cats) or (bool(_MEET_RE.search(t)) and bool(_MONEY_OFFER_RE.search(t))):
+        out.append("shows warning signs of grooming or luring (" + ", ".join(c.replace("_", " ") for c in cats) + ")")
+    elif cats and (_MINOR_RE.search(t) or _MINOR_RE2.search(t)):
+        out.append("mentions a child together with a warning sign (" + ", ".join(c.replace("_", " ") for c in cats) + ")")
     return out
 
 
@@ -892,7 +917,7 @@ def triage_tier(p: float, threshold: float, norm: str, text: str = "") -> str:
     contact = ("tok_url" in norm) or ("tok_phone" in norm)
     if (flag and contact) or safety_reasons(text):
         return "RED"
-    if flag or rule_reasons(text, norm) or money_offer_reasons(text):
+    if flag or rule_reasons(text, norm) or money_offer_reasons(text) or grooming_categories(text):
         return "YELLOW"
     return "GREEN"
 
