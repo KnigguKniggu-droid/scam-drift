@@ -1,0 +1,159 @@
+<!-- Story page fragment (post-deadline v3, Nov 18). Inserted into <section id="story"> of web/index.html.
+     Every number is filled in by story.js from GET /api/story (results/*.json). No number is typed here. -->
+<link rel="stylesheet" href="story.css">
+<div class="st" data-st-root data-st-mode="loading">
+
+  <!-- 1. Hero: one three.js scene; scroll moves the year from 2012 to 2024 -->
+  <div class="st-hero" data-st-hero>
+    <div class="st-hero__stage">
+      <div class="st-hero__copy">
+        <h2 class="st-hero__title" id="st-hero-title">A scam filter from 2012 meets the texts of 2024.</h2>
+        <p class="st-hero__lede">In 2012, scam texts promised prizes. Today they look like your bank or your parcel company. We tested what an old filter still catches, and what it gets wrong.</p>
+        <p class="st-hero__year" aria-hidden="true"><span class="st-hero__year-num" data-st-year>2012</span><span class="st-hero__year-era" data-st-era>Prize texts</span></p>
+        <p class="st-hero__note">Messages on the phone are illustrations written for this page (synthetic), not real texts.</p>
+        <a class="st-hero__scroll" href="#st-ch-old">
+          <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+          <span>Scroll to move from 2012 to 2024</span>
+        </a>
+      </div>
+      <div class="st-hero__visual">
+        <div class="st-hero__canvas" data-st-canvas aria-hidden="true"></div>
+        <!-- Static fallback (no WebGL, no JavaScript, or while the 3D scene loads) -->
+        <svg class="st-hero__fallback" data-st-fallback viewBox="56 6 208 388" role="img" aria-labelledby="st-fb-t">
+          <title id="st-fb-t">A phone showing an old 2012 prize text above two modern texts about a parcel fee and a bank payee (illustration).</title>
+          <rect x="70" y="20" width="180" height="360" rx="28" fill="#1B2436" stroke="#475569" stroke-width="2"/>
+          <rect x="80" y="30" width="160" height="340" rx="20" fill="#F8FAFC"/>
+          <rect x="135" y="40" width="50" height="10" rx="5" fill="#1B2436"/>
+          <g font-size="10.5">
+            <rect x="90" y="66" width="122" height="58" rx="12" fill="#D6DBE3"/>
+            <text x="99" y="87" fill="#334155" font-family="ui-monospace, Consolas, monospace">FREE MSG: U have</text>
+            <text x="99" y="101" fill="#334155" font-family="ui-monospace, Consolas, monospace">WON a prize! Txt</text>
+            <text x="99" y="115" fill="#334155" font-family="ui-monospace, Consolas, monospace">CLAIM now</text>
+            <rect x="90" y="146" width="140" height="62" rx="12" fill="#FFFFFF" stroke="#CBD5E1"/>
+            <text x="99" y="166" fill="#0F172A" font-family="Source Sans 3, Segoe UI, system-ui, sans-serif">Your parcel is on hold.</text>
+            <text x="99" y="181" fill="#0F172A" font-family="Source Sans 3, Segoe UI, system-ui, sans-serif">Pay the redelivery fee:</text>
+            <text x="99" y="196" fill="#1F4FD1" font-family="Source Sans 3, Segoe UI, system-ui, sans-serif">[link]</text>
+            <rect x="90" y="222" width="140" height="62" rx="12" fill="#FFFFFF" stroke="#CBD5E1"/>
+            <text x="99" y="242" fill="#0F172A" font-family="Source Sans 3, Segoe UI, system-ui, sans-serif">Bank alert: new payee</text>
+            <text x="99" y="257" fill="#0F172A" font-family="Source Sans 3, Segoe UI, system-ui, sans-serif">added. Not you? Call</text>
+            <text x="99" y="272" fill="#1F4FD1" font-family="Source Sans 3, Segoe UI, system-ui, sans-serif">[phone]</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <p class="st-status" data-st-status role="status" hidden></p>
+
+  <!-- 2. Chapters: one number each, read from /api/story -->
+  <article class="st-ch" id="st-ch-old" data-st-chapter="y2012_late_recall" data-st-tone="scam">
+    <div class="st-ch__text">
+      <h3 class="st-ch__title">The 2012 filter still catches most new scams, and warns on most real texts too.</h3>
+      <p class="st-ch__figure"><span class="st-num" data-st-num="y2012_late_recall">&ndash;</span></p>
+      <p class="st-ch__say"><span class="st-key st-key--scam" aria-hidden="true"></span>of scams reported in 2022-24 get flagged by a filter that only ever saw 2012 texts. But it also warns on <strong data-st-inline="y2012_fa_real_legit">&ndash;</strong> of real, modern legitimate texts from businesses.</p>
+      <p class="st-src" data-st-src="y2012_late_recall"></p>
+    </div>
+    <div class="st-waffle" data-st-waffle="y2012_late_recall" aria-hidden="true"></div>
+  </article>
+
+  <article class="st-ch st-ch--flip" data-st-chapter="naive_fix_fa_real_legit" data-st-tone="legit">
+    <div class="st-ch__text">
+      <h3 class="st-ch__title">Retrain it on new scams, and it still warns on almost everything.</h3>
+      <p class="st-ch__figure"><span class="st-num" data-st-num="naive_fix_fa_real_legit">&ndash;</span></p>
+      <p class="st-ch__say"><span class="st-key st-key--legit" aria-hidden="true"></span>of real, modern legitimate texts from businesses still get a false alarm. It now catches <strong data-st-inline="naive_fix_late_recall">&ndash;</strong> of new scams, but a warning on nearly every text means nothing.</p>
+      <p class="st-src" data-st-src="naive_fix_fa_real_legit"></p>
+    </div>
+    <div class="st-waffle" data-st-waffle="naive_fix_fa_real_legit" aria-hidden="true"></div>
+  </article>
+
+  <article class="st-ch" data-st-chapter="real_ham_fix_fa_real_legit" data-st-tone="legit">
+    <div class="st-ch__text">
+      <h3 class="st-ch__title">Teach it real legitimate texts too. Better, still not good.</h3>
+      <p class="st-ch__figure"><span class="st-num" data-st-num="real_ham_fix_fa_real_legit">&ndash;</span></p>
+      <p class="st-ch__say"><span class="st-key st-key--legit" aria-hidden="true"></span>of real legitimate texts still get a false alarm when real legitimate texts are added to the training data.</p>
+      <p class="st-src" data-st-src="real_ham_fix_fa_real_legit"></p>
+    </div>
+    <div class="st-waffle" data-st-waffle="real_ham_fix_fa_real_legit" aria-hidden="true"></div>
+  </article>
+
+  <article class="st-ch st-ch--ships" data-st-chapter="ships_warned_scams_2022_24" data-st-tone="scam">
+    <div class="st-ch__text">
+      <h3 class="st-ch__title">What ships: a warning to check, never a promise of safety.</h3>
+      <p class="st-ch__figure"><span class="st-num" data-st-num="ships_warned_scams_2022_24">&ndash;</span></p>
+      <p class="st-ch__say"><span class="st-key st-key--scam" aria-hidden="true"></span>of 2022-24 scams get a warning (High risk or Be careful) from the shipped checker. That is fewer than the 2012 filter (<strong data-st-inline="y2012_late_recall">&ndash;</strong>). In exchange, it warns on far fewer real legitimate texts: <strong data-st-inline="ships_fa_real_legit">&ndash;</strong><span data-st-oneinx="ships_fa_real_legit"></span>, against <strong data-st-inline="y2012_fa_real_legit">&ndash;</strong> for the 2012 filter. A warning means &ldquo;check first&rdquo;, not &ldquo;this is a scam&rdquo;.</p>
+      <p class="st-src" data-st-src="ships_warned_scams_2022_24"></p>
+    </div>
+    <ul class="st-tiers" aria-label="The three answers the checker can give">
+      <li class="st-tier st-tier--red">
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="24" height="24"><path d="M7.9 2h8.2L22 7.9v8.2L16.1 22H7.9L2 16.1V7.9z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+        <span><strong>High risk</strong> Likely scam. Do not tap links or reply.</span>
+      </li>
+      <li class="st-tier st-tier--amber">
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="24" height="24"><path d="M12 3 2 21h20z"/><path d="M12 10v4"/><path d="M12 17.5h.01"/></svg>
+        <span><strong>Be careful</strong> Ask a family member before replying.</span>
+      </li>
+      <li class="st-tier st-tier--green">
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        <span><strong>No warning signs</strong> The checker found nothing. That does not mean &ldquo;safe&rdquo;.</span>
+      </li>
+    </ul>
+  </article>
+
+  <!-- 3. Lead chart: bars grow once on enter; the table holds the same numbers -->
+  <section class="st-chart" aria-labelledby="st-chart-title">
+    <h3 class="st-chart__title" id="st-chart-title">Every option, side by side.</h3>
+    <p class="st-chart__lede">Good is a long blue bar and a short orange bar. No option gets both.</p>
+    <ul class="st-legend" aria-hidden="true">
+      <li><span class="st-swatch st-swatch--scam"></span>Real 2022-24 scams warned (higher is better)</li>
+      <li><span class="st-swatch st-swatch--legit"></span>Real legitimate texts warned (lower is better)</li>
+    </ul>
+    <figure class="st-chart__figure">
+      <div class="st-chart__svg" data-st-chart></div>
+      <figcaption class="st-chart__cap" id="st-chart-cap">Share of each test set that gets a warning, per option. Each value comes from the results file named in the table.</figcaption>
+    </figure>
+    <details class="st-table">
+      <summary>Show the numbers as a table</summary>
+      <div class="st-table__wrap" tabindex="0" role="region" aria-label="Numbers behind the chart">
+        <table>
+          <caption>Warnings per option, with counts and source keys</caption>
+          <thead><tr><th scope="col">Option</th><th scope="col">Real 2022-24 scams warned</th><th scope="col">Real legitimate texts warned</th><th scope="col">Source</th></tr></thead>
+          <tbody data-st-table></tbody>
+        </table>
+      </div>
+    </details>
+    <p class="st-chart__note" data-st-splitnote hidden>The first three rows come from <code>results/real_ham_fix_probe.json</code> (<span data-st-n="y2012_fa_real_legit"></span> held-out legitimate texts). The shipped row comes from the v2 run in <code>results/metrics.json</code> (<span data-st-n="ships_fa_real_legit"></span> held-out legitimate texts). The two runs split the Indian inbox in different ways, so compare the rows as a guide, not to the decimal.</p>
+    <a class="st-cta" href="#check">
+      <span>Check a text message now</span>
+      <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </section>
+
+  <!-- 4. Honesty: limits and sources -->
+  <section class="st-honest" aria-labelledby="st-honest-title">
+    <h3 class="st-honest__title" id="st-honest-title">What this does not prove.</h3>
+    <div class="st-honest__grid">
+      <ul class="st-honest__list">
+        <li><svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <span>The three answers, their rules and the strict warning level were designed after we saw the first results. Treat the shipped numbers as optimistic.</span></li>
+        <li data-st-needs="ships_nonenglish_raw ships_nonenglish_oracle"><svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>
+          <span>It mainly reads English. It warns on <strong data-st-inline="ships_nonenglish_raw">&ndash;</strong> of real non-English scams as written, and on <strong data-st-inline="ships_nonenglish_oracle">&ndash;</strong> when we score the dataset's own English translation (a best case, not a feature of this app).</span></li>
+        <li data-st-needs="ships_synthetic_legit_fa"><svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>
+          <span>Some test texts are synthetic: written with AI help for this project and labelled SYNTHETIC everywhere. The checker warns on <strong data-st-inline="ships_synthetic_legit_fa">&ndash;</strong> of the synthetic legitimate texts it never trained on.</span></li>
+        <li><svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>The checker never says a text is safe. If a text asks you to pay, tap or reply, contact the company yourself on a number you already trust.</span></li>
+      </ul>
+      <div class="st-honest__sources">
+        <h4>Sources</h4>
+        <ul>
+          <li>SMS Spam Collection v.1, UCI Machine Learning Repository (2012 texts). CC BY 4.0.</li>
+          <li>Fishing for Smishing dataset, ACM IMC 2025 (public scam reports, 2022-24 and earlier). CC BY 4.0.</li>
+          <li>India SMS inbox sample and MOZ-Smishing legitimate texts (Hugging Face, pinned revisions). Test or training use as listed in <code>CREDITS.md</code>.</li>
+          <li>Every number on this page is read from <code>results/real_ham_fix_probe.json</code> and <code>results/metrics.json</code> when the page loads.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="st-disclaimer" data-st-disclaimer>This project is a prototype and is not financial advice.</p>
+    <p class="st-version">Post-deadline v3 (Nov 18). The judged hackathon entry is unchanged.</p>
+  </section>
+</div>
+<script src="story.js" defer></script>
