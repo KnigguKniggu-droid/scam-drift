@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Page not found · Scam Drift</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400;600&family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<style>
+body { min-height: 100svh; display: grid; grid-template-rows: auto 1fr auto; }
+.e-top, .e-foot { width: min(100% - 2 * var(--gutter), var(--max)); margin-inline: auto; }
+.e-top { display: flex; align-items: center; min-height: 72px; border-bottom: 1px solid var(--line); }
+.e-brand { display: inline-flex; align-items: center; gap: .55rem; min-height: 44px; font-weight: 600; color: var(--ink); text-decoration: none; }
+.e-brand i { width: 12px; height: 12px; border-radius: 50% 50% 50% 3px; background: var(--carmine); }
+.e-brand:hover, .e-brand:focus-visible { text-decoration: underline; }
+main { display: grid; align-content: center; padding-block: clamp(48px, 9vh, 112px); }
+.e-bubble { margin-bottom: clamp(28px, 5vh, 48px); }
+.e-bubble .tag { margin-inline: .1em; }
+h1 { font-weight: 600; font-size: clamp(2.6rem, 1.4rem + 5.4vw, 6.5rem); line-height: .95; letter-spacing: -.035em; margin: 0 0 1.25rem; max-width: 15ch; text-wrap: balance; }
+.e-say { margin: 0 0 2rem; }
+.e-ways { display: flex; flex-wrap: wrap; gap: 12px; }
+.e-url { margin: 1.75rem 0 0; color: var(--ink-2); overflow-wrap: anywhere; }
+.e-foot { padding: 18px 0 24px; border-top: 1px solid var(--line); color: var(--ink-2); }
+</style>
+</head>
+<body>
+<header class="e-top"><a class="e-brand" href="./"><i aria-hidden="true"></i>Scam Drift</a></header>
+<main class="wrap">
+<div class="bubble e-bubble" aria-hidden="true">
+<p class="bubble__meta">Example, written for this page</p>
+Your page is waiting! Tap here to see it <span class="tag">link</span>
+</div>
+<h1>This link isn’t what it said it was.</h1>
+<p class="lead e-say">There’s no page at this address. It may have moved, or the link was mistyped.</p>
+<div class="e-ways">
+<a class="btn btn--fill" href="./">Back to Scam Drift <span class="arr" aria-hidden="true">→</span></a>
+<a class="btn btn--line" href="./#results">See the full results</a>
+</div>
+<p class="e-url small mono" id="url" aria-hidden="true"></p>
+</main>
+<footer class="e-foot small">Error 404 · Prototype, not financial advice.</footer>
+<script>
+// show the address that wasn't found (as text, never as HTML), so a typo is visible
+var p = location.pathname; try { p = decodeURI(p); } catch (e) {}
+document.getElementById('url').textContent = 'Not found: ' + p;
+</script>
+</body>
+</html>
