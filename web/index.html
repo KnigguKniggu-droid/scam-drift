@@ -3,15 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Scam Drift</title>
-  <meta name="description" content="Check a text message before you pay, tap a link or reply. A warn-only scam text checker. Prototype, not financial advice.">
+  <title>Scam Drift | Check a suspicious text</title>
+  <meta name="description" content="Check a suspicious text for requests to pay, share a code or follow a link. See how older scam filters miss newer threats.">
   <meta name="color-scheme" content="light">
-  <meta name="theme-color" content="#F8FAFC">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231F4FD1' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/%3E%3Cpath d='M12 7v4'/%3E%3Cpath d='M12 14.5h.01'/%3E%3C/svg%3E">
+  <meta name="theme-color" content="#e9eef1">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23C8321F' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/%3E%3Cpath d='M12 7v4'/%3E%3Cpath d='M12 14.5h.01'/%3E%3C/svg%3E">
+  <link rel="preload" href="./vendor/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="./vendor/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="./vendor/atkinson-next-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="story.css">
+  <script type="module" src="story.js"></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -19,37 +21,150 @@
 
   <header class="site-header">
     <div class="wrap header-row">
-      <a class="brand" href="#check" aria-label="Scam Drift, go to the checker">
+      <a class="brand" href="#main" aria-label="Scam Drift home">
         <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
           <path d="M12 7v4"/><path d="M12 14.5h.01"/>
         </svg>
         <span>Scam Drift</span>
       </a>
-      <p class="header-tag">Prototype, not financial advice</p>
+      <nav class="header-nav" aria-label="Main"><a href="#findings">Study results</a><a href="#msg" class="nav-check">Check a text <span aria-hidden="true">↗</span></a></nav>
     </div>
   </header>
 
   <main id="main">
-    <section id="check" class="checker" aria-labelledby="check-title">
+    <section id="story" aria-labelledby="flood-title">
+      <div class="flood-track" id="inbox-flood">
+        <header class="study-intro">
+          <h1 id="flood-title"><span>Scams change.</span> <span>Filters lag.</span></h1>
+          <p>See what happens when an old spam filter meets newer scam texts.</p>
+          <div class="cover-actions">
+            <a href="#msg" class="cover-check">Check a text</a>
+            <button type="button" class="cover-sample" data-run-sample hidden>Try a sample</button>
+          </div>
+          <a class="story-start" href="#old-filter" data-story-jump>Run the filter <span aria-hidden="true">↓</span></a>
+        </header>
+        <div class="flood-stage-slot">
+          <div class="flood-stage">
+            <div class="flood-viewport" aria-hidden="true">
+              <picture class="flood-placeholder">
+                <source media="(max-width: 750px)" srcset="scanner-narrow.jpg">
+                <img src="scanner-wide.jpg" alt="" fetchpriority="high">
+              </picture><canvas></canvas>
+              <span class="scanner-view" data-view-label>Filter diagram</span>
+              <span class="flood-scene-note" data-scene-note="gate" hidden>Filter plane</span>
+              <span class="flood-scene-note" data-scene-note="outcome" hidden></span>
+            </div>
+            <div class="flood-instrument">
+              <div class="flood-playhead" aria-hidden="true"></div>
+              <div class="flood-stage-readout" aria-hidden="true">
+                <div><span class="stage-step" data-stage-step>Old filter</span><strong class="stage-caption" data-stage-caption>New scams get through.</strong></div>
+                <div class="stage-measure"><strong class="hero-rate" data-hero-rate>…</strong><span data-stage-label>Historical test results</span></div>
+              </div>
+              <div class="flood-stage-bar">
+                <nav class="flood-controls" aria-label="Filter stages">
+                  <a href="#old-filter" aria-describedby="old-explainer">Old filter</a>
+                  <a href="#retrained-filter" aria-describedby="retrained-explainer">Retrained</a>
+                  <a href="#with-legitimate" aria-describedby="legitimate-explainer">With legitimate texts</a>
+                </nav>
+                <a class="stage-check" href="#msg" aria-label="Check a text">Check<span class="full-check-label"> a text</span> <span aria-hidden="true">↗</span></a>
+                <button type="button" class="flood-motion" aria-pressed="false" hidden aria-label="Pause idle motion">
+                  <span class="motion-glyph" aria-hidden="true"></span>
+                  <span class="motion-text" aria-hidden="true">Pause motion</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="flood-copy">
+          <header class="flood-chapter-heading">
+            <h2 id="flood-sequence-title">How filters drift</h2>
+            <p id="flood-status" role="status"></p>
+          </header>
+          <article class="flood-chapter" id="old-filter" data-chapter>
+            <div class="flood-chapter-body">
+              <p class="flood-chapter-label">Old filter</p>
+              <h3><span>New scams get through.</span></h3>
+              <div class="flood-frame" id="old-explainer" data-frame="oldRecall"></div>
+            </div>
+          </article>
+          <article class="flood-chapter" id="retrained-filter" data-chapter>
+            <div class="flood-chapter-body">
+              <p class="flood-chapter-label">Retrained on newer scams</p>
+              <h3><span>False alarms pile up.</span></h3>
+              <div class="flood-frame" id="retrained-explainer" data-frame="newRecall newFalse"></div>
+            </div>
+          </article>
+          <article class="flood-chapter" id="with-legitimate" data-chapter>
+            <div class="flood-chapter-body">
+              <p class="flood-chapter-label">Trained with legitimate texts</p>
+              <h3><span>More real texts get through.</span></h3>
+              <div class="flood-frame" id="legitimate-explainer" data-frame="fixedRecall fixedFalse"></div>
+            </div>
+          </article>
+        </div>
+      </div>
+      <section class="flood-evidence" id="findings" aria-labelledby="flood-findings-title">
+        <div class="flood-findings-head"><h2 id="flood-findings-title">What the filters catch</h2></div>
+        <div class="filter-comparison" data-filter-comparison hidden>
+          <fieldset class="compare-select">
+            <legend>Compare the two retrained filters</legend>
+            <label><input type="radio" name="compare-filter" value="retrained" checked> Retrained on scams</label>
+            <label><input type="radio" name="compare-filter" value="legitimate"> Trained with legitimate texts</label>
+          </fieldset>
+          <div class="compare-results">
+            <div class="compare-metric" data-comparison-metric="recall">
+              <span>Scam reports caught</span><strong></strong>
+              <div class="compare-route" aria-hidden="true"><span></span></div>
+            </div>
+            <div class="compare-metric" data-comparison-metric="false-alarm">
+              <span>Legitimate texts flagged</span><strong></strong>
+              <div class="compare-route" aria-hidden="true"><span></span></div>
+            </div>
+            <p class="sr-only" role="status" data-comparison-status></p>
+          </div>
+          <a class="compare-replay" href="#retrained-filter" data-story-jump>Watch this run <span aria-hidden="true">↑</span></a>
+        </div>
+      <ol class="flood-findings" aria-labelledby="flood-findings-title" tabindex="0" data-lenis-prevent>
+        <li><strong>Old filter</strong><div class="flood-result" data-rate="oldRecall"><strong>—</strong><span>Scam recall</span><small></small><span class="result-bar" aria-hidden="true"><i></i></span></div></li>
+        <li><strong>Retrained filter</strong><div class="flood-result" data-rate="newRecall"><strong>—</strong><span>Scam recall</span><small></small><span class="result-bar" aria-hidden="true"><i></i></span></div></li>
+        <li><strong>False alarms</strong><div class="flood-result" data-rate="newFalse"><strong>—</strong><span>Retrained filter</span><small></small><span class="result-bar" aria-hidden="true"><i></i></span></div></li>
+        <li><strong>With legitimate training texts</strong><div class="flood-result" data-rate="fixedRecall"><strong>—</strong><span>Scam recall</span><small></small><span class="result-bar" aria-hidden="true"><i></i></span></div><div class="flood-result" data-rate="fixedFalse"><strong>—</strong><span>False alarms</span><small></small><span class="result-bar" aria-hidden="true"><i></i></span></div></li>
+      </ol>
+        <details id="study-notes" class="flood-method">
+        <summary>Study data and limitations</summary>
+        <p data-study-cohort></p>
+        <p>The scene uses rates from scam reports and held-out Indian business texts. Its bubble counts illustrate the rates.</p>
+        <p>The experiment measures model performance. The live checker also uses hand-written warning rules.</p>
+        <p>Templates may recur across years. The datasets cover a small number of sources.</p>
+        <ul>
+          <li><a href="https://archive.ics.uci.edu/dataset/228/sms+spam+collection">UCI SMS Spam Collection</a></li>
+          <li><a href="https://github.com/reportsmishing/Smishing-Dataset-IMC25">IMC 2025 public scam reports</a></li>
+          <li><a href="https://huggingface.co/datasets/gandharvbakshi/SMS-dataset-sample-10k">Modern legitimate SMS dataset</a></li>
+        </ul>
+        </details>
+      </section>
+    </section>
+
+    <section id="check" data-lenis-prevent class="checker" aria-labelledby="check-title">
       <div class="wrap checker-grid">
         <div class="checker-intro">
-          <h1 id="check-title">Check a text before you pay, tap or reply.</h1>
-          <p class="lede">Got a text about your bank, a delivery or a payment? Paste it here. The checker warns you; it never blocks a message and it never says a text is safe.</p>
-          <p class="intro-link"><a href="#story">How we tested the checker</a></p>
+          <h2 id="check-title" tabindex="-1">Check a suspicious text</h2>
+          <p class="lede">Find out what the message is asking for and what to do next.</p>
         </div>
 
         <div class="checker-main">
-          <form id="check-form" class="panel input-panel" aria-labelledby="check-title" novalidate>
+          <form id="check-form" class="panel input-panel" aria-labelledby="check-title" method="post" action="/api/check" novalidate>
             <div class="input-head">
               <label for="msg" class="field-label">Text message</label>
-              <button type="button" id="paste-btn" class="btn btn-quiet">
+              <button type="button" id="paste-btn" class="btn btn-quiet" aria-label="Paste from clipboard">
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>
-                <span>Paste from clipboard</span>
+                <span>Paste</span>
               </button>
             </div>
-            <textarea id="msg" name="text" rows="5" maxlength="20000" spellcheck="false" autocomplete="off" dir="auto"
-                      aria-describedby="msg-hint msg-count paste-status"
+            <p id="privacy-hint" class="input-privacy">Remove account details and any codes. Works best with English text.</p>
+            <textarea id="msg" rows="3" maxlength="20000" spellcheck="false" autocomplete="off" dir="auto"
+                      aria-describedby="privacy-hint msg-hint msg-count paste-status"
                       placeholder="Paste the text message here"></textarea>
             <div class="input-foot">
               <p id="msg-hint" class="hint">Press Enter to check. Press Shift and Enter for a new line.</p>
@@ -61,220 +176,64 @@
                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
                 <span id="check-btn-text">Check this text</span>
               </button>
+              <button type="button" id="sample-btn" class="btn btn-quiet" hidden>Try a sample</button>
               <button type="button" id="clear-btn" class="btn btn-quiet" hidden>Clear</button>
             </div>
             <p class="privacy">
               <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-              <span>Nothing is stored. The text is sent only to this checker&rsquo;s own server.</span>
+              <span>Scam Drift checks your text in memory on the server.</span>
             </p>
           </form>
 
-          <!-- Result: filled by app.js. The short live region below announces the verdict once per check. -->
-          <p id="announce" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
-          <div id="result" class="result" tabindex="-1"></div>
-
-          <section class="examples" aria-labelledby="ex-title">
-            <h2 id="ex-title">Or try an example</h2>
-            <p class="section-note">REAL examples are scams people reported (IMC25 dataset). SYNTHETIC examples were written for this project and are labelled.</p>
+          <details class="examples">
+            <summary>More examples</summary>
             <ul id="ex-list" class="ex-list" role="list"></ul>
-          </section>
+          </details>
         </div>
 
-        <aside class="checker-aside" aria-labelledby="key-title">
-          <h2 id="key-title">What the answers mean</h2>
-          <ul class="key-list" role="list">
-            <li class="key-item">
-              <span class="key-swatch key-red" aria-hidden="true">
-                <svg class="icon" viewBox="0 0 24 24" focusable="false"><path d="M7.9 2h8.2L22 7.9v8.2L16.1 22H7.9L2 16.1V7.9z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
-              </span>
-              <div><p class="key-name">High risk</p><p class="key-text">Looks like reported scams and has a link or a phone number.</p></div>
-            </li>
-            <li class="key-item">
-              <span class="key-swatch key-amber" aria-hidden="true">
-                <svg class="icon" viewBox="0 0 24 24" focusable="false"><path d="M12 3 2 21h20z"/><path d="M12 10v4"/><path d="M12 17.5h.01"/></svg>
-              </span>
-              <div><p class="key-name">Be careful</p><p class="key-text">Looks like a scam with no link, or asks for a code, or starts like a &ldquo;new number&rdquo; text. Ask family first.</p></div>
-            </li>
-            <li class="key-item">
-              <span class="key-swatch key-green" aria-hidden="true">
-                <svg class="icon" viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-              </span>
-              <div><p class="key-name">No warning signs</p><p class="key-text">The checker found nothing. This does not prove the text is safe.</p></div>
-            </li>
-          </ul>
-          <p class="aside-note">The checker misses some scams. Never share a code, PIN or password, whatever the answer.</p>
+        <p id="announce" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+        <div id="result" class="result" tabindex="-1"></div>
+
+        <aside class="checker-aside" aria-labelledby="recovery-title">
+          <h3 id="recovery-title">If you already acted</h3>
+          <details id="recovery" class="recovery">
+            <summary>Get recovery steps</summary>
+            <fieldset class="recovery-choices">
+              <legend>What did you do?</legend>
+              <label><input type="radio" name="recovery-step" value="clicked" aria-controls="recovery-clicked" checked> Opened a link</label>
+              <label><input type="radio" name="recovery-step" value="shared" aria-controls="recovery-shared"> Shared a code or password</label>
+              <label><input type="radio" name="recovery-step" value="paid" aria-controls="recovery-paid"> Sent money</label>
+            </fieldset>
+            <p id="recovery-status" class="sr-only" role="status"></p>
+            <div id="recovery-clicked" data-recovery-panel="clicked">
+              <ol><li>Close the page. Avoid entering information or downloading anything.</li><li>If you downloaded or installed something, update your security software and run a scan.</li></ol>
+            </div>
+            <div id="recovery-shared" data-recovery-panel="shared" hidden>
+              <ol><li>Contact the account provider through its official app or a number you trust.</li><li>If you can still sign in, change the password and review recent activity.</li></ol>
+            </div>
+            <div id="recovery-paid" data-recovery-panel="paid" hidden>
+              <ol><li>Contact your bank, card issuer, or payment service right away.</li><li>Report the transaction and ask if it can be reversed. Keep receipts and the text.</li></ol>
+            </div>
+            <p><a href="https://consumer.ftc.gov/articles/what-do-if-you-were-scammed">More recovery steps from the U.S. FTC</a></p>
+          </details>
+          <details class="checker-key">
+            <summary>What the answers mean</summary>
+            <dl>
+              <dt>High risk</dt><dd>Stop and verify the request through a trusted channel.</dd>
+              <dt>Be careful</dt><dd>Pause and ask someone you trust to check it with you.</dd>
+              <dt>No warning signs</dt><dd>Verify unexpected requests for money or information.</dd>
+            </dl>
+          </details>
         </aside>
       </div>
     </section>
 
-    <!-- Story page (below the checker; the checker is priority 1). story.js fills every number from /api/story. -->
-    <section id="story" aria-labelledby="st-hero-title">
-      <!-- Story page fragment (post-deadline v3, Nov 18). Inserted into <section id="story"> of web/index.html.
-           Every number is filled in by story.js from GET /api/story (results/*.json). No number is typed here. -->
-      <link rel="stylesheet" href="story.css">
-      <div class="st" data-st-root data-st-mode="loading">
-
-        <!-- 1. Hero: one three.js scene; scroll moves the year from 2012 to 2024 -->
-        <div class="st-hero" data-st-hero>
-          <div class="st-hero__stage">
-            <div class="st-hero__copy">
-              <h2 class="st-hero__title" id="st-hero-title">A scam filter from 2012 meets the texts of 2024.</h2>
-              <p class="st-hero__lede">In 2012, scam texts promised prizes. Today they look like your bank or your parcel company. We tested what an old filter still catches, and what it gets wrong.</p>
-              <p class="st-hero__year" aria-hidden="true"><span class="st-hero__year-num" data-st-year>2012</span><span class="st-hero__year-era" data-st-era>Prize texts</span></p>
-              <p class="st-hero__note">Messages on the phone are illustrations written for this page (synthetic), not real texts.</p>
-              <a class="st-hero__scroll" href="#st-ch-old">
-                <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
-                <span>Scroll to move from 2012 to 2024</span>
-              </a>
-            </div>
-            <div class="st-hero__visual">
-              <div class="st-hero__canvas" data-st-canvas aria-hidden="true"></div>
-              <!-- Static fallback (no WebGL, no JavaScript, or while the 3D scene loads) -->
-              <svg class="st-hero__fallback" data-st-fallback viewBox="56 6 208 388" role="img" aria-labelledby="st-fb-t">
-                <title id="st-fb-t">A phone showing an old 2012 prize text above two modern texts about a parcel fee and a bank payee (illustration).</title>
-                <rect x="70" y="20" width="180" height="360" rx="28" fill="#1B2436" stroke="#475569" stroke-width="2"/>
-                <rect x="80" y="30" width="160" height="340" rx="20" fill="#F8FAFC"/>
-                <rect x="135" y="40" width="50" height="10" rx="5" fill="#1B2436"/>
-                <g font-size="10.5">
-                  <rect x="90" y="66" width="122" height="58" rx="12" fill="#D6DBE3"/>
-                  <text x="99" y="87" fill="#334155" font-family="ui-monospace, Consolas, monospace">FREE MSG: U have</text>
-                  <text x="99" y="101" fill="#334155" font-family="ui-monospace, Consolas, monospace">WON a prize! Txt</text>
-                  <text x="99" y="115" fill="#334155" font-family="ui-monospace, Consolas, monospace">CLAIM now</text>
-                  <rect x="90" y="146" width="140" height="62" rx="12" fill="#FFFFFF" stroke="#CBD5E1"/>
-                  <text x="99" y="166" fill="#0F172A" font-family="Source Sans 3, Segoe UI, system-ui, sans-serif">Your parcel is on hold.</text>
-                  <text x="99" y="181" fill="#0F172A" font-family="Source Sans 3, Segoe UI, system-ui, sans-serif">Pay the redelivery fee:</text>
-                  <text x="99" y="196" fill="#1F4FD1" font-family="Source Sans 3, Segoe UI, system-ui, sans-serif">[link]</text>
-                  <rect x="90" y="222" width="140" height="62" rx="12" fill="#FFFFFF" stroke="#CBD5E1"/>
-                  <text x="99" y="242" fill="#0F172A" font-family="Source Sans 3, Segoe UI, system-ui, sans-serif">Bank alert: new payee</text>
-                  <text x="99" y="257" fill="#0F172A" font-family="Source Sans 3, Segoe UI, system-ui, sans-serif">added. Not you? Call</text>
-                  <text x="99" y="272" fill="#1F4FD1" font-family="Source Sans 3, Segoe UI, system-ui, sans-serif">[phone]</text>
-                </g>
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <p class="st-status" data-st-status role="status" hidden></p>
-
-        <!-- 2. Chapters: one number each, read from /api/story -->
-        <article class="st-ch" id="st-ch-old" data-st-chapter="y2012_late_recall" data-st-tone="scam">
-          <div class="st-ch__text">
-            <h3 class="st-ch__title">The 2012 filter still catches most new scams, and warns on most real texts too.</h3>
-            <p class="st-ch__figure"><span class="st-num" data-st-num="y2012_late_recall">&ndash;</span></p>
-            <p class="st-ch__say"><span class="st-key st-key--scam" aria-hidden="true"></span>of scams reported in 2022-24 get flagged by a filter that only ever saw 2012 texts. But it also warns on <strong data-st-inline="y2012_fa_real_legit">&ndash;</strong> of real, modern legitimate texts from businesses.</p>
-            <p class="st-src" data-st-src="y2012_late_recall"></p>
-          </div>
-          <div class="st-waffle" data-st-waffle="y2012_late_recall" aria-hidden="true"></div>
-        </article>
-
-        <article class="st-ch st-ch--flip" data-st-chapter="naive_fix_fa_real_legit" data-st-tone="legit">
-          <div class="st-ch__text">
-            <h3 class="st-ch__title">Retrain it on new scams, and it still warns on almost everything.</h3>
-            <p class="st-ch__figure"><span class="st-num" data-st-num="naive_fix_fa_real_legit">&ndash;</span></p>
-            <p class="st-ch__say"><span class="st-key st-key--legit" aria-hidden="true"></span>of real, modern legitimate texts from businesses still get a false alarm. It now catches <strong data-st-inline="naive_fix_late_recall">&ndash;</strong> of new scams, but a warning on nearly every text means nothing.</p>
-            <p class="st-src" data-st-src="naive_fix_fa_real_legit"></p>
-          </div>
-          <div class="st-waffle" data-st-waffle="naive_fix_fa_real_legit" aria-hidden="true"></div>
-        </article>
-
-        <article class="st-ch" data-st-chapter="real_ham_fix_fa_real_legit" data-st-tone="legit">
-          <div class="st-ch__text">
-            <h3 class="st-ch__title">Teach it real legitimate texts too. Better, still not good.</h3>
-            <p class="st-ch__figure"><span class="st-num" data-st-num="real_ham_fix_fa_real_legit">&ndash;</span></p>
-            <p class="st-ch__say"><span class="st-key st-key--legit" aria-hidden="true"></span>of real legitimate texts still get a false alarm when real legitimate texts are added to the training data.</p>
-            <p class="st-src" data-st-src="real_ham_fix_fa_real_legit"></p>
-          </div>
-          <div class="st-waffle" data-st-waffle="real_ham_fix_fa_real_legit" aria-hidden="true"></div>
-        </article>
-
-        <article class="st-ch st-ch--ships" data-st-chapter="ships_warned_scams_2022_24" data-st-tone="scam">
-          <div class="st-ch__text">
-            <h3 class="st-ch__title">What ships: a warning to check, never a promise of safety.</h3>
-            <p class="st-ch__figure"><span class="st-num" data-st-num="ships_warned_scams_2022_24">&ndash;</span></p>
-            <p class="st-ch__say"><span class="st-key st-key--scam" aria-hidden="true"></span>of 2022-24 scams get a warning (High risk or Be careful) from the shipped checker. That is fewer than the 2012 filter (<strong data-st-inline="y2012_late_recall">&ndash;</strong>). In exchange, it warns on far fewer real legitimate texts: <strong data-st-inline="ships_fa_real_legit">&ndash;</strong><span data-st-oneinx="ships_fa_real_legit"></span>, against <strong data-st-inline="y2012_fa_real_legit">&ndash;</strong> for the 2012 filter. A warning means &ldquo;check first&rdquo;, not &ldquo;this is a scam&rdquo;.</p>
-            <p class="st-src" data-st-src="ships_warned_scams_2022_24"></p>
-          </div>
-          <ul class="st-tiers" aria-label="The three answers the checker can give">
-            <li class="st-tier st-tier--red">
-              <svg aria-hidden="true" viewBox="0 0 24 24" width="24" height="24"><path d="M7.9 2h8.2L22 7.9v8.2L16.1 22H7.9L2 16.1V7.9z"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
-              <span><strong>High risk</strong> Likely scam. Do not tap links or reply.</span>
-            </li>
-            <li class="st-tier st-tier--amber">
-              <svg aria-hidden="true" viewBox="0 0 24 24" width="24" height="24"><path d="M12 3 2 21h20z"/><path d="M12 10v4"/><path d="M12 17.5h.01"/></svg>
-              <span><strong>Be careful</strong> Ask a family member before replying.</span>
-            </li>
-            <li class="st-tier st-tier--green">
-              <svg aria-hidden="true" viewBox="0 0 24 24" width="24" height="24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
-              <span><strong>No warning signs</strong> The checker found nothing. That does not mean &ldquo;safe&rdquo;.</span>
-            </li>
-          </ul>
-        </article>
-
-        <!-- 3. Lead chart: bars grow once on enter; the table holds the same numbers -->
-        <section class="st-chart" aria-labelledby="st-chart-title">
-          <h3 class="st-chart__title" id="st-chart-title">Every option, side by side.</h3>
-          <p class="st-chart__lede">Good is a long blue bar and a short orange bar. No option gets both.</p>
-          <ul class="st-legend" aria-hidden="true">
-            <li><span class="st-swatch st-swatch--scam"></span>Real 2022-24 scams warned (higher is better)</li>
-            <li><span class="st-swatch st-swatch--legit"></span>Real legitimate texts warned (lower is better)</li>
-          </ul>
-          <figure class="st-chart__figure">
-            <div class="st-chart__svg" data-st-chart></div>
-            <figcaption class="st-chart__cap" id="st-chart-cap">Share of each test set that gets a warning, per option. Each value comes from the results file named in the table.</figcaption>
-          </figure>
-          <details class="st-table">
-            <summary>Show the numbers as a table</summary>
-            <div class="st-table__wrap" tabindex="0" role="region" aria-label="Numbers behind the chart">
-              <table>
-                <caption>Warnings per option, with counts and source keys</caption>
-                <thead><tr><th scope="col">Option</th><th scope="col">Real 2022-24 scams warned</th><th scope="col">Real legitimate texts warned</th><th scope="col">Source</th></tr></thead>
-                <tbody data-st-table></tbody>
-              </table>
-            </div>
-          </details>
-          <p class="st-chart__note" data-st-splitnote hidden>The first three rows come from <code>results/real_ham_fix_probe.json</code> (<span data-st-n="y2012_fa_real_legit"></span> held-out legitimate texts). The shipped row comes from the v2 run in <code>results/metrics.json</code> (<span data-st-n="ships_fa_real_legit"></span> held-out legitimate texts). The two runs split the Indian inbox in different ways, so compare the rows as a guide, not to the decimal.</p>
-          <a class="st-cta" href="#check">
-            <span>Check a text message now</span>
-            <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </a>
-        </section>
-
-        <!-- 4. Honesty: limits and sources -->
-        <section class="st-honest" aria-labelledby="st-honest-title">
-          <h3 class="st-honest__title" id="st-honest-title">What this does not prove.</h3>
-          <div class="st-honest__grid">
-            <ul class="st-honest__list">
-              <li><svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-                <span>The three answers, their rules and the strict warning level were designed after we saw the first results. Treat the shipped numbers as optimistic.</span></li>
-              <li data-st-needs="ships_nonenglish_raw ships_nonenglish_oracle"><svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>
-                <span>It mainly reads English. It warns on <strong data-st-inline="ships_nonenglish_raw">&ndash;</strong> of real non-English scams as written, and on <strong data-st-inline="ships_nonenglish_oracle">&ndash;</strong> when we score the dataset's own English translation (a best case, not a feature of this app).</span></li>
-              <li data-st-needs="ships_synthetic_legit_fa"><svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>
-                <span>Some test texts are synthetic: written with AI help for this project and labelled SYNTHETIC everywhere. The checker warns on <strong data-st-inline="ships_synthetic_legit_fa">&ndash;</strong> of the synthetic legitimate texts it never trained on.</span></li>
-              <li><svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                <span>The checker never says a text is safe. If a text asks you to pay, tap or reply, contact the company yourself on a number you already trust.</span></li>
-            </ul>
-            <div class="st-honest__sources">
-              <h4>Sources</h4>
-              <ul>
-                <li>SMS Spam Collection v.1, UCI Machine Learning Repository (2012 texts). CC BY 4.0.</li>
-                <li>Fishing for Smishing dataset, ACM IMC 2025 (public scam reports, 2022-24 and earlier). CC BY 4.0.</li>
-                <li>India SMS inbox sample and MOZ-Smishing legitimate texts (Hugging Face, pinned revisions). Test or training use as listed in <code>CREDITS.md</code>.</li>
-                <li>Every number on this page is read from <code>results/real_ham_fix_probe.json</code> and <code>results/metrics.json</code> when the page loads.</li>
-              </ul>
-            </div>
-          </div>
-          <p class="st-disclaimer" data-st-disclaimer>This project is a prototype and is not financial advice.</p>
-          <p class="st-version">Post-deadline v3 (Nov 18). The judged hackathon entry is unchanged.</p>
-        </section>
-      </div>
-      <script src="story.js" defer></script>
-    </section>
   </main>
 
   <footer class="site-footer">
     <div class="wrap">
-      <p><strong>This project is a prototype and is not financial advice.</strong> Synthetic examples are labelled. Numbers on this site come from the project&rsquo;s results files.</p>
-      <p class="footer-small">Scam Drift v3 interface, built after the judged submission (post-deadline). The judged version is unchanged.</p>
+      <p><strong>This project is a prototype and is not financial advice.</strong> Synthetic examples are labelled. <a href="https://consumer.ftc.gov/articles/how-recognize-and-report-spam-text-messages">How to report a scam text</a>. <a href="https://consumer.ftc.gov/articles/what-do-if-you-were-scammed">What to do if you already paid</a>.</p>
+      <p class="footer-small">Post-deadline prototype · Veritas AI High School Hackathon · AI + Finance · <a href="/#drift">Full study</a></p>
     </div>
   </footer>
 

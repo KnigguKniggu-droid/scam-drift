@@ -279,7 +279,3 @@ mark .ph { color: inherit; background: transparent; border: 0; padding: 0; }
   .ph { border-color: CanvasText; }
   .msg-view mark { forced-color-adjust: none; background: Mark; color: MarkText; }
 }
-
-/* v3.1: story (3D hero, smooth scroll, scroll-scrubbed sections) first; calm checker after it */
-main { display: flex; flex-direction: column; }
-#story { order: -1; }

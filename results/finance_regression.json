@@ -1,0 +1,346 @@
+{
+  "report": {
+    "warning_cases": 13,
+    "missed_warnings": 7,
+    "legitimate_controls": 12,
+    "false_alarms": 1
+  },
+  "cases": [
+    {
+      "id": "reported-literal",
+      "expected": "warn",
+      "tier": "RED",
+      "pass": true,
+      "signals": [
+        "model"
+      ],
+      "engine": "bert-tiny-sms-v1"
+    },
+    {
+      "id": "reported-rendered",
+      "expected": "warn",
+      "tier": "RED",
+      "pass": true,
+      "signals": [
+        "model"
+      ],
+      "engine": "bert-tiny-sms-v1"
+    },
+    {
+      "id": "reported-without-demo-url",
+      "expected": "warn",
+      "tier": "GREEN",
+      "pass": false,
+      "signals": [],
+      "engine": "bert-tiny-sms-v1"
+    },
+    {
+      "id": "reported-no-visible-url",
+      "expected": "warn",
+      "tier": "GREEN",
+      "pass": false,
+      "signals": [],
+      "engine": "bert-tiny-sms-v1"
+    },
+    {
+      "id": "reported-https",
+      "expected": "warn",
+      "tier": "RED",
+      "pass": true,
+      "signals": [
+        "model"
+      ],
+      "engine": "bert-tiny-sms-v1"
+    },
+    {
+      "id": "tax-election-external",
+      "expected": "warn",
+      "tier": "GREEN",
+      "pass": false,
+      "signals": [
+        "contact"
+      ],
+      "engine": "bert-tiny-sms-v1"
+    },
+    {
+      "id": "tax-election-short",
+      "expected": "warn",
+      "tier": "GREEN",
+      "pass": false,
+      "signals": [],
+      "engine": "bert-tiny-sms-v1"
+    },
+    {
+      "id": "tax-form-sensitive-reply",
+      "expected": "warn",
+      "tier": "YELLOW",
+      "pass": true,
+      "signals": [
+        "model"
+      ],
+      "engine": "bert-tiny-sms-v1"
+    },
+    {
+      "id": "tax-refund-portal",
+      "expected": "warn",
+      "tier": "GREEN",
+      "pass": false,
+      "signals": [
+        "contact"
+      ],
+      "engine": "bert-tiny-sms-v1"
+    },
+    {
+      "id": "custody-signature",
+      "expected": "warn",
+      "tier": "GREEN",
+      "pass": false,
+      "signals": [],
+      "engine": "bert-tiny-sms-v1"
+    },
+    {
+      "id": "wire-change",
+      "expected": "warn",
+      "tier": "YELLOW",
+      "pass": true,
+      "signals": [
+        "payment_method",
+        "neural_model"
+      ],
+      "engine": "bert-tiny-sms-v1"
+    },
+    {
+      "id": "broker-code",
+      "expected": "warn",
+      "tier": "YELLOW",
+      "pass": true,
+      "signals": [
+        "credential",
+        "neural_model"
+      ],
+      "engine": "bert-tiny-sms-v1"
+    },
+    {
+      "id": "invoice-change",
+      "expected": "warn",
+      "tier": "GREEN",
+      "pass": false,
+      "signals": [],
+      "engine": "bert-tiny-sms-v1"
+    },
+    {
+      "id": "no-action-tax-form",
+      "expected": "green",
+      "tier": "GREEN",
+      "pass": true,
+      "signals": [],
+      "engine": "bert-tiny-sms-v1"
+    },
+    {
+      "id": "tax-election-in-app",
+      "expected": "green",
+      "tier": "GREEN",
+      "pass": true,
+      "signals": [],
+      "engine": "bert-tiny-sms-v1"
+    },
+    {
+      "id": "tax-meeting",
+      "expected": "green",
+      "tier": "GREEN",
+      "pass": true,
+      "signals": [],
+      "engine": "bert-tiny-sms-v1"
+    },
+    {
+      "id": "custodian-confirmation",
+      "expected": "green",
+      "tier": "GREEN",
+      "pass": true,
+      "signals": [],
+      "engine": "bert-tiny-sms-v1"
+    },
+    {
+      "id": "existing-tax-portal",
+      "expected": "green",
+      "tier": "GREEN",
+      "pass": true,
+      "signals": [],
+      "engine": "bert-tiny-sms-v1"
+    },
+    {
+      "id": "tax-form-negation",
+      "expected": "green",
+      "tier": "GREEN",
+      "pass": true,
+      "signals": [],
+      "engine": "bert-tiny-sms-v1"
+    },
+    {
+      "id": "payroll-posted",
+      "expected": "green",
+      "tier": "YELLOW",
+      "pass": false,
+      "signals": [
+        "neural_model"
+      ],
+      "engine": "bert-tiny-sms-v1"
+    },
+    {
+      "id": "invoice-paid",
+      "expected": "green",
+      "tier": "GREEN",
+      "pass": true,
+      "signals": [],
+      "engine": "bert-tiny-sms-v1"
+    },
+    {
+      "id": "bank-change-warning",
+      "expected": "green",
+      "tier": "GREEN",
+      "pass": true,
+      "signals": [],
+      "engine": "bert-tiny-sms-v1"
+    },
+    {
+      "id": "investment-report",
+      "expected": "green",
+      "tier": "GREEN",
+      "pass": true,
+      "signals": [],
+      "engine": "bert-tiny-sms-v1"
+    },
+    {
+      "id": "linkless-reminder",
+      "expected": "green",
+      "tier": "GREEN",
+      "pass": true,
+      "signals": [],
+      "engine": "bert-tiny-sms-v1"
+    },
+    {
+      "id": "trusted-broker-navigation",
+      "expected": "green",
+      "tier": "GREEN",
+      "pass": true,
+      "signals": [],
+      "engine": "bert-tiny-sms-v1"
+    }
+  ],
+  "local_reported_diagnostics": [
+    {
+      "id": "reported-literal",
+      "recognized_link": true,
+      "lexical_score": 0.9402,
+      "neural_logit": 2.6941
+    },
+    {
+      "id": "reported-rendered",
+      "recognized_link": true,
+      "lexical_score": 0.9462,
+      "neural_logit": 2.7192
+    },
+    {
+      "id": "reported-without-demo-url",
+      "recognized_link": false,
+      "lexical_score": 0.9267,
+      "neural_logit": 2.7376
+    },
+    {
+      "id": "reported-no-visible-url",
+      "recognized_link": false,
+      "lexical_score": 0.9059,
+      "neural_logit": 2.6029
+    },
+    {
+      "id": "reported-https",
+      "recognized_link": true,
+      "lexical_score": 0.9407,
+      "neural_logit": 2.6384
+    }
+  ],
+  "local_lexical_threshold": 0.94,
+  "local_neural_logit_threshold": 2.8749022483825684,
+  "targeted": 150,
+  "transport_and_edges": 19,
+  "max_length_in_process_ms": 183.6,
+  "targeted_failures": [],
+  "http_load": {
+    "requests": 512,
+    "success": 512,
+    "workers": 8,
+    "p50_ms": 41.6,
+    "p95_ms": 219.6,
+    "max_ms": 250.5
+  },
+  "corpus": {
+    "dated_english_reports": {
+      "n": 1080,
+      "v3_warned": 715,
+      "web-v5_warned": 754,
+      "web-v5_red": 424,
+      "web-v5_uncertain_subset": 12
+    },
+    "dated_english_cluster_safe": {
+      "n": 927,
+      "v3_warned": 575,
+      "web-v5_warned": 611,
+      "web-v5_red": 344,
+      "web-v5_uncertain_subset": 12
+    },
+    "other_language_reports": {
+      "n": 8866,
+      "v3_warned": 1433,
+      "web-v5_warned": 3008,
+      "web-v5_red": 976,
+      "web-v5_uncertain_subset": 1515
+    },
+    "held_out_india_business_legitimate": {
+      "n": 608,
+      "v3_warned": 141,
+      "web-v5_warned": 173,
+      "web-v5_red": 78,
+      "web-v5_uncertain_subset": 10
+    },
+    "mozambique_legitimate": {
+      "n": 1608,
+      "v3_warned": 35,
+      "web-v5_warned": 93,
+      "web-v5_red": 30,
+      "web-v5_uncertain_subset": 58
+    },
+    "uci_2012_legitimate": {
+      "n": 903,
+      "v3_warned": 15,
+      "web-v5_warned": 22,
+      "web-v5_red": 0,
+      "web-v5_uncertain_subset": 18
+    },
+    "uci_2012_spam": {
+      "n": 124,
+      "v3_warned": 92,
+      "web-v5_warned": 95,
+      "web-v5_red": 71,
+      "web-v5_uncertain_subset": 0
+    },
+    "synthetic_legitimate": {
+      "n": 30,
+      "v3_warned": 5,
+      "web-v5_warned": 8,
+      "web-v5_red": 1,
+      "web-v5_uncertain_subset": 0
+    },
+    "synthetic_scam": {
+      "n": 40,
+      "v3_warned": 30,
+      "web-v5_warned": 33,
+      "web-v5_red": 23,
+      "web-v5_uncertain_subset": 0
+    }
+  },
+  "notes": [
+    "Finance controls are targeted fixtures. The counts are not a population estimate.",
+    "The corpus uses the full web tier policy. A warning includes YELLOW for uncertain input. The date-cluster cohort is a subset of the dated English cohort.",
+    "The training report scores only lexical and neural model gates. It excludes written rules and uncertain-input warnings."
+  ]
+}

@@ -1,0 +1,301 @@
+{
+  "model": "bert-tiny-sms-v1",
+  "base": "google/bert_uncased_L-2_H-128_A-2",
+  "revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+  "threshold_logit": 2.8749022483825684,
+  "enabled": true,
+  "seed": 42,
+  "epochs": 4,
+  "training_rows": 5385,
+  "training_positive": 1605,
+  "extra_validation_fa_budget": 0.03,
+  "max_extra_test_fa": 0.05,
+  "cohorts": {
+    "validation_scam_2021": {
+      "recall": {
+        "lexical": {
+          "rate": 0.747,
+          "k": 499,
+          "n": 668,
+          "ci95": [
+            0.7127,
+            0.7785
+          ]
+        },
+        "neural": {
+          "rate": 0.2635,
+          "k": 176,
+          "n": 668,
+          "ci95": [
+            0.2315,
+            0.2982
+          ]
+        },
+        "combined": {
+          "rate": 0.774,
+          "k": 517,
+          "n": 668,
+          "ci95": [
+            0.7407,
+            0.8041
+          ]
+        },
+        "additional_flags": 18
+      }
+    },
+    "validation_legitimate_groups": {
+      "false_alarm_rate": {
+        "lexical": {
+          "rate": 0.0027,
+          "k": 1,
+          "n": 364,
+          "ci95": [
+            0.0005,
+            0.0154
+          ]
+        },
+        "neural": {
+          "rate": 0.0247,
+          "k": 9,
+          "n": 364,
+          "ci95": [
+            0.0131,
+            0.0463
+          ]
+        },
+        "combined": {
+          "rate": 0.0275,
+          "k": 10,
+          "n": 364,
+          "ci95": [
+            0.015,
+            0.0498
+          ]
+        },
+        "additional_flags": 9
+      }
+    },
+    "late_english_unseen_templates": {
+      "recall": {
+        "lexical": {
+          "rate": 0.6084,
+          "k": 564,
+          "n": 927,
+          "ci95": [
+            0.5766,
+            0.6393
+          ]
+        },
+        "neural": {
+          "rate": 0.2481,
+          "k": 230,
+          "n": 927,
+          "ci95": [
+            0.2214,
+            0.2769
+          ]
+        },
+        "combined": {
+          "rate": 0.6451,
+          "k": 598,
+          "n": 927,
+          "ci95": [
+            0.6137,
+            0.6752
+          ]
+        },
+        "additional_flags": 34
+      }
+    },
+    "late_english_all": {
+      "recall": {
+        "lexical": {
+          "rate": 0.6519,
+          "k": 704,
+          "n": 1080,
+          "ci95": [
+            0.6229,
+            0.6797
+          ]
+        },
+        "neural": {
+          "rate": 0.2287,
+          "k": 247,
+          "n": 1080,
+          "ci95": [
+            0.2046,
+            0.2547
+          ]
+        },
+        "combined": {
+          "rate": 0.6861,
+          "k": 741,
+          "n": 1080,
+          "ci95": [
+            0.6578,
+            0.7131
+          ]
+        },
+        "additional_flags": 37
+      }
+    },
+    "modern_legitimate_heldout_groups": {
+      "false_alarm_rate": {
+        "lexical": {
+          "rate": 0.2039,
+          "k": 124,
+          "n": 608,
+          "ci95": [
+            0.1738,
+            0.2378
+          ]
+        },
+        "neural": {
+          "rate": 0.1349,
+          "k": 82,
+          "n": 608,
+          "ci95": [
+            0.11,
+            0.1643
+          ]
+        },
+        "combined": {
+          "rate": 0.2336,
+          "k": 142,
+          "n": 608,
+          "ci95": [
+            0.2017,
+            0.2688
+          ]
+        },
+        "additional_flags": 18
+      }
+    },
+    "historical_uci_test": {
+      "recall": {
+        "lexical": {
+          "rate": 0.7339,
+          "k": 91,
+          "n": 124,
+          "ci95": [
+            0.6499,
+            0.8038
+          ]
+        },
+        "neural": {
+          "rate": 0.5968,
+          "k": 74,
+          "n": 124,
+          "ci95": [
+            0.5088,
+            0.679
+          ]
+        },
+        "combined": {
+          "rate": 0.7661,
+          "k": 95,
+          "n": 124,
+          "ci95": [
+            0.6843,
+            0.8319
+          ]
+        },
+        "additional_flags": 4
+      },
+      "false_alarm_rate": {
+        "lexical": {
+          "rate": 0.0022,
+          "k": 2,
+          "n": 903,
+          "ci95": [
+            0.0006,
+            0.008
+          ]
+        },
+        "neural": {
+          "rate": 0.0011,
+          "k": 1,
+          "n": 903,
+          "ci95": [
+            0.0002,
+            0.0062
+          ]
+        },
+        "combined": {
+          "rate": 0.0033,
+          "k": 3,
+          "n": 903,
+          "ci95": [
+            0.0011,
+            0.0097
+          ]
+        },
+        "additional_flags": 1
+      }
+    },
+    "synthetic_legitimate_test": {
+      "false_alarm_rate": {
+        "lexical": {
+          "rate": 0.1667,
+          "k": 5,
+          "n": 30,
+          "ci95": [
+            0.0734,
+            0.3356
+          ]
+        },
+        "neural": {
+          "rate": 0.2333,
+          "k": 7,
+          "n": 30,
+          "ci95": [
+            0.1179,
+            0.4093
+          ]
+        },
+        "combined": {
+          "rate": 0.2667,
+          "k": 8,
+          "n": 30,
+          "ci95": [
+            0.1418,
+            0.4445
+          ]
+        },
+        "additional_flags": 3
+      }
+    },
+    "synthetic_scam_test": {
+      "recall": {
+        "lexical": {
+          "rate": 0.675,
+          "k": 27,
+          "n": 40,
+          "ci95": [
+            0.5202,
+            0.7992
+          ]
+        },
+        "neural": {
+          "rate": 0.475,
+          "k": 19,
+          "n": 40,
+          "ci95": [
+            0.3294,
+            0.625
+          ]
+        },
+        "combined": {
+          "rate": 0.775,
+          "k": 31,
+          "n": 40,
+          "ci95": [
+            0.625,
+            0.8768
+          ]
+        },
+        "additional_flags": 4
+      }
+    }
+  }
+}

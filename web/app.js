@@ -1,6 +1,6 @@
-/* Scam Drift v3 checker (post-deadline). No build step, no libraries.
+/* Scam Drift checker (post-deadline). No build step, no libraries.
    Talks to server.py: POST /api/check, GET /api/examples. Builds every node with the DOM API (no innerHTML with
-   message text). Motion: one verdict reveal (opacity + 8 px rise, 220 ms ease-out), nothing on typing.
+   message text). Sends focus to the verdict after an explicit check.
    This project is a prototype and is not financial advice. */
 (function () {
   "use strict";
@@ -8,12 +8,33 @@
   var $ = function (id) { return document.getElementById(id); };
   var form = $("check-form"), msg = $("msg"), countN = $("count-n"), pasteBtn = $("paste-btn"),
       pasteStatus = $("paste-status"), checkBtn = $("check-btn"), checkBtnText = $("check-btn-text"),
-      clearBtn = $("clear-btn"), result = $("result"), announce = $("announce"), exList = $("ex-list");
+      clearBtn = $("clear-btn"), result = $("result"), announce = $("announce"), exList = $("ex-list"),
+      sampleButtons = [$("sample-btn")].concat(Array.from(document.querySelectorAll("[data-run-sample]")));
 
-  var reduceMotion = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
+  var recovery = $('recovery');
+  var recoverySummary = recovery.querySelector('summary');
+  var recoveryStatus = $('recovery-status');
+  recovery.addEventListener('change', function (event) {
+    if (event.target.name !== 'recovery-step') return;
+    var selected = event.target.value;
+    for (var panel of recovery.querySelectorAll('[data-recovery-panel]')) {
+      panel.hidden = panel.dataset.recoveryPanel !== selected;
+      if (!panel.hidden) recoveryStatus.textContent = panel.querySelector('li').textContent;
+    }
+  });
+
+  function openRecovery(event) {
+    if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+    event.preventDefault();
+    recovery.open = true;
+    recoverySummary.focus({ preventScroll: true });
+    recovery.scrollIntoView({ block: 'nearest' });
+  }
+
   var canSpeak = "speechSynthesis" in window && typeof window.SpeechSynthesisUtterance === "function";
   var requestId = 0;
-  var examples = [];
+  var activeCheck = null;
+  var announcementTimer;
 
   /* ---------- tiny DOM helper ---------- */
   function h(tag, attrs, children) {
@@ -61,13 +82,19 @@
     countN.textContent = n.toLocaleString();
     clearBtn.hidden = n === 0;
   }
-  msg.addEventListener("input", function () { updateCount(); pasteStatus.textContent = ""; markExample(null); });
+  msg.addEventListener("input", function () {
+    cancelCheck();
+    clearResult();
+    updateCount();
+    pasteStatus.textContent = "";
+    markExample(null);
+  });
   // Touch screens have no Shift key: there, Enter makes a new line and the Check button checks.
   var coarse = window.matchMedia ? window.matchMedia("(pointer: coarse)") : { matches: false };
   var msgHint = $("msg-hint");
   function updateHint() {
     msgHint.textContent = coarse.matches
-      ? "Press the “Check this text” button when you are ready."
+      ? "Tap Check this text when ready."
       : "Press Enter to check. Press Shift and Enter for a new line.";
   }
   updateHint();
@@ -98,7 +125,9 @@
         pasteStatus.textContent = "The clipboard is empty. Copy the text message first, then try again.";
         return;
       }
-      msg.value = t.slice(0, MAX);
+      cancelCheck();
+      clearResult();
+      msg.value = t.length > MAX ? t.slice(0, MAX).replace(/[\uD800-\uDBFF]$/, "") : t;
       updateCount();
       markExample(null);
       msg.focus();
@@ -110,6 +139,7 @@
   });
 
   clearBtn.addEventListener("click", function () {
+    cancelCheck();
     msg.value = "";
     updateCount();
     clearResult();
@@ -131,53 +161,73 @@
     if (!busy) { checkBtnText.textContent = "Check this text"; }
   }
 
+  function cancelCheck() {
+    requestId++;
+    if (activeCheck) activeCheck.abort();
+    activeCheck = null;
+    setBusy(false);
+  }
+
   function runCheck() {
     var text = msg.value;
+    cancelCheck();
+    clearResult();
     if (!text.trim()) {
-      requestId++;
-      clearResult();
       pasteStatus.textContent = "Paste or type a text message first.";
       msg.focus();
       return;
     }
-    var id = ++requestId;
+    var id = requestId;
+    var controller = new AbortController();
+    activeCheck = controller;
     setBusy(true);
     var slow = setTimeout(function () { if (id === requestId) checkBtnText.textContent = "Checking…"; }, 150);
+    var timeout = setTimeout(function () { controller.abort(); }, 12000);
     fetch("/api/check", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
       body: JSON.stringify({ text: text })
-    }).then(function (r) {
-      if (!r.ok) { var err = new Error("HTTP " + r.status); err.status = r.status; throw err; }
-      return r.json();
+    }).then(function (response) {
+      if (!response.ok) {
+        var error = new Error("HTTP " + response.status);
+        error.status = response.status;
+        throw error;
+      }
+      return response.json();
     }).then(function (data) {
-      if (id !== requestId) return;
-      render(data, text);
-    }).catch(function (err) {
-      if (id !== requestId) return;
-      renderError(err && err.status);
-    }).then(function () {
+      if (id === requestId) render(data, text);
+    }).catch(function (error) {
+      if (id === requestId) renderError(error.status, error.name === "AbortError");
+    }).finally(function () {
       clearTimeout(slow);
-      if (id === requestId) setBusy(false);
+      clearTimeout(timeout);
+      if (id === requestId) {
+        activeCheck = null;
+        setBusy(false);
+      }
     });
   }
 
   function clearResult() {
     stopSpeaking();
     result.textContent = "";
+    clearTimeout(announcementTimer);
     announce.textContent = "";
   }
 
   function say(text) {
     announce.textContent = "";
-    setTimeout(function () { announce.textContent = text; }, 60);
+    clearTimeout(announcementTimer);
+    announcementTimer = setTimeout(function () { announce.textContent = text; }, 60);
   }
 
-  function renderError(status) {
+  function renderError(status, timedOut) {
     clearResult();
-    var text = status === 422 || status === 413
-      ? "This message is too long to check. Paste only the text message."
-      : "The checker is not running. Ask the person who set it up to start it, then try again.";
+    var text = "The checker could not connect. Your text is still here. Try again.";
+    if (timedOut) text = "The check took too long. Your text is still here. Try again.";
+    if (status === 422 || status === 413) text = "The checker could not read the text. Paste just the message and try again.";
+    if (status === 503) text = "The checker is temporarily unavailable. Try again in a moment.";
     result.appendChild(h("div", { class: "error-box" }, [h("p", { text: text })]));
     say(text);
   }
@@ -205,7 +255,7 @@
   function findRanges(text, words) {
     var ranges = [];
     words.forEach(function (w) {
-      var re = TOKEN_PATTERNS[w] ? new RegExp(TOKEN_PATTERNS[w].source, TOKEN_PATTERNS[w].flags) : wordPattern(w);
+      var re = Object.hasOwn(TOKEN_PATTERNS, w) ? new RegExp(TOKEN_PATTERNS[w].source, TOKEN_PATTERNS[w].flags) : wordPattern(w);
       var m, n = 0;
       while (n < MAX_MARKS_PER_WORD && (m = re.exec(text)) !== null) {
         if (m[0].length === 0) { re.lastIndex++; continue; }
@@ -255,16 +305,6 @@
     return box;
   }
 
-  /* Concrete things in the message that a person can check (plain facts, not model output). */
-  function signals(text) {
-    var out = [];
-    if (/<URL>|\bhttps?:\/\/|\bwww\./i.test(text) || new RegExp(TOKEN_PATTERNS["[a web link]"].source, "i").test(text)) out.push("a web link");
-    if (/<PHONE_NUMBER>/.test(text) || /\+?\d[\d ().-]{7,}\d/.test(text)) out.push("a phone number");
-    if (/\b(code|pin|otp|passcode|password)\b/i.test(text)) out.push("a code or password");
-    if (/[$£€₹]\s?\d|\b\d[\d,.]*\s?(USD|EUR|GBP|dollars?|pounds?|euros?)\b|\b(pay|payment|fee|transfer|gift card)s?\b/i.test(text)) out.push("money or a payment");
-    return out;
-  }
-
   /* ---------- read aloud (Web Speech API: speech is made in the browser) ---------- */
   var speakBtn = null;
   function stopSpeaking() {
@@ -290,16 +330,6 @@
 
   /* ---------- render ---------- */
   // Page-layer wording (app.py is not changed): every "What to do now" item starts with a verb.
-  var ACTION_TEXT = {
-    "The checker found no warning signs, but this does not prove the text is safe.":
-      "Stay careful: “no warning signs” does not prove the text is safe."
-  };
-  // Same steps as the "Be careful" answer in app.py (ACTIONS["YELLOW"]).
-  var UNSURE_ACTIONS = [
-    "Do not send money, gift cards or codes yet.",
-    "Ask a family member or a friend before you reply.",
-    "Contact the person or company another way, on a number you already know."
-  ];
   function render(d, text) {
     clearResult();
     if (!d || !d.tier) {
@@ -307,16 +337,16 @@
       return;
     }
     var tier = d.tier;
-    // Presentation only (the API tier is unchanged): a GREEN answer on text the checker cannot read well
-    // (not English, or too few words) is shown as "ask family", never as a calm green card.
-    var unsure = tier === "GREEN" && !!d.translation_note;
+    var unsure = d.uncertain === true;
     var tierClass = unsure ? "verdict-unsure" : "verdict-" + tier.toLowerCase();
-    var label = unsure ? "Cannot check this text well" : d.label;
-    var headline = unsure ? "Ask a family member before you reply." : (d.headline || "").replace(" - ", " – ");
-    var acts = unsure ? UNSURE_ACTIONS : (d.actions || []).map(function (a) { return ACTION_TEXT[a] || a; });
+    var label = d.label;
+    var green = tier === "GREEN";
+    var headline = green ? "The sender is unverified." : d.headline || "";
+    var greenNote = green ? "No warning signs found in the text. Before you sign, share account details or pay, verify the request through your usual app or a number you already trust." : "";
+    var acts = d.actions || [];
 
     var actions = h("ol", null, acts.map(function (a) { return h("li", { text: a }); }));
-    var spoken = label + ". " + headline + ". " + (d.translation_note ? d.translation_note + " " : "") +
+    var spoken = (green ? "" : label + ". ") + headline + " " + (greenNote ? greenNote + " " : "") + (d.translation_note ? d.translation_note + " " : "") +
       "What to do now. " + acts.join(" ");
 
     speakBtn = null;
@@ -334,55 +364,55 @@
       d.translation_detail ? h("p", { class: "callout-detail", text: d.translation_detail }) : null
     ])]) : null;
 
-    // GREEN keeps no separate label: "No warning signs" above "No warning signs found" says the same thing twice.
-    var showLabel = unsure || tier !== "GREEN";
+    var showLabel = !green;
+    var verdictHeading = h("h2", { id: "verdict-headline", class: "verdict-headline", tabindex: "-1",
+      "aria-describedby": showLabel ? "verdict-context" : null, text: headline });
     var verdict = h("article", { class: "verdict " + tierClass, "data-tier": tier, "data-display": unsure ? "UNSURE" : null,
       "aria-labelledby": "verdict-headline" }, [
       h("div", { class: "verdict-head" }, [
-        h("span", { class: "verdict-icon", "aria-hidden": "true" }, [icon(unsure ? "YELLOW" : tier)]),
+        h("span", { class: "verdict-icon", "aria-hidden": "true" }, [icon(tier)]),
         h("div", null, [
-          showLabel ? h("p", { class: "verdict-label", text: label }) : null,
-          h("h2", { id: "verdict-headline", class: "verdict-headline", text: headline })
+          showLabel ? h("p", { id: "verdict-context", class: "verdict-label", text: label }) : null,
+          verdictHeading
         ])
       ]),
+      green ? h("div", { class: "callout" }, [h("p", { class: "callout-warn", text: greenNote })]) : null,
       callout,
       h("div", { class: "verdict-actions" }, [h("h3", { text: "What to do now" }), actions]),
-      tools
+      tools,
+      h("div", { class: "verdict-links" }, [
+        h("a", { href: "#msg", text: "Edit text", onclick: function (event) {
+          if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
+          event.preventDefault();
+          msg.focus();
+        } }),
+        h("a", { href: "#recovery", onclick: openRecovery, text: "Already acted? Get recovery steps" })
+      ])
     ]);
     result.appendChild(verdict);
 
     var words = d.top_words || [];
-    var found = signals(text);
+    var found = d.signals || [];
+    var evidence = found.map(function (signal) { return signal.phrase; }).filter(Boolean);
+    var marked = evidence.concat(words);
     var why = h("section", { class: "panel why" + (tier === "GREEN" ? " why-calm" : ""), "aria-labelledby": "why-title" }, [
-      h("h2", { id: "why-title", text: "Why" }),
-      h("p", { class: "why-reason", text: d.reason }),
+      h("h3", { id: "why-title", text: "Why this result?" }),
+      found.length ? null : h("p", { class: "why-reason", text: d.reason }),
       found.length ? h("div", { class: "why-signals" }, [
-        h("p", { text: "Things in this message to check before you act:" }),
-        h("ul", null, found.map(function (s) { return h("li", { text: s }); }))
+        h("ul", null, found.map(function (s) { return h("li", { text: s.label }); }))
       ]) : null,
-      (words.length || d.compare_2012) ? h("details", { class: "helpers" }, [
-        h("summary", { text: "Details for helpers" }),
-        words.length ? h("p", { class: "why-sub", text: "Words the computer weighed most (not rules to learn):" }) : null,
-        words.length ? markedMessage(text, words) : null,
-        words.length ? h("p", { class: "why-legend", text: "Common words such as “your” or “please” can be marked. They are not signs of a scam on their own. The checker reads the whole message." }) : null,
+      (marked.length || d.compare_2012) ? h("details", { class: "helpers" }, [
+        h("summary", { text: "See the highlighted text" }),
+        marked.length ? markedMessage(text, marked) : null,
+        words.length ? h("p", { class: "why-legend", text: "Highlighted phrases include detected requests and words that influenced the model. Judge the full message and verify the sender separately." }) : null,
         d.compare_2012 ? h("p", { class: "why-legend" }, [h("strong", { text: "For comparison: " }), d.compare_2012]) : null
       ]) : null,
       d.note ? h("div", { class: "why-meta" }, [h("p", null, [h("strong", { text: "About this example: " }), plainText(d.note)])]) : null
     ]);
     result.appendChild(why);
 
-    // One authored moment: the whole result (verdict, warning, Why) rises 8 px and fades in, once, together.
-    if (!reduceMotion.matches) {
-      result.setAttribute("data-enter", "");
-      void result.offsetHeight;
-      requestAnimationFrame(function () { result.removeAttribute("data-enter"); });
-    }
-
-    say(label + ". " + headline + (d.translation_note ? " " + d.translation_note : ""));
-    var top = verdict.getBoundingClientRect().top;
-    if (top < 0 || top > window.innerHeight * 0.75) {
-      verdict.scrollIntoView({ block: "start", behavior: reduceMotion.matches ? "auto" : "smooth" });
-    }
+    verdictHeading.focus({ preventScroll: true });
+    verdict.scrollIntoView({ block: "start" });
   }
 
   /* ---------- examples ---------- */
@@ -393,25 +423,32 @@
     });
   }
 
+  function runExample(example) {
+    msg.value = example.text;
+    updateCount();
+    pasteStatus.textContent = "";
+    markExample(example.id);
+    runCheck();
+  }
+
   function renderExamples(list) {
+    var primary = list.find(function (example) { return example.id === "ex1"; });
+    if (primary) {
+      sampleButtons.forEach(function (button) {
+        button.hidden = false;
+        button.onclick = function () { runExample(primary); };
+      });
+    }
     exList.textContent = "";
     list.forEach(function (ex) {
       var kind = ex.kind === "REAL" ? "REAL" : "SYNTHETIC";
       var btn = h("button", { type: "button", class: "ex-card", "data-id": ex.id,
         "aria-label": kind + " example: " + ex.label + ". " + plainText(ex.source) + " Check this example.",
-        onclick: function () {
-          msg.value = ex.text;
-          updateCount();
-          pasteStatus.textContent = "";
-          markExample(ex.id);
-          runCheck();
-        } }, [
+        onclick: function () { runExample(ex); } }, [
         h("span", { class: "ex-top" }, [
           h("span", { class: "tag " + (kind === "REAL" ? "tag-real" : "tag-synthetic"), text: kind }),
           h("span", { class: "ex-title", text: ex.label })
-        ]),
-        appendText(h("span", { class: "ex-text" }), ex.text),
-        h("span", { class: "ex-source", text: ex.source })
+        ])
       ]);
       exList.appendChild(h("li", null, [btn]));
     });
@@ -421,20 +458,19 @@
     if (!r.ok) throw new Error("HTTP " + r.status);
     return r.json();
   }).then(function (list) {
-    examples = list;
     renderExamples(list);
   }).catch(function () {
     exList.appendChild(h("li", { class: "section-note", text: "Examples could not load. Check that server.py is running." }));
   });
 
   updateCount();
-  window.addEventListener("pagehide", stopSpeaking);
+  window.addEventListener("pagehide", function () { cancelCheck(); stopSpeaking(); });
 
   // Small read-only hook for the browser checks (frontend-ship-guard step 3).
   window.scamDrift = {
     state: function () {
       var v = result.querySelector(".verdict");
-      return { examples: examples.length, tier: v ? v.getAttribute("data-tier") : null,
+      return { examples: exList.querySelectorAll(".ex-card").length, tier: v ? v.getAttribute("data-tier") : null,
                marks: result.querySelectorAll("mark").length, speech: canSpeak,
                chars: msg.value.length, revealDone: v ? !result.hasAttribute("data-enter") : null,
                display: v ? (v.getAttribute("data-display") || v.getAttribute("data-tier")) : null };

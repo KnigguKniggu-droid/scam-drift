@@ -5,14 +5,58 @@
 
 This project is a prototype and is not financial advice.
 
-> **post-deadline v2 (Nov 18).** The judged hackathon entry is git `main` at commit `01abbc9`; it does not change. This README describes the post-deadline branch. Every number comes from `results/metrics.json` (seeded run of `src/scam_drift.py`; v2 results under the key `v2`).
+**Post-deadline demo.** The judged entry is git `main` at `01abbc9`. This branch is for the demo and portfolio.
 
-**Can yesterday's AI recognise tomorrow's scams?** Only partly. A filter trained on 2012 texts catches 75.7% of scams reported in 2022-24. Retraining it on new scams alone catches 96.6%, but it also flags 99.5% of real modern legitimate texts (held-out Indian inbox), so that "fix" is not a win. Our prototype warn-only triage warns on 65.7% of new scams and on 22.9% of those legitimate texts: false alarms on real modern texts remain high.
+## Check a text
 
-## The problem
+Install `requirements.txt` and `requirements-neural.txt`, then run `python server.py` and open `http://127.0.0.1:8000`. Keep the saved models in `models/`. The homepage incorporates William’s study frontend and Lenis scrolling from `gh-pages` commit `7e834e7`. The Inbox Flood is available at `/lab/`. FastAPI serves both checkers through `/api/check`. The homepage loads parts of the 3D study and its scrolling from a CDN. The Inbox Flood uses local scripts and fonts.
+
+Set `SCAM_DRIFT_REQUIRE_CONTEXT=1` for deployment so startup fails if the fine-tuned model cannot load. A readable English smoke-test message should return `context_model: bert-tiny-sms-v1` from `/api/check`.
+
+The full checker still misses some financial impersonation messages, including a tested portfolio sign-off request without a visible URL. The [finance regression report](results/finance_regression.json) records the misses, legitimate controls, and load test. Run `python tools/finance_regression.py --url http://127.0.0.1:8000` against a running server to replay the cases.
+
+Scam Drift helps someone pause before replying to an unexpected text, paying a fee, or sharing a one-time code. Paste the text and remove any names, codes, or account details that you do not want to share with the checker server. The server reads the text in memory. The site shows the warning level, what triggered it, what to do next, and highlighted phrases. It never follows links or contacts a sender.
+
+- **High risk.** Stop and verify through a number or app you already trust.
+- **Be careful.** Pause. The text contains a warning sign or needs another check.
+- **No warning signs found.** Verify any request for money or private information independently.
+
+**Already acted?** Open the recovery guide from the checker or a verdict. Pick whether you opened a link, shared a code or password, or sent money. The choice stays in the browser. The guide links to the [U.S. FTC recovery resource](https://consumer.ftc.gov/articles/what-do-if-you-were-scammed).
+
+The checker combines a saved English-first classifier with written rules for code and password requests, gift cards, upfront job fees, rental deposits, QR-payment requests, new-number stories, and personal-safety concerns. It can flag a request for a second check when the text is too short or may be outside English. It cannot authenticate a sender, determine whether a link is safe, or see the preceding conversation.
+
+## The inbox flood
+
+Scroll through the same historical experiments as data-driven message flows. Scam recall and legitimate-text false alarms have separate denominators. The message bubbles illustrate those test rates. The site reads each rate and its sample size from `/api/story`. The story uses Three.js, GSAP ScrollTrigger and Lenis with a static version for reduced motion.
+
+See the [front-end reference audit](docs/FRONTEND_REFERENCES.md) for the layout and motion sources and the scope of each REA capture.
+
+## Reproduce the post-deadline checks
+
+```bash
+python tools/api_parity.py
+python tools/checker_stress.py
+python tools/checker_stress.py --corpus
+python tools/checker_stress.py --url http://127.0.0.1:8000
+```
+
+The local regression run passed 150 targeted variants and 19 request and input-edge checks. A loopback run passed all 512 requests with eight workers. Median latency was 41.9 ms and p95 latency was 274.7 ms, including long inputs in the request mix. A 20,000-character text with distinct words took 188.1 ms in a separate in-process check. These measurements describe the test machine and workload.
+
+| Historical test set | Previous checker warned | Updated checker warned | Updated “needs another check” subset |
+|---|---:|---:|---:|
+| Dated English scam reports | 715 / 1,080 | 719 / 1,080 | 12 |
+| Dated English scam reports with recurring training templates removed | 575 / 927 | 579 / 927 | 12 |
+| Other-language scam reports | 1,433 / 8,866 | 2,996 / 8,866 | 1,515 |
+| Held-out legitimate Indian business texts | 141 / 608 | 153 / 608 | 10 |
+| Legitimate texts from Mozambique | 35 / 1,608 | 93 / 1,608 | 58 |
+
+These counts include both RED and YELLOW. The previous-checker column reruns the prior web warning rules with the saved model. The archived research tables below use a separate historical evaluation. Uncertainty is a prompt for human review. The corpus results cannot establish production accuracy or a 99.999% guarantee.
+
+
+## Original research
 People reported $470 million in losses to text-message scams in 2024 (FTC). Our user is an English-reading grandparent and the family member who set up their phone. The moment of use: a text claims to come from a bank, courier or government office; before tapping the link, the grandparent pastes it into the checker and gets RED, YELLOW or GREEN. Many simple filters still learn from 2012 UCI SMS data. Do they catch today's scams, whom do they fail, and can we fix them without false alarms on genuine modern texts? The tool currently fails non-English readers (see "every group" below).
 
-## What we built
+## Original warning policy
 - `src/triage.py`, a warn-only three-tier check. **RED** "Likely scam - do not tap, do not reply": the model flags and the text has a link or phone number. **YELLOW** "Ask family before replying": the model flags without one, or a rule fires (asks for a code, PIN or password; "hi mum", "new number" or "wrong number" opener). **GREEN** "No warning signs found", never "safe".
 - `app.py`, a Gradio demo that shows the verdict and its reasons; `src/scam_drift.py`, the seeded experiment (125.4 s on CPU); `scam_drift.ipynb`, the walk-through.
 - Real example (2022-24 report): "Apple: Your Apple Pay has been suspended due to unusual activity. Please visit: `<URL>` ..." -> **RED**; top words "suspended", "[a web link]".
@@ -26,7 +70,7 @@ We started from suggested project **4.2.1 Scam text filter**. The organizers' sa
 ## How it works
 One normaliser turns links, phones, money, dates and numbers into shared tokens. Models: TF-IDF n-grams + logistic regression. Training: UCI 2012, scams reported up to 2021, and half of the India inbox (split by brand or template group; 0 brands on both sides). Test: 2022-24 scams, the other India half, Mozambique, and 30 synthetic legitimate texts (written with AI assistance). The model (`char_fix_plus_real_ham`) and its threshold rule were chosen on validation data only (2021 scams, India training texts). Its threshold, 0.94, aimed at 10% false alarms on India training texts; on held-out India texts the model alone flags 20.4%, about double.
 
-## Results
+## Historical results
 ![Three-tier triage shares per test set](figures/triage_tiers.png)
 
 | Model | UCI 2012 test: precision / recall | 2022-24 scams warned (n=1,080) | India legit warned, held-out groups (n=608, 95% CI) | Mozambique legit warned (n=1,608) | Synthetic legit warned (n=30, 95% CI) |
@@ -35,7 +79,7 @@ One normaliser turns links, phones, money, dates and numbers into shared tokens.
 | Rule: link only | 86.4% / 15.3% | 40.7% | 47.4% (43.4-51.3) | 2.0% | 6.7% (1.9-21.3) |
 | 2012 model | 93.6% / 94.4% | 75.7% | 82.2% (79.0-85.1) | 39.4% | 36.7% (21.9-54.5) |
 | Naive fix (+ new scams) | 75.3% / 96.0% | 96.6% | 99.5% (98.6-99.8) | 62.5% | 100% (88.7-100) |
-| **Prototype triage** (RED or YELLOW) | 96.8% / 73.4% | 65.7% | 22.9% (19.7-26.4) | 2.2% | 16.7% (7.3-33.6) |
+| **Original prototype triage** (RED or YELLOW) | 96.8% / 73.4% | 65.7% | 22.9% (19.7-26.4) | 2.2% | 16.7% (7.3-33.6) |
 
 - **Precision where it matters.** Modern test sets hold only scams or only legit texts, so we estimate precision at an assumed 5% scam rate (not measured), against held-out India texts: prototype triage 13.1%, 2012 model 4.6%, naive fix 4.9%, link-only rule 4.3%. Even our best option gives about 7 false alarms per real warning.
 - **Trade-off against the 2012 model:** the triage warns on fewer new scams (65.7% vs 75.7%) but on far fewer held-out India legit texts (22.9% vs 82.2%).
@@ -67,7 +111,8 @@ One normaliser turns links, phones, money, dates and numbers into shared tokens.
 python -m venv .venv && .venv/Scripts/pip install -r requirements.txt   # .venv/bin/pip on macOS/Linux
 python src/scam_drift.py      # full seeded pipeline (about 2 min on CPU); writes results/, figures/, models/
 python src/triage.py          # prototype triage on example texts
-python app.py                 # Gradio demo of the triage at the local URL it prints
+python server.py              # post-deadline website and JSON API
+python app.py                 # original Gradio demo
 jupyter nbconvert --to notebook --execute --inplace scam_drift.ipynb
 ```
 By default the notebook loads the saved `results/metrics.json` and re-scores the saved model live. Set `RUN_PIPELINE = True` in its section 1 to rerun the whole seeded pipeline (about 2 min on CPU); the live check then reproduces `metrics.json`. In Colab, run the clone cell at the top first.
@@ -76,6 +121,10 @@ Put `SMSSpamCollection` and `imc25_smishing.csv` in `data/raw/` (the notebook's 
 ## Repository map
 | Path | What it is |
 |---|---|
+| `server.py` | FastAPI, request bounds, and same-origin text checker |
+| `src/web_triage.py` | Post-deadline warning policy, input quality, and evidence |
+| `web/` | Buildless checker and API-driven Three.js scroll story |
+| `tools/checker_stress.py` | Targeted, API transport, concurrent and corpus regression checks |
 | `src/scam_drift.py` | Pipeline: data, splits, models, thresholds, all v1 and v2 analyses, figures, `results/metrics.json` |
 | `src/triage.py` | Prototype three-tier triage, `triage(text)` |
 | `scam_drift.ipynb` | Executed walk-through of every v2 analysis |

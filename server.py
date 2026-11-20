@@ -6,48 +6,50 @@ app.py (Gradio) stays the fallback demo and is not changed.
 This project is a prototype and is not financial advice.
 
 API (contract shared by the checker and the story page):
-  POST /api/check    {"text": str} -> {"tier": "RED|YELLOW|GREEN"|null, "label", "headline", "actions", "reason",
-                                       "top_words", "compare_2012", "note", "translation_note", "translation_detail"}
-                     translation_note: one short warning line (text may not be English, or too few words to read);
-                     translation_detail: an optional smaller line (the dataset translation's result). Neither changes
-                     the tier.
+  POST /api/check    {"text": str} -> tier, label, headline, actions, reason, signals, top_words,
+                       input_quality, safety, uncertain, version, and optional context for examples.
   GET  /api/examples -> [{"id", "label", "kind": "REAL|SYNTHETIC", "text", "source"}]
   GET  /api/story    -> key numbers for the story page, each with its results/*.json file and key path
 
-The verdict logic is app.predict's logic (same triage() call, same helpers), returned as data instead of HTML.
-Nothing is stored: the text is checked in memory and is not logged or written to disk.
+The web checker uses the saved classifier plus its own warning and input-quality policy.
+The Gradio and historical experiment paths use the original policy. Submitted text is checked in memory.
 """
 from __future__ import annotations
 
 import json
+import logging
+import os
 import re
 import sys
+from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field
+from starlette.concurrency import run_in_threadpool
+from starlette.requests import ClientDisconnect
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "src"))
 
-import app as sd  # noqa: E402  (app.py: VERDICT, LABEL, ACTIONS, EXAMPLES, reason_sentence, score, M2012)
+import app as sd  # noqa: E402
 from scam_drift import friendly_explain, normalise  # noqa: E402
 from triage import DISCLAIMER, triage  # noqa: E402
+from web_triage import VERSION, assess  # noqa: E402
+from context_model import load_context_model  # noqa: E402
 
-MAX_CHARS = 20000
+MAX_CHARS = 20_000
+MAX_BODY_BYTES = 256 * 1024
+LOG = logging.getLogger(__name__)
 WEB = ROOT / "web"
+STUDY = ROOT / "web-william"
 
 
 # ---------------------------------------------------------------------------
 # Checker
 # ---------------------------------------------------------------------------
-class CheckIn(BaseModel):
-    text: str = Field(default="", max_length=MAX_CHARS)
-
-
 def _shown_words(top_words: list[str]) -> list[str]:
     """Same clean-up as app.predict: strip edge punctuation, drop empties, keep order, no repeats."""
     shown = [w.strip(".,:;!?()\"'") for w in top_words]
@@ -58,74 +60,88 @@ def _compare_2012(text: str) -> str:
     """The one-line 2012-filter comparison from app.predict, as plain text."""
     norm = normalise(text)
     p12, f12 = sd.score(sd.M2012, norm)
-    said = "scam" if f12 else "not a scam"
+    said = "above its warning threshold" if f12 else "below its warning threshold"
     w12 = friendly_explain(sd.M2012["pipeline"], norm, k=3)
     w12s = f"; its top words: {', '.join(w for w, _ in w12)}" if (f12 and w12) else ""
-    return f"2012 filter said: {said} (score {p12:.2f}, its warning level {sd.M2012['threshold']:.2f}){w12s}."
+    return f"2012 filter scored this text {said} (score {p12:.2f}, its warning level {sd.M2012['threshold']:.2f}){w12s}."
 
 
-_LETTER_RE = re.compile(r"[^\W\d_]+", re.UNICODE)
+_ACTIONS = {
+    "verify": "Open the official app yourself or call a number you already trust.",
+    "codes": "Keep one-time codes, PINs, and passwords private, even if the sender says they are support.",
+    "money": "Do not send money, gift cards, or cryptocurrency while you check the request.",
+}
 
 
-def _probably_not_english(text: str) -> bool:
-    """Rough cue only (no language model): many non-Latin letters, or long text with almost no English stop words."""
-    from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
-    letters = [c for c in text if c.isalpha()]
-    if letters and sum(ord(c) > 0x24F for c in letters) / len(letters) > 0.3:
-        return True
-    words = [w.lower() for w in _LETTER_RE.findall(re.sub(r"<[A-Z_]+>", " ", text))]
-    if len(words) < 6:
-        return False
-    return sum(w in ENGLISH_STOP_WORDS for w in words) / len(words) < 0.12
-
-
-_URL_RE = re.compile(r"https?://\S+|www\.\S+|<[A-Z_]+>", re.I)
-
-
-def _few_words(text: str) -> bool:
-    """Input-quality cue (no model change): fewer than 3 words of 2+ letters once links and dataset tags are removed
-    (emoji only, a single letter, a bare link)."""
-    words = [w for w in _LETTER_RE.findall(_URL_RE.sub(" ", text)) if len(w) >= 2]
-    return len(words) < 3
-
-
-def _translation_note(text: str, tier: str) -> tuple[str, str]:
-    """(short warning line, smaller detail line). Plain words for the user; the tier is never changed here."""
-    stripped = text.strip()
-    if _probably_not_english(text):
-        warn = ("This text may not be in English. The checker mainly reads English, so do not trust a "
-                "“No warning signs” answer. Ask a family member before you reply.")
-    elif tier == "GREEN" and _few_words(text):
-        warn = ("This message has too few words for the checker to read. Ask a family member before you reply.")
-    else:
-        return "", ""
-    detail = ""
-    tr = sd._TRANSLATIONS.get(stripped)
-    if tr:
-        tr_tier = triage(tr)["tier"]
-        detail = (f"In the dataset’s English translation of this text, the checker says: {sd.LABEL[tr_tier]}. "
-                  "The translation comes from the dataset, not from this app.")
-    return warn, detail
+def _next_steps(tier: str, ids: set[str], safety: bool) -> list[str]:
+    if safety:
+        return ["Do not meet this person or go anywhere with them.",
+                "Show the message to a trusted adult. Keep it as evidence.",
+                "If anyone is in immediate danger, call your local emergency number."]
+    if ids & {"credential", "account_link"}:
+        return [_ACTIONS["codes"], "Do not open the link or call a number from the text.", _ACTIONS["verify"],
+                "If you already shared a code or password, contact your account provider through a trusted channel."]
+    if ids & {"gift_card", "job_fee", "rental_deposit", "payment_method", "qr_payment", "fee_pressure", "investment"}:
+        return [_ACTIONS["money"], "Contact the person or organisation through a channel you already use.",
+                "If you already paid, contact your payment provider promptly and ask what can be reversed."]
+    if "new_number" in ids:
+        return ["Call the person on the number you saved before this message.", _ACTIONS["money"], _ACTIONS["codes"]]
+    if "personal_safety" in ids:
+        return ["Do not send a private photo or share where you are.", "Show the message to someone you trust."]
+    if tier == "RED":
+        return ["Do not open links or reply to the text.", _ACTIONS["money"], _ACTIONS["verify"]]
+    if tier == "YELLOW":
+        return ["Ask someone you trust to look at the text with you.", _ACTIONS["verify"], _ACTIONS["codes"]]
+    return [_ACTIONS["verify"], _ACTIONS["codes"]]
 
 
 def check(text: str) -> dict:
-    """app.predict as data. Tier comes from the same triage() call app.predict makes."""
-    if not text or not text.strip():
-        return {"tier": None, "label": "", "headline": "Paste a text message above, then press “Check this text”.",
-                "actions": [], "reason": "", "top_words": [], "compare_2012": "", "note": "",
-                "translation_note": "", "translation_detail": ""}
-    res = triage(text)
-    tier = res["tier"]
-    note = sd._NOTES.get(text.strip(), "")
-    warn, detail = _translation_note(text, tier)
-    safety = bool(res.get("safety"))
-    return {"tier": tier, "safety": safety,
-            "label": "Safety warning" if safety else sd.LABEL[tier],
-            "headline": "Possible danger - do not meet, tell a trusted adult" if safety else sd.VERDICT[tier],
-            "actions": list(sd.SAFETY_ACTIONS if safety else sd.ACTIONS[tier]),
-            "reason": sd.reason_sentence(text, res), "top_words": _shown_words(res["top_words"]),
-            "compare_2012": _compare_2012(text), "note": note, "translation_note": warn,
-            "translation_detail": detail}
+    """Return a warning with concrete evidence and next steps."""
+    if not text.strip():
+        return {"tier": None, "label": "", "headline": "Paste a text message to check.",
+                "actions": [], "reason": "", "top_words": [], "signals": [], "compare_2012": "",
+                "note": "", "translation_note": "", "translation_detail": "",
+                "input_quality": "empty", "version": VERSION, "safety": False, "uncertain": False,
+                "context_model": "lexical"}
+
+    result = assess(text)
+    tier, safety = result["tier"], result["safety"]
+    ids = {signal["id"] for signal in result["signals"]}
+    quality = result["input_quality"]
+    warn, detail = "", ""
+    if quality == "possible_non_english":
+        warn = "The checker mainly reads English. Ask someone you trust to read the message with you."
+    elif quality == "limited_text":
+        warn = "This text gives very little context. Verify the request before you act."
+    translation = sd._TRANSLATIONS.get(text.strip())
+    if translation and warn:
+        translation_tier = triage(translation)["tier"]
+        detail = f"The dataset's English translation received this result: {sd.LABEL[translation_tier]}."
+
+    if safety:
+        label, headline = "Personal safety warning", "Do not meet. Tell a trusted adult."
+    elif result["uncertain"]:
+        label, headline = "Needs another check", "Verify this message before you act."
+    else:
+        label = sd.LABEL[tier]
+        headline = {"RED": "Stop and verify the request.", "YELLOW": "Pause before you reply or pay.",
+                    "GREEN": "No warning signs found."}[tier]
+
+    if ids - {"model", "neural_model", "contact"}:
+        reason = "The checker found these specific requests or patterns."
+    elif "neural_model" in ids:
+        reason = "The fine-tuned model found a pattern across the message. Review the request with someone you trust."
+    elif "model" in ids:
+        reason = "The wording resembles messages the saved filter flagged."
+    elif result["uncertain"]:
+        reason = "The text may be too short or outside the language this checker reads best."
+    else:
+        reason = "The checker cannot verify who sent this message or whether its request is genuine."
+
+    return {**result, "version": VERSION, "label": label, "headline": headline,
+            "actions": _next_steps(tier, ids, safety), "reason": reason,
+            "top_words": _shown_words(result["top_words"]), "compare_2012": _compare_2012(text),
+            "note": sd._NOTES.get(text.strip(), ""), "translation_note": warn, "translation_detail": detail}
 
 
 # ---------------------------------------------------------------------------
@@ -229,7 +245,15 @@ def story() -> dict:
 # ---------------------------------------------------------------------------
 # App
 # ---------------------------------------------------------------------------
-api = FastAPI(title="Scam Drift", docs_url=None, redoc_url=None, openapi_url=None)
+@asynccontextmanager
+async def _lifespan(_app):
+    context = await run_in_threadpool(load_context_model)
+    if os.environ.get("SCAM_DRIFT_REQUIRE_CONTEXT") == "1" and context is None:
+        raise RuntimeError("The fine-tuned model is required but could not load.")
+    yield
+
+
+api = FastAPI(title="Scam Drift", docs_url=None, redoc_url=None, openapi_url=None, lifespan=_lifespan)
 
 
 @api.middleware("http")
@@ -241,9 +265,56 @@ async def _headers(request, call_next):
     return resp
 
 
+def _json_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    obj = dict(pairs)
+    if len(obj) != len(pairs):
+        raise ValueError("Duplicate JSON key")
+    return obj
+
+
 @api.post("/api/check")
-def api_check(body: CheckIn):
-    return JSONResponse(check(body.text))
+async def api_check(request: Request):
+    if request.headers.get("content-type", "").split(";", 1)[0].strip().lower() != "application/json":
+        raise HTTPException(415, "Send the text as JSON.")
+    length = request.headers.get("content-length")
+    if length is not None:
+        try:
+            size = int(length)
+        except ValueError:
+            raise HTTPException(400, "Invalid request length.") from None
+        if size < 0:
+            raise HTTPException(400, "Invalid request length.")
+        if size > MAX_BODY_BYTES:
+            raise HTTPException(413, "The request is too large.")
+
+    body = bytearray()
+    try:
+        async for chunk in request.stream():
+            if len(body) + len(chunk) > MAX_BODY_BYTES:
+                raise HTTPException(413, "The request is too large.")
+            body.extend(chunk)
+    except ClientDisconnect:
+        raise HTTPException(400, "The request ended early.") from None
+
+    try:
+        data = json.loads(body.decode("utf-8"), object_pairs_hook=_json_object)
+    except (UnicodeError, ValueError, RecursionError):
+        raise HTTPException(400, "Invalid JSON request.") from None
+    if not isinstance(data, dict) or set(data) - {"text"} or not isinstance(data.get("text", ""), str):
+        raise HTTPException(422, "Provide one text field.")
+    text = data.get("text", "")
+    if len(text) > MAX_CHARS:
+        raise HTTPException(422, "The text is too long.")
+    try:
+        text.encode("utf-8", errors="strict")
+    except UnicodeError:
+        raise HTTPException(422, "The text contains an invalid character.") from None
+
+    try:
+        return JSONResponse(await run_in_threadpool(check, text))
+    except Exception as error:
+        LOG.error("Check could not complete (%s)", type(error).__name__)
+        raise HTTPException(503, "The checker is temporarily unavailable.") from None
 
 
 @api.get("/api/examples")
@@ -256,7 +327,8 @@ def api_story():
     return JSONResponse(story())
 
 
-api.mount("/", StaticFiles(directory=WEB, html=True), name="web")
+api.mount("/lab", StaticFiles(directory=WEB, html=True), name="lab")
+api.mount("/", StaticFiles(directory=STUDY, html=True), name="study")
 
 if __name__ == "__main__":
     import uvicorn

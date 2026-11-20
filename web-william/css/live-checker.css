@@ -1,0 +1,12 @@
+.ck__advice-list {
+  padding-inline-start: 1.3em;
+  text-align: start;
+}
+
+.ck__advice-list li + li {
+  margin-block-start: .45em;
+}
+
+#ck-card {
+  scroll-margin-block-start: 5.5rem;
+}

@@ -14,6 +14,8 @@
 - Hackathon suggested project 4.2.1 "Scam text filter" (TF-IDF + logistic regression on SMS spam).
 
 ## Libraries
+- Google BERT-Tiny, `google/bert_uncased_L-2_H-128_A-2`, revision `30b0a37ccaaa32f332884b96992754e246e48c5f`. Scam Drift fine-tuned the weights for English SMS classification and exported the model to ONNX. [Base model card](https://huggingface.co/google/bert_uncased_L-2_H-128_A-2) · [Apache 2.0 license](models/context-v1/LICENSE)
+- William Lu built the study and added Lenis scrolling. [Published website history](https://github.com/KnigguKniggu-droid/scam-drift/tree/gh-pages) · [Vendored frontend credits and licenses](web/vendor/README.md)
 - scikit-learn - https://scikit-learn.org (BSD-3)
 - pandas - https://pandas.pydata.org (BSD-3)
 - NumPy - https://numpy.org (BSD-3)

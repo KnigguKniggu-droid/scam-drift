@@ -1,0 +1,7 @@
+{
+  "model": "bert-tiny-sms-v1",
+  "base": "google/bert_uncased_L-2_H-128_A-2",
+  "revision": "30b0a37ccaaa32f332884b96992754e246e48c5f",
+  "threshold_logit": 2.8749022483825684,
+  "enabled": true
+}
