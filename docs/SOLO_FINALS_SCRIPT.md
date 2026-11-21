@@ -25,7 +25,7 @@ We locked your bank account. Reply with your verification code to restore access
 
 **Say**
 
-> Imagine your grandparent gets a text that says their bank account is locked. It asks for a verification code. What should they do next? I’m Kartikeya. William and I built Scam Drift to help with that decision. We also wanted to know how well a spam filter trained on older texts holds up against newer scams.
+> A text says your bank account is locked, and the only way back in is to send a code. You have a few seconds to decide what to do. I’m Kartikeya. William and I built Scam Drift to help someone make that decision. And building it led us to a harder question. How do you catch more scams without making people tune out the warnings?
 
 ## 0:25–1:05 | Check the text
 
@@ -33,13 +33,13 @@ We locked your bank account. Reply with your verification code to restore access
 
 **Say**
 
-> Let me show you. This is a fictional bank text asking for a verification code.
+> Here’s that bank text. It’s an example we wrote for the demo. I’ll run it through the checker.
 
 **Do** · Click **Check a text** below the box. Look for the result card beside the form. On a narrow window, it is below the form. Point to **RED** and **Stop and verify the request.** Then move the pointer to the advice about keeping the code private and using the official app or a trusted number. If the card does not appear within three seconds, press **Ctrl+4** and say “Here’s the saved result from the same message.” Then read the next lines.
 
 **Say**
 
-> Scam Drift flags the request for a verification code. It tells you what to do next. Keep the code private, then open the bank app you already use or call a number you trust. Even a GREEN result leaves the sender unverified. You just saw our current demo. The chart shows what we measured in the submitted study.
+> It comes back red. Look at the advice. Keep the code private. Open the bank app yourself, or call a number you already trust. That gives someone a next step they can actually use. Green still means the sender is unverified. This is our current demo. Now let me show you what we learned in the submitted study.
 
 ## 1:05–2:15 | Show the evidence
 
@@ -47,13 +47,13 @@ We locked your bank account. Reply with your verification code to restore access
 
 **Say**
 
-> The old filter caught about 76 percent of 1,080 reported scams from 2022 to 2024. After we retrained it on newer scams, it caught about 97 percent. Here’s the catch. In our test on 600 genuine texts from one inbox, it flagged 597 of them. Imagine getting a warning almost every time a legitimate text comes in.
+> We started with a filter trained on texts from 2012. It caught about 76 percent of 1,080 scams reported from 2022 to 2024. We retrained it on newer scams, and on that same test it got to about 97 percent. Then we gave it 600 genuine texts from one inbox. It flagged 597. That person would have seen a warning on almost every genuine text we tested.
 
-**Do** · Point to the middle blue bar at “427.” Point to the left blue bar at “96 percent.”
+**Do** · Point to the left blue bar at “96 percent.” Then point to the middle blue bar at “427.”
 
 **Say**
 
-> So we also trained the filter on genuine modern texts. False alarms fell from 597 to 427 out of 600. It still caught about 96 percent of the reported scams. That’s progress, and 71 percent false alarms is still too high for everyday use.
+> So we gave the filter genuine modern texts to learn from, too. It still caught about 96 percent of the scams. And the false alarms came down from 597 to 427. That’s 170 fewer interruptions in one inbox. It’s also still a 71 percent false-alarm rate in that test. Both numbers matter if someone is going to rely on the warnings.
 
 ## 2:15–2:45 | Thank the judges
 
@@ -61,12 +61,12 @@ We locked your bank account. Reply with your verification code to restore access
 
 **Say**
 
-> The old and new datasets were collected differently, so we can’t say how much of the gap came from time. And our genuine test sample came from one inbox. My next step would be to test more inboxes with people’s consent and see whether older adults know what to do after a warning. That’s the decision Scam Drift was built to help with. Thank you.
+> We saw a real gap between the datasets, and they were collected differently. We can’t say how much of it came from time. Next I’d test more inboxes with permission, then put the checker in front of older adults. I’d give them a message and ask what they’d do next. That’s the test I want Scam Drift to pass. Thank you.
 
 **If you lose your place** · Old filter 76%. Retrained 97% and 597 false alarms. With genuine training texts, 96% and 427 false alarms. Both false-alarm counts are out of 600 genuine texts from one inbox.
 
 ## When the judges start Q&A
 
-- If the organizers allow live assistance, keep Zoom playback on **Logitech USB Headset H540**. The panel should say **Armed · waiting for Q&A**. It listens to headset playback. Your own microphone alone will not trigger that mode.
-- If the host opens Q&A and the panel still says **Armed**, click **Start Q&A now**. If it misses a question, ask the judge to repeat it or type it and click **Ask**.
+- If the organizers allow live assistance, keep Zoom playback and the panel on the same headphones. Leave the panel paused while other teams present.
+- When the host hands your team over to the judges, click **Start Q&A now** before their first question. If it misses a question, ask the judge to repeat it or type it and click **Ask**.
 - Give one direct answer and one supporting number or limitation. If asked about the fine-tuned model in the current demo, say it was added after submission and evaluated separately.
