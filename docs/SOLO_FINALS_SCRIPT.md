@@ -8,8 +8,8 @@ Open four tabs in this order in one browser window. Share that window in Zoom.
 
 1. [Live cover](https://macro-benefits-police-festivals.trycloudflare.com/)
 2. [Live checker](https://macro-benefits-police-festivals.trycloudflare.com/#try)
-3. [Submitted study chart](../tools/qa/submitted-study-chart.png). Click **Download raw file** if you want the image by itself in the browser.
-4. [Saved RED result](../tools/qa/captured-red.jpg) for the same message.
+3. [Submitted study chart](https://raw.githubusercontent.com/KnigguKniggu-droid/scam-drift/post-deadline/tools/qa/submitted-study-chart.png).
+4. [Saved RED result](https://raw.githubusercontent.com/KnigguKniggu-droid/scam-drift/post-deadline/tools/qa/captured-red.jpg) for the same message.
 
 In tab 2, scroll until you see **Paste the text message here** and the **Check a text** button. Click inside the text box. Paste the message below with **Ctrl+V**. Leave it ready to check. Return to tab 1. Keep this script and the Q&A panel outside the browser window you share.
 
