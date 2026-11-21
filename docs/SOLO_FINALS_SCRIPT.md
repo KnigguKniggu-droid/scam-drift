@@ -1,6 +1,6 @@
 # Scam Drift | Solo finals presentation
 
-**Use one browser window. Share that window in Zoom.** Keep three tabs in this order: website cover, checker, submitted chart. Open the checker in advance, paste the prepared bank text, and leave it unchecked. Rehearse for **2:40–2:50**. The times below are targets.
+**Remember three moves. Cover → Check → Chart.** Share only the browser window. Put the cover, checker, and chart in three tabs. Pre-paste the example with the checker still empty of results. Keep the [RED screenshot](../tools/qa/captured-red.jpg) open as a fourth tab. Aim to finish by **2:45**.
 
 - [Cover and 3D scanner](http://127.0.0.1:8174/)
 - [Checker](http://127.0.0.1:8174/#try)
@@ -14,23 +14,25 @@
 We locked your bank account. Reply with your verification code to restore access: https://bank.example.test
 ```
 
-## 0:00–0:30 | Show the cover
+## 0:00–0:25 | Cover. Give them the problem.
 
-> Imagine your grandparent gets a text saying their bank account is locked. It asks for a verification code, and they have seconds to decide whether to reply. I’m Kartikeya. William and I built Scam Drift for the AI and Finance track. We wanted to help people pause before they act, and find out why a filter trained on old texts can struggle with what lands on a phone today.
+> Imagine your grandparent gets a text that says their bank account is locked. It asks for a verification code. Would they know what to do before replying? I’m Kartikeya. William and I built Scam Drift to help with that decision. We also asked how well an old spam filter holds up against newer scams.
 
-## 0:30–1:10 | Switch to the checker and click Check a text
+## 0:25–1:05 | Checker. Click once and point to the action.
 
-> Here’s a fictional example. The checker flags it RED and points to the exact request: “Reply with your verification code.” Then it gives you something to do. Open the banking app you normally use, or call a number you already trust. Even on GREEN, we tell you the sender is unverified. The demo on screen uses our newer checker. The results I’m about to show are from our submitted study.
+> Here’s a fictional bank text. [Click **Check a text**.] The checker flags the request for a verification code. It says to open the bank app you already use or call a number you trust. Even a GREEN result leaves the sender unverified. You’re seeing our current demo. These next numbers come from the submitted study.
 
-## 1:10–2:20 | Switch to the study chart
+## 1:05–2:15 | Chart. Point left for scams caught, then center for false alarms.
 
-> We took a filter trained on 2012 SMS and tested it on 1,080 real scam reports from 2022 through 2024. It caught about 76 percent. Retraining on modern scams raised recall to almost 97 percent. Then we tried that model on 600 genuine texts from brands held out of training. It flagged 597. Imagine getting a warning on almost every legitimate message you receive.
+> The old filter caught about 76 percent of 1,080 reported scams from 2022 to 2024. Retraining on newer scams brought that close to 97 percent. But look at the middle of the chart. That same model flagged 597 out of 600 genuine texts from one inbox. Imagine getting a warning almost every time a legitimate text comes in.
 >
-> We added actual modern legitimate texts to training. The new model still caught about 96 percent of reported scams, and false alarms on that inbox fell to about 71 percent. That’s still too high. It tells us you need examples of what ordinary texts look like today if you want a filter to catch more scams without flooding people with warnings.
+> Then we trained it on examples of normal modern texts too. It still caught about 96 percent of the scams, and false alarms fell from 597 to 427 out of 600. That’s an improvement, but 71 percent is still too high. The useful finding is that showing the model what genuine texts look like today helped reduce those false alarms.
 
-## 2:20–2:45 | Close on the chart
+## 2:15–2:45 | Close. Name the limit and the next test.
 
-> The old and new datasets were collected differently, so we can’t isolate the effect of time. And that genuine sample came from one inbox. Next, I’d test on more consented inboxes and ask older adults what they’d do after each warning. The question I care about is whether it helps someone make the right call before they tap.
+> The old and new datasets were collected differently, so we can’t say how much of the gap was caused by time. Our genuine test sample came from one inbox. Next, I’d test on more inboxes with people’s consent and see whether older adults actually know what to do after a warning. That’s the decision Scam Drift is meant to help with. Thank you.
+
+**If you lose your place:** 76% with the old filter. 97% after retraining, but 597 of 600 genuine texts flagged. Adding genuine training texts cut those false alarms to 427 while keeping about 96% recall.
 
 ## If something stalls
 
