@@ -1,56 +1,70 @@
-# Scam Drift | Solo finals presentation
+# Scam Drift | Solo finals script
 
-**Remember three moves. Cover → Check → Chart.** Share only the browser window. Put the cover, checker, and chart in three tabs. Pre-paste the example with the checker still empty of results. Keep the [RED screenshot](../tools/qa/captured-red.jpg) open as a fourth tab. Aim to finish by **2:45**.
+**Cover → Check → Chart → Thank you.** Read the **Say** lines aloud. Use the **Do** lines to move through the demo. Aim for **2:45**.
 
-- [Cover and 3D scanner](http://127.0.0.1:8174/)
-- [Checker](http://127.0.0.1:8174/#try)
-- [Submitted study chart](../tools/qa/submitted-study-chart.png)
-- [Backup screenshot](../tools/qa/captured-red.jpg)
-- [Public demo](https://macro-benefits-police-festivals.trycloudflare.com/)
+## Set up before you share
 
-**Paste into the checker before screen sharing**
+Open four tabs in this order in one browser window. Share that window in Zoom.
+
+1. [Cover](http://127.0.0.1:8174/)
+2. [Checker](http://127.0.0.1:8174/#try)
+3. [Submitted study chart](../tools/qa/submitted-study-chart.png)
+4. [Saved RED result for the same example](../tools/qa/captured-red.jpg)
+
+Paste the message below into tab 2. Leave it ready to submit. Return to tab 1. Keep the Q&A panel outside the shared window. If the local site is down, open the [public demo](https://macro-benefits-police-festivals.trycloudflare.com/) in tabs 1 and 2 and go to the checker in tab 2.
 
 ```text
 We locked your bank account. Reply with your verification code to restore access: https://bank.example.test
 ```
 
-## 0:00–0:25 | Cover. Give them the problem.
+## 0:00–0:25 | Cover
 
-> Imagine your grandparent gets a text that says their bank account is locked. It asks for a verification code. Would they know what to do before replying? I’m Kartikeya. William and I built Scam Drift to help with that decision. We also asked how well an old spam filter holds up against newer scams.
+**Do** · Stay on tab 1. Leave the cover on screen.
 
-## 0:25–1:05 | Checker. Click once and point to the action.
+**Say**
 
-> Here’s a fictional bank text. [Click **Check a text**.] The checker flags the request for a verification code. It says to open the bank app you already use or call a number you trust. Even a GREEN result leaves the sender unverified. You’re seeing our current demo. These next numbers come from the submitted study.
+> Imagine your grandparent gets a text that says their bank account is locked. It asks for a verification code. What should they do next? I’m Kartikeya. William and I built Scam Drift to help with that decision. We also wanted to know how well a spam filter trained on older texts holds up against newer scams.
 
-## 1:05–2:15 | Chart. Point left for scams caught, then center for false alarms.
+## 0:25–1:05 | Check the text
 
-> The old filter caught about 76 percent of 1,080 reported scams from 2022 to 2024. Retraining on newer scams brought that close to 97 percent. But look at the middle of the chart. That same model flagged 597 out of 600 genuine texts from one inbox. Imagine getting a warning almost every time a legitimate text comes in.
->
-> Then we trained it on examples of normal modern texts too. It still caught about 96 percent of the scams, and false alarms fell from 597 to 427 out of 600. That’s an improvement, but 71 percent is still too high. The useful finding is that showing the model what genuine texts look like today helped reduce those false alarms.
+**Do** · Click tab 2 or press **Ctrl+2**. Point at the message.
 
-## 2:15–2:45 | Close. Name the limit and the next test.
+**Say**
 
-> The old and new datasets were collected differently, so we can’t say how much of the gap was caused by time. Our genuine test sample came from one inbox. Next, I’d test on more inboxes with people’s consent and see whether older adults actually know what to do after a warning. That’s the decision Scam Drift is meant to help with. Thank you.
+> Let me show you. This is a fictional bank text asking for a verification code.
 
-**If you lose your place:** 76% with the old filter. 97% after retraining, but 597 of 600 genuine texts flagged. Adding genuine training texts cut those false alarms to 427 while keeping about 96% recall.
+**Do** · Click **Check a text**. Point to the RED warning and the next steps. If the result takes more than three seconds, press **Ctrl+4** and say “Here’s the result from an earlier run with the same text.” Then continue.
 
-## If something stalls
+**Say**
 
-- Wait at most three seconds. If the checker stalls, switch to the saved RED screenshot and keep speaking. The chart and screenshot work offline.
-- Skip the opening scroll if it delays the demo. The study chart is the main evidence. Keep 15 seconds in reserve for clicks and Zoom.
-- For Q&A, use one direct answer and one supporting number or limitation. Tell the judges which model and cohort the number describes. If they ask about the current checker, explain that the fine-tuned model was added after submission and has separate results.
+> Scam Drift flags the request for a verification code. It tells you what to do next. Keep the code private, then open the bank app you already use or call a number you trust. Even a GREEN result leaves the sender unverified. You just saw our current demo. The chart shows what we measured in the submitted study.
 
-## Where everything lives on the site
+## 1:05–2:15 | Show the evidence
 
-| Section | What it shows | When to use it |
-| --- | --- | --- |
-| Cover | William’s 3D scanner and the old-filter story | Open here. One short scroll is enough. |
-| Reported texts and “Before the tap” | Corpus at a glance and the user’s moment of decision | Optional if a judge asks why you built it. |
-| Findings and “Who it misses” | Cross-era gap and conversational misses | Use for questions about drift, wrong-number and family impersonation examples. |
-| Every report | Searchable research mosaic and individual reports | Use only if asked to show a particular report. |
-| The fix | The retraining trade-off and genuine look-alikes | The chart conveys this finding fastest. |
-| How it works and colors | What the old filter reads and how to interpret a warning | Answer model and safety questions here. |
-| Check a text | Current checker and practical next steps | Run the one prepared example. |
-| If you already acted | Next steps after tapping, replying, sharing a code or paying | Use for a question about recovery. |
-| Full results | Tables, scope, and sources | Use for follow-up. |
-| Inbox Flood lab | Alternate 3D visualization of historical model results | Optional. Leave it out of the three-minute talk. |
+**Do** · Click tab 3 or press **Ctrl+3**. Point to the left orange bar at “97 percent.” Move to the middle orange bar at “597.”
+
+**Say**
+
+> The old filter caught about 76 percent of 1,080 reported scams from 2022 to 2024. After we retrained it on newer scams, it caught about 97 percent. Here’s the catch. In our test on 600 genuine texts from one inbox, it flagged 597 of them. Imagine getting a warning almost every time a legitimate text comes in.
+
+**Do** · Point to the middle blue bar at “427.” Point to the left blue bar at “96 percent.”
+
+**Say**
+
+> So we also trained the filter on genuine modern texts. False alarms fell from 597 to 427 out of 600. It still caught about 96 percent of the reported scams. That’s progress, and 71 percent false alarms is still too high for everyday use.
+
+## 2:15–2:45 | Thank the judges
+
+**Do** · Leave the chart on screen. Stop sharing after you say thank you.
+
+**Say**
+
+> The old and new datasets were collected differently, so we can’t say how much of the gap came from time. And our genuine test sample came from one inbox. My next step would be to test more inboxes with people’s consent and see whether older adults know what to do after a warning. That’s the decision Scam Drift was built to help with. Thank you.
+
+**If you lose your place** · Old filter 76%. Retrained 97% and 597 false alarms. With genuine training texts, 96% and 427 false alarms. Both false-alarm counts are out of 600 genuine texts from one inbox.
+
+## When the judges start Q&A
+
+- If the organizers allow live assistance, keep Zoom playback on **Logitech USB Headset H540**. The panel should say **Armed · waiting for Q&A**. It listens to headset playback. Your own microphone alone will not trigger that mode.
+- If the host opens Q&A and the panel still says **Armed**, click **Start Q&A now**. If it misses a question, ask the judge to repeat it or type it and click **Ask**.
+- Give one direct answer and one supporting number or limitation. If asked about the fine-tuned model in the current demo, say it was added after submission and evaluated separately.
