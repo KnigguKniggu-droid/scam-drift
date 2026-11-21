@@ -47,13 +47,13 @@ We locked your bank account. Reply with your verification code to restore access
 
 **Say**
 
-> In our submitted study, a filter trained on 2012 texts caught about 76 percent of 1,080 scams reported from 2022 to 2024. Retraining on more recent scams got us to about 97 percent. I thought that sounded like a win. Then we tested it on genuine texts. It flagged 597 out of 600 from one inbox. If almost every text sets off an alarm, how long before you start ignoring it?
+> In our submitted study, a filter trained on 2012 texts caught about 76 percent of 1,080 scams reported from 2022 to 2024. Retraining on more recent scams got us to about 97 percent. That sounds like a win. Then we tested it on genuine texts. It flagged 597 out of 600 from one inbox. If almost every text sets off an alarm, how long before you start ignoring it?
 
 **Do** · Point to the middle blue bar at “427,” then the left blue bar at “96 percent.”
 
 **Say**
 
-> So we added genuine modern texts to training. False alarms dropped to 427 out of 600, and the filter still caught about 96 percent of the reported scams. The blue bars show why both numbers matter. We kept most of the scam detection, and the checker would still warn far too often on that inbox.
+> So we added genuine modern texts to training. False alarms dropped to 427 out of 600, and the filter still caught about 96 percent of the reported scams. The blue bars show why both numbers matter. We kept most of the scam detection, and the retrained filter still flagged far too many genuine texts in that inbox.
 
 ## 2:05–2:45 | End with what you would test next
 
