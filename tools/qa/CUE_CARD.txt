@@ -1,0 +1,20 @@
+SCAM DRIFT | TWO-MINUTE Q&A
+
+Kartikeya: model, data, evaluation. William: frontend, UX, live demo.
+Answer in about 20 seconds. Give one finding and, when relevant, its limit.
+
+WHY THIS PROJECT?  A bank impersonation text asks for a code. The user needs to know what to do before replying. Scam Drift gives a warning, a reason, and a next action. GREEN leaves the sender unverified.
+
+MAIN RESULT?  The 2012 model caught 75.65% of 1,080 real 2022–24 scam reports. Retraining caught 96.57% but flagged 597 of 600 genuine texts. Adding modern genuine training examples brought that false-alarm rate to 71.17% and kept recall at 95.93%. The genuine test cohort came from one inbox.
+
+IS IT DRIFT?  The two sources differ. A source classifier had 0.9893 ROC AUC, so the gap mixes time and collection effects. We need consistently collected data across years to isolate time.
+
+WHAT DID YOU TRAIN?  Submitted study: word TF-IDF, logistic regression, normalized links and numbers. Current demo: character n-gram model, fine-tuned English BERT-Tiny on CPU, and request and safety rules. BERT was added after submission.
+
+WHAT CAN SLIP THROUGH?  A friendly opener may come before the money request. We also reproduced a miss on a portfolio sign-off text when its visible URL was absent. The checker sees only the pasted text.
+
+HOW DO YOU KNOW IT GENERALIZES?  We split dated reports by time, removed exact duplicates, and checked near-template overlap. The one-inbox genuine cohort and source differences limit generalization. We cannot claim population accuracy.
+
+WHAT NEXT?  Collect consented, redacted legitimate texts from many users. Hold out entire senders and campaigns. Test whether older adults understand and act on the warnings.
+
+IF ASKED ABOUT LIVE MODEL NUMBERS  Full current web policy warned on 611 of 927 English scam reports from unseen templates and on 173 of 608 held-out genuine messages. That is a different evaluation from the submitted study. The eight-worker run completed 512 of 512 requests, which measures operation rather than detection quality.

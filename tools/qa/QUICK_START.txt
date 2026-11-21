@@ -1,0 +1,12 @@
+SCAM DRIFT Q&A | WINDOWS 10/11 X64
+
+1. Right-click the ZIP and choose Extract All. Open the extracted folder and run Scam Drift Q&A.exe. Keep the files together. Python, Node.js and a separate OpenCluely window are already taken care of by the bundle.
+2. For generated answers, click Add Gemini key and enter your own key from https://aistudio.google.com/app/apikey. The app keeps this key in memory until it closes. The sender’s key is not included. To test, type “Why can’t you claim the recall drop was caused by time?” and press Enter. Look for an AI answer explaining that the datasets differ and the effect of time was not isolated.
+3. Set Zoom’s speaker output to Windows’ default playback device. The panel shows which device it hears after you arm it. Test with a teammate before the session. If the device changes, stop and arm again.
+4. The panel opens armed and listens continuously on this PC. It waits for a host cue such as “Let’s start the questions now.” Launch it when you are ready to use it. If the host goes straight to a question or recognition misses the cue, click Start Q&A now. You can also type a question.
+5. The Suggested answer area shows one answer. Project notes provide a quick fallback. Completed questions can produce a generated answer, including unfamiliar questions. Check the facts before speaking. Click Stop listening when Q&A ends.
+6. To test by speaking yourself, click Stop listening, then Test with mic. Click Stop listening and Arm for Q&A to return to headset playback for Zoom. Your microphone does not feed the normal call mode.
+
+The audio is processed locally. When a Gemini key is loaded, the app sends completed question text after activation and the Scam Drift brief to Google Gemini. Typed questions also go to Gemini. Use live AI assistance only if the organizer allows it. The app does not change Zoom’s audio settings.
+
+Key results: 75.65% = original 2012 model recall on 1,080 modern scam reports. Retraining caught 96.57% and falsely flagged 597/600 genuine texts. Adding modern legitimate training examples dropped false alarms to 427/600 at 95.93% recall. These are submitted-study metrics. The later live checker has separate metrics.

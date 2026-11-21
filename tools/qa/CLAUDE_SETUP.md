@@ -1,0 +1,21 @@
+# William’s Scam Drift Q&A setup
+
+Paste the following into Claude Code on your own Windows x64 PC. The release bundle provides Vosk, the Windows audio capture libraries, Python/Tk, Node.js, and the OpenCluely answer service. A separate OpenCluely desktop app is optional. Use your own Gemini key.
+
+## Paste into Claude Code
+
+> Set up Scam Drift end to end on this PC. The project repository is `https://github.com/KnigguKniggu-droid/scam-drift`. Use `post-deadline` for the current site and `main` at `01abbc9` for the submitted research. Inspect the repository first. Read `tools/qa/README.md`, `tools/qa/PROJECT_CONTEXT.md`, `tools/qa/QUICK_START.txt`, `docs/SOLO_FINALS_SCRIPT.md`, and `results/{real_ham_fix_probe,context_v1,finance_regression}.json`. Preserve any existing local work. Do not rewrite, merge, or push branches.
+>
+> Confirm Windows x64. Download `scam-drift-qa-windows-x64.zip` and `scam-drift-qa-windows-x64.sha256` from the `finals-qa-windows` release. Verify the ZIP with PowerShell `Get-FileHash -Algorithm SHA256` before extracting. Extract all files into a new directory under my user profile. Keep the executable, `_internal`, Vosk model, Node, and OpenCluely provider together. Run `Scam Drift Q&A.exe` and verify that it shows Armed and lists a playback device. It should run without installing Python, Node, or the OpenCluely desktop app. If the platform or audio output is incompatible, say what actually failed before changing settings.
+>
+> Point me to `https://aistudio.google.com/app/apikey` if I need a key. I will paste my own key directly into the app through **Add Gemini key**. Do not ask me to paste a credential into Claude Code and do not print, copy, commit, or share it. Confirm the app generates a short, grounded answer to the typed question “Why can’t you claim the recall drop was caused by time?” Check that it scopes the result to the measured datasets. If there is no valid key or the service is unavailable, verify that choosing a prepared topic still works.
+>
+> Test the panel with a synthetic practice call outside the live ceremony. Use the default Windows playback endpoint for Zoom speakers. With the app Armed, send an early announcement that questions are later, then “Let’s start the questions now,” then two different practice judge questions. Verify that the phase remains Armed until the second cue, changes to Q&A active, answers both questions continuously, and does not show an old answer under a new question. Also verify **Stop listening**, **Test with mic**, and **Start Q&A now**. If a headset mismatch prevents capture, verify the device selection and re-arm. Do not route real judge audio or question text into external services during testing.
+>
+> The checked-in project brief is the reference for answers. Do not conflate historical and live metrics. Historical study: 817 of 1,080 modern scam reports for the original 2012 filter; 1,043 of 1,080 for modern-scam retraining, with 597 of 600 genuine texts falsely flagged in one held-out-by-brand inbox; after adding modern legitimate training texts, 1,036 of 1,080 scams and 427 of 600 genuine false alarms. Current full web policy: 611 of 927 unseen-template English scam reports and 173 of 608 held-out legitimate messages warned. GREEN leaves the sender unverified. The finance stress case came back GREEN without its visible URL. Detection is not sender verification, and none of these experiments establishes population accuracy.
+>
+> For the website, verify the public demo `https://macro-benefits-police-festivals.trycloudflare.com/#try` first. It uses a temporary tunnel. If it is unavailable and there is time, clone the current branch, install `requirements.txt` and `requirements-neural.txt`, keep the checked-in model artifacts, and run FastAPI using the root README. Verify a synthetic bank verification-code request returns RED and `context_model=bert-tiny-sms-v1`. Kartikeya is presenting solo. Be ready to help with Q&A if called on. Tell me what you actually verified and what still needs my input. Do not contact anyone on my behalf.
+
+## Download
+
+[Windows ZIP](https://github.com/KnigguKniggu-droid/scam-drift/releases/download/finals-qa-windows/scam-drift-qa-windows-x64.zip) · [SHA-256](https://github.com/KnigguKniggu-droid/scam-drift/releases/download/finals-qa-windows/scam-drift-qa-windows-x64.sha256)
