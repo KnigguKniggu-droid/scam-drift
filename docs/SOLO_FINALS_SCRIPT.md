@@ -19,49 +19,50 @@ If the public pages fail on your PC, open `http://127.0.0.1:8174/` and `http://1
 We locked your bank account. Reply with your verification code to restore access: https://bank.example.test
 ```
 
-## 0:00–0:25 | Cover
+## 0:00–0:15 | Open with the text
 
-**Do** · Start on tab 1 with the site title and scanner visible. Keep the cover on screen while you introduce the problem.
-
-**Say**
-
-> Imagine your grandparent gets a text that says their bank account is locked. It asks for a verification code. What should they do next? I’m Kartikeya. William and I built Scam Drift to help with that decision. We also wanted to know how well a spam filter trained on older texts holds up against newer scams.
-
-## 0:25–1:05 | Check the text
-
-**Do** · Click tab 2 or press **Ctrl+2**. Point at the pasted message in the box. If tab 2 is missing, use **Try it** in the site header, then paste the same message.
+**Do** · Start on tab 1 with the cover visible. Switch to tab 2 as you say “this text.”
 
 **Say**
 
-> Let me show you. This is a fictional bank text asking for a verification code.
+> “We locked your bank account. Reply with your verification code.” If this text landed on your grandmother’s phone, what should she do in the next ten seconds? I’m Kartikeya. William and I built Scam Drift for that moment.
 
-**Do** · Click **Check a text** below the box. Look for the result card beside the form. On a narrow window, it is below the form. Point to **RED** and **Stop and verify the request.** Then move the pointer to the advice about keeping the code private and using the official app or a trusted number. If the card does not appear within three seconds, press **Ctrl+4** and say “Here’s the saved result from the same message.” Then read the next lines.
+## 0:15–0:55 | Run the live check
 
-**Say**
-
-> Scam Drift flags the request for a verification code. It tells you what to do next. Keep the code private, then open the bank app you already use or call a number you trust. Even a GREEN result leaves the sender unverified. You just saw our current demo. The chart shows what we measured in the submitted study.
-
-## 1:05–2:15 | Show the evidence
-
-**Do** · After saying “submitted study,” click tab 3 or press **Ctrl+3**. Start at the left gray bar at “76 percent.” Move to the left orange bar at “97 percent” and then to the middle orange bar at “597.”
+**Do** · Point to the message you already pasted. Click **Check a text** as you say “check it.”
 
 **Say**
 
-> The old filter caught about 76 percent of 1,080 reported scams from 2022 to 2024. After we retrained it on newer scams, it caught about 97 percent. Here’s the catch. In our test on 600 genuine texts from one inbox, it flagged 597 of them. Imagine getting a warning almost every time a legitimate text comes in.
+> I’ll check it right here.
 
-**Do** · Point to the middle blue bar at “427.” Point to the left blue bar at “96 percent.”
-
-**Say**
-
-> So we also trained the filter on genuine modern texts. False alarms fell from 597 to 427 out of 600. It still caught about 96 percent of the reported scams. That’s progress, and 71 percent false alarms is still too high for everyday use.
-
-## 2:15–2:45 | Thank the judges
-
-**Do** · Leave the chart on screen. Stop sharing after you say thank you.
+**Do** · Point to **RED** and **Stop and verify the request.** Then point to the instructions below. If the result takes more than three seconds, switch to tab 4 and say “Here’s the saved result for the same message.” Continue with the next line.
 
 **Say**
 
-> The old and new datasets were collected differently, so we can’t say how much of the gap came from time. And our genuine test sample came from one inbox. My next step would be to test more inboxes with people’s consent and see whether older adults know what to do after a warning. That’s the decision Scam Drift was built to help with. Thank you.
+> Red means stop and verify. Keep the code private. Open your bank app yourself or call the number on your card. We designed the checker around that next step. Even when it shows green, the sender is still unverified. Building the checker raised a question for us. How many of today’s scams would an older filter catch?
+
+## 0:55–2:05 | Show what the experiment found
+
+**Do** · Switch to tab 3 as you say “in our submitted study.” Point to the gray bar in the left group at “76 percent,” then the orange bar in that group at “97 percent.” Move to the middle orange bar at “597.”
+
+**Say**
+
+> In our submitted study, a filter trained on 2012 texts caught about 76 percent of 1,080 scams reported from 2022 to 2024. Retraining on more recent scams got us to about 97 percent. I thought that sounded like a win. Then we tested it on genuine texts. It flagged 597 out of 600 from one inbox. If almost every text sets off an alarm, how long before you start ignoring it?
+
+**Do** · Point to the middle blue bar at “427,” then the left blue bar at “96 percent.”
+
+**Say**
+
+> So we added genuine modern texts to training. False alarms dropped to 427 out of 600, and the filter still caught about 96 percent of the reported scams. The blue bars show why both numbers matter. We kept most of the scam detection, and the checker would still warn far too often on that inbox.
+
+## 2:05–2:45 | End with what you would test next
+
+**Do** · Leave the chart visible. Stop sharing after you say thank you.
+
+**Say**
+
+> These datasets were collected differently, so we can’t say how much of the gap came from time. And the false-alarm numbers here come from one inbox. Next I’d test on more inboxes with permission. I’d also ask older adults to try the checker and see if they know what to do after the warning. That’s what I want Scam Drift to get right. Thank you.
+
 
 **If you lose your place** · Old filter 76%. Retrained 97% and 597 false alarms. With genuine training texts, 96% and 427 false alarms. Both false-alarm counts are out of 600 genuine texts from one inbox.
 
