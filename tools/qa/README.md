@@ -1,6 +1,6 @@
 # Scam Drift Q&A companion
 
-[Windows download](https://github.com/KnigguKniggu-droid/scam-drift/releases/tag/finals-qa-windows) · [Claude Code setup handoff](CLAUDE_SETUP.md) · [Quick start](QUICK_START.txt)
+[macOS setup](MAC_SETUP.md) · [Windows download](https://github.com/KnigguKniggu-droid/scam-drift/releases/tag/finals-qa-windows) · [Claude Code setup handoff](CLAUDE_SETUP.md)
 
 The Windows companion listens to default playback using WASAPI loopback. Local Vosk transcription waits for the host’s Q&A cue, then the panel shows a suggested answer. It starts armed. **Start Q&A now** bypasses a missed handoff, and **Test with mic** uses your microphone after you stop playback capture. The app does not change Zoom settings.
 

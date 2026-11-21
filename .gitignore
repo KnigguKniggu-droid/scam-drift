@@ -16,3 +16,5 @@ data/raw/extra/
 # agent workflow plumbing (contains private details): kept local
 tools/wf_v2.js
 qa/
+tools/qa/.mac-runtime/
+tools/qa/vosk-model-small-en-us-0.15/

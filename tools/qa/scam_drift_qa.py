@@ -17,10 +17,15 @@ from tkinter import simpledialog, ttk
 
 ROOT = Path(__file__).resolve().parent
 BRIDGE = ROOT / "OpenCluely Q&A edition" / "resources" / "app" / "scam-drift-bridge.cjs"
+if sys.platform == "darwin":
+    BRIDGE = ROOT / ".mac-runtime" / "opencluely" / "scam-drift-bridge.cjs"
 sys.path.insert(0, str(ROOT / "qa-audio-deps"))
 
 import numpy as np
-import pyaudiowpatch as audio
+if sys.platform == "darwin":
+    import sounddevice as mac_audio
+else:
+    import pyaudiowpatch as audio
 import soxr
 from vosk import KaldiRecognizer, Model, SetLogLevel
 
@@ -205,7 +210,8 @@ class OpenCluelyBridge:
     def has_key(self):
         if self.session_key or os.environ.get("GEMINI_API_KEY"):
             return True
-        path = Path(os.environ.get("APPDATA", ROOT)) / "opencluely" / ".env"
+        path = (Path.home() / "Library" / "Application Support" / "opencluely" / ".env"
+                if sys.platform == "darwin" else Path(os.environ.get("APPDATA", ROOT)) / "opencluely" / ".env")
         try:
             match = re.search(r"^\s*GEMINI_API_KEY\s*=\s*([^\r\n]+)", path.read_text(encoding="utf-8-sig"), re.M)
             value = match.group(1).strip().strip("'\"") if match else ""
@@ -230,7 +236,7 @@ class OpenCluelyBridge:
             self.process = subprocess.Popen(
                 [node, str(BRIDGE)], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                 stderr=subprocess.DEVNULL, text=True, encoding="utf-8", bufsize=1,
-                creationflags=subprocess.CREATE_NO_WINDOW, env=env,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), env=env,
             )
             threading.Thread(target=self.read, args=(self.process,), daemon=True).start()
         self.process.stdin.write(json.dumps({"id": request_id, "question": question}) + "\n")
@@ -253,6 +259,8 @@ class OpenCluelyBridge:
 
 
 def listen(model, stop, emit, ready=None, microphone=False):
+    if sys.platform == "darwin":
+        return listen_mac(model, stop, emit, ready, microphone)
     with audio.PyAudio() as device:
         endpoint = device.get_default_wasapi_device(d_out=False) if microphone else device.get_default_wasapi_loopback()
         rate = round(endpoint["defaultSampleRate"])
@@ -292,6 +300,50 @@ def listen(model, stop, emit, ready=None, microphone=False):
                     text = json.loads(recognizer.PartialResult()).get("partial", "")
                     if text:
                         emit("partial", text)
+
+
+def listen_mac(model, stop, emit, ready, microphone):
+    devices = mac_audio.query_devices()
+    if microphone:
+        index = int(mac_audio.default.device[0])
+    else:
+        index = next((i for i, device in enumerate(devices)
+                      if device["max_input_channels"] >= 2 and "blackhole 2ch" in device["name"].lower()), -1)
+    if index < 0:
+        raise RuntimeError("No microphone found." if microphone else
+                           "BlackHole 2ch is missing. Follow MAC_SETUP.md or type a question.")
+    endpoint = devices[index]
+    rate = round(endpoint["default_samplerate"])
+    channels = 1 if microphone else 2
+    resampler = soxr.ResampleStream(rate, 16000, 1, dtype="int16")
+    recognizer = KaldiRecognizer(model, 16000)
+    chunks = queue.Queue(maxsize=20)
+
+    def capture(raw, _frames, _time, _status):
+        try:
+            chunks.put_nowait(bytes(raw))
+        except queue.Full:
+            return
+
+    with mac_audio.RawInputStream(device=index, samplerate=rate, channels=channels,
+                                  dtype="int16", blocksize=rate // 10, callback=capture):
+        emit("status", f"{'Mic rehearsal' if microphone else 'Listening to'} {endpoint['name']}")
+        if ready:
+            ready.set()
+        while not stop.is_set():
+            try:
+                raw = chunks.get(timeout=0.2)
+            except queue.Empty:
+                continue
+            samples = np.frombuffer(raw, np.int16).reshape(-1, channels)
+            mono = samples.astype(np.int32).mean(axis=1).astype(np.int16)
+            packet = resampler.resample_chunk(mono).tobytes()
+            if not packet:
+                continue
+            final = recognizer.AcceptWaveform(packet)
+            result = json.loads(recognizer.Result() if final else recognizer.PartialResult())
+            if text := result.get("text" if final else "partial"):
+                emit("final" if final else "partial", text)
 
 
 def test_loopback(model, wav_path, expected):

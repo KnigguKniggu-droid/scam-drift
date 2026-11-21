@@ -1,10 +1,12 @@
 const fs = require('node:fs');
 const path = require('node:path');
+const os = require('node:os');
 const readline = require('node:readline');
 
 const emit = data => process.stdout.write(`${JSON.stringify(data)}\n`);
 const appData = process.env.APPDATA;
 if (appData) require('dotenv').config({ path: path.join(appData, 'opencluely', '.env'), quiet: true });
+if (process.platform === 'darwin') require('dotenv').config({ path: path.join(os.homedir(), 'Library', 'Application Support', 'opencluely', '.env'), quiet: true });
 const llm = require('./src/services/llm.service');
 const config = require('./src/core/config');
 const project = fs.readFileSync(path.join(__dirname, 'prompts', 'scam-drift.md'), 'utf8');
